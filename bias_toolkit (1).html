@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>バイアス認知ツールキット | filagu</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&display=swap');
+
+  :root {
+    --インク: #1a1a1a;
+    --インク薄: #4a4a4a;
+    --インク淡: #8a8a8a;
+    --紙: #f7f4ef;
+    --紙暗: #ede9e1;
+    --罫線: #d0c8bc;
+    --緑: #2c4a3e;
+    --茶: #6b3a2a;
+    --紺: #3a3a6b;
+    --緑薄: #4a7c68;
+    --黄: #e8d5a3;
+    --黄薄: #f2e8c8;
+    --赤: #8b2e2e;
+    --格子: rgba(0,0,0,0.04);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Meiryo', 'メイリオ', 'Noto Serif JP', serif;
+    background: var(--紙);
+    color: var(--インク);
+    line-height: 1.8;
+    font-size: 13px;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--格子) 1px, transparent 1px),
+      linear-gradient(90deg, var(--格子) 1px, transparent 1px);
+    background-size: 24px 24px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .nav {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 0;
+    position: relative;
+    z-index: 2;
+  }
+
+  .nav-btn {
+    font-family: 'Meiryo', 'メイリオ', serif;
+    font-size: 12px;
+    padding: 10px 22px;
+    border: 1.5px solid var(--罫線);
+    border-bottom: none;
+    background: var(--紙暗);
+    color: var(--インク淡);
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    transition: all 0.2s;
+    border-radius: 4px 4px 0 0;
+  }
+
+  .nav-btn.active {
+    background: var(--紙);
+    color: var(--インク);
+    border-color: var(--罫線);
+    font-weight: bold;
+  }
+
+  .sheet {
+    display: none;
+    border: 1.5px solid var(--罫線);
+    background: var(--紙);
+    padding: 40px 44px;
+    position: relative;
+  }
+
+  .sheet.active { display: block; }
+
+  .sheet::before {
+    content: '';
+    position: absolute;
+    left: 18px; top: 0; bottom: 0;
+    width: 1px;
+    background: repeating-linear-gradient(to bottom, transparent 0px, transparent 28px, var(--罫線) 28px, var(--罫線) 30px);
+  }
+
+  .sheet-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--インク);
+  }
+
+  .sheet-label {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    color: var(--インク淡);
+    margin-bottom: 6px;
+  }
+
+  .sheet-title {
+    font-size: 20px;
+    font-weight: bold;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+    color: var(--インク);
+  }
+
+  .sheet-title span {
+    display: block;
+    font-size: 11px;
+    font-weight: normal;
+    color: var(--インク淡);
+    letter-spacing: 0.08em;
+    margin-top: 4px;
+  }
+
+  .sheet-meta {
+    text-align: right;
+    font-size: 10px;
+    color: var(--インク淡);
+    letter-spacing: 0.08em;
+    line-height: 2;
+  }
+
+  .core-message {
+    background: var(--緑);
+    color: #f0f4f2;
+    padding: 16px 22px;
+    margin-bottom: 32px;
+    border-radius: 2px;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    line-height: 2;
+    position: relative;
+  }
+
+  .core-message::before {
+    content: '""';
+    position: absolute;
+    top: -4px; left: 16px;
+    font-size: 32px;
+    color: rgba(255,255,255,0.15);
+    font-family: Georgia, serif;
+    line-height: 1;
+  }
+
+  .section-title {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--緑);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--緑);
+    opacity: 0.3;
+  }
+
+  .question-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .question-card {
+    border: 1px solid var(--罫線);
+    background: white;
+    padding: 18px 20px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .question-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: var(--緑);
+  }
+
+  .question-card.type-2::before { background: var(--茶); }
+  .question-card.type-3::before { background: var(--紺); }
+
+  .q-number {
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--紙暗);
+    line-height: 1;
+    padding-top: 4px;
+    font-family: Georgia, serif;
+    grid-row: span 5;
+    align-self: center;
+  }
+
+  .q-scene {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    color: var(--インク淡);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .q-scene::before { content: '▸'; font-size: 8px; }
+
+  .q-main {
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: 0.02em;
+    color: var(--インク);
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+
+  .q-mechanism {
+    font-size: 11px;
+    color: var(--インク薄);
+    line-height: 1.8;
+    margin-bottom: 8px;
+    padding: 8px 10px;
+    background: var(--紙暗);
+    border-left: 2px solid var(--罫線);
+  }
+
+  .q-mechanism strong {
+    color: var(--インク);
+    display: block;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    margin-bottom: 3px;
+  }
+
+  .q-ng {
+    font-size: 10px;
+    color: var(--赤);
+    background: #fdf0f0;
+    padding: 5px 10px;
+    border-left: 2px solid var(--赤);
+    margin-top: 4px;
+  }
+
+  .q-ng::before { content: '✕ NG例：'; font-weight: bold; }
+
+  .q-purpose {
+    font-size: 10px;
+    color: var(--緑薄);
+    margin-top: 8px;
+    font-style: italic;
+  }
+
+  .q-purpose::before { content: '→ この問いの本質：'; }
+
+  .bias-awareness {
+    background: var(--黄薄);
+    border: 1px solid var(--黄);
+    padding: 16px 20px;
+    margin-bottom: 32px;
+  }
+
+  .awareness-title {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--茶);
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+
+  .sign-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .sign-item {
+    background: white;
+    border: 1px solid var(--罫線);
+    padding: 10px 12px;
+    text-align: center;
+  }
+
+  .sign-label {
+    font-size: 9px;
+    color: var(--インク淡);
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+  }
+
+  .sign-text {
+    font-size: 11px;
+    color: var(--インク);
+    font-weight: bold;
+    line-height: 1.6;
+  }
+
+  .reset-protocol {
+    border: 2px solid var(--インク);
+    padding: 20px 24px;
+    position: relative;
+  }
+
+  .reset-protocol .stamp {
+    position: absolute;
+    top: 12px; right: 16px;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--緑);
+    border: 1px solid var(--緑);
+    padding: 2px 8px;
+  }
+
+  .reset-steps {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    gap: 8px;
+    margin-top: 12px;
+    align-items: center;
+  }
+
+  .reset-step { text-align: center; }
+
+  .step-num {
+    font-size: 22px;
+    color: var(--紙暗);
+    font-weight: bold;
+    font-family: Georgia, serif;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .step-action {
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--インク);
+    margin-bottom: 3px;
+  }
+
+  .step-detail {
+    font-size: 10px;
+    color: var(--インク薄);
+    line-height: 1.6;
+  }
+
+  .step-arrow {
+    color: var(--罫線);
+    font-size: 18px;
+    text-align: center;
+  }
+
+  /* 診断シート */
+  .diagnosis-intro {
+    font-size: 12px;
+    color: var(--インク薄);
+    margin-bottom: 24px;
+    line-height: 1.9;
+    border-left: 3px solid var(--緑);
+    padding-left: 14px;
+  }
+
+  .diag-instructions {
+    background: var(--紙暗);
+    border: 1px solid var(--罫線);
+    padding: 12px 16px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 11px;
+    color: var(--インク薄);
+  }
+
+  .diag-instructions strong {
+    color: var(--インク);
+    font-size: 13px;
+  }
+
+  .bias-block {
+    border: 1px solid var(--罫線);
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  .bias-block-header {
+    padding: 14px 18px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+
+  .bias-block:nth-child(1) .bias-block-header { background: #f0f7f3; border-left: 4px solid #2c4a3e; }
+  .bias-block:nth-child(2) .bias-block-header { background: #faf4f0; border-left: 4px solid #6b3a2a; }
+  .bias-block:nth-child(3) .bias-block-header { background: #f0f0f7; border-left: 4px solid #3a3a6b; }
+
+  .bias-icon { font-size: 22px; width: 36px; text-align: center; }
+
+  .bias-type-label {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--インク淡);
+    margin-bottom: 2px;
+  }
+
+  .bias-name {
+    font-size: 15px;
+    font-weight: bold;
+    letter-spacing: 0.04em;
+  }
+
+  .bias-name sub {
+    font-size: 10px;
+    font-weight: normal;
+    color: var(--インク淡);
+    margin-left: 6px;
+    vertical-align: baseline;
+  }
+
+  .bias-score-preview {
+    font-size: 10px;
+    color: var(--インク淡);
+    text-align: right;
+  }
+
+  .bias-score-preview .score-num {
+    font-size: 22px;
+    font-weight: bold;
+    color: var(--インク);
+    font-family: Georgia, serif;
+    display: block;
+    line-height: 1;
+  }
+
+  .bias-questions {
+    padding: 0 18px 16px;
+    border-top: 1px solid var(--罫線);
+    display: none;
+  }
+
+  .bias-block.open .bias-questions { display: block; }
+  .bias-questions.always-open { display: block !important; }
+
+  .diag-q {
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .diag-q:last-child { border-bottom: none; }
+
+  .diag-q-num {
+    font-size: 10px;
+    color: var(--インク淡);
+    width: 20px;
+    padding-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .diag-q-text {
+    flex: 1;
+    font-size: 12px;
+    color: var(--インク);
+    line-height: 1.7;
+  }
+
+  .diag-q-opts {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+    align-items: center;
+  }
+
+  .opt-btn {
+    font-family: 'Meiryo', 'メイリオ', serif;
+    font-size: 10px;
+    padding: 4px 10px;
+    border: 1px solid var(--罫線);
+    background: white;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--インク薄);
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+
+  .opt-btn:hover { border-color: var(--インク薄); color: var(--インク); }
+
+  .opt-btn.selected-yes {
+    background: var(--緑);
+    border-color: var(--緑);
+    color: white;
+    font-weight: bold;
+  }
+
+  .opt-btn.selected-no {
+    background: var(--紙暗);
+    border-color: var(--罫線);
+    color: var(--インク淡);
+  }
+
+  .result-area {
+    margin-top: 28px;
+    border: 2px solid var(--インク);
+    overflow: hidden;
+    display: none;
+  }
+
+  .result-area.visible { display: block; }
+
+  .result-header {
+    background: var(--インク);
+    color: var(--紙);
+    padding: 12px 20px;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+  }
+
+  .result-body { padding: 20px 24px; }
+
+  .result-bars {
+    display: grid;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .result-row {
+    display: grid;
+    grid-template-columns: 130px 1fr auto;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .result-label {
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+  }
+
+  .result-bar-wrap {
+    height: 12px;
+    background: var(--紙暗);
+    border: 1px solid var(--罫線);
+    overflow: hidden;
+  }
+
+  .result-bar-fill {
+    height: 100%;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 0%;
+  }
+
+  .bar-type-0 { background: #2c4a3e; }
+  .bar-type-1 { background: #6b3a2a; }
+  .bar-type-2 { background: #3a3a6b; }
+
+  .result-count {
+    font-size: 11px;
+    color: var(--インク淡);
+    width: 40px;
+    text-align: right;
+  }
+
+  .result-dominant {
+    background: var(--黄薄);
+    border: 1px solid var(--黄);
+    padding: 14px 18px;
+    margin-top: 4px;
+  }
+
+  .dominant-label {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--インク淡);
+    margin-bottom: 6px;
+  }
+
+  .dominant-name {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+
+  .dominant-desc {
+    font-size: 11px;
+    color: var(--インク薄);
+    line-height: 1.9;
+  }
+
+  .dominant-why {
+    font-size: 11px;
+    color: var(--インク薄);
+    line-height: 1.9;
+    background: white;
+    border: 1px solid var(--罫線);
+    padding: 8px 12px;
+    margin-top: 10px;
+  }
+
+  .dominant-why strong {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--インク淡);
+    margin-bottom: 3px;
+  }
+
+  .result-action {
+    margin-top: 14px;
+    padding: 12px 16px;
+    background: var(--緑);
+    color: white;
+    font-size: 11px;
+    line-height: 1.9;
+    letter-spacing: 0.04em;
+  }
+
+  .result-action strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+
+  .run-btn {
+    font-family: 'Meiryo', 'メイリオ', serif;
+    display: block;
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px;
+    background: var(--インク);
+    color: var(--紙);
+    border: none;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .run-btn:hover { background: var(--緑); }
+
+  .reset-btn {
+    font-family: 'Meiryo', 'メイリオ', serif;
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px;
+    background: transparent;
+    color: var(--インク淡);
+    border: 1px solid var(--罫線);
+    font-size: 11px;
+    cursor: pointer;
+    letter-spacing: 0.1em;
+  }
+
+  .reset-btn:hover { color: var(--インク); border-color: var(--インク); }
+
+  .sheet-footer {
+    margin-top: 32px;
+    padding-top: 16px;
+    border-top: 1px solid var(--罫線);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 9px;
+    color: var(--インク淡);
+    letter-spacing: 0.1em;
+  }
+
+  .toggle-icon {
+    font-size: 12px;
+    transition: transform 0.2s;
+    color: var(--インク淡);
+  }
+
+  .bias-block.open .toggle-icon { transform: rotate(180deg); }
+
+  .progress-indicator {
+    font-size: 10px;
+    color: var(--インク淡);
+    text-align: right;
+    margin-bottom: 12px;
+  }
+
+  .progress-indicator span {
+    color: var(--インク);
+    font-weight: bold;
+  }
+
+  @media print {
+    body::before { display: none; }
+    .nav { display: none; }
+    .sheet { display: block !important; page-break-after: always; }
+    .bias-questions { display: block !important; }
+    .opt-btn, .run-btn, .reset-btn { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="nav">
+    <button class="nav-btn active" onclick="switchTab('cheat')">問いかけシート</button>
+    <button class="nav-btn" onclick="switchTab('diag')">バイアス傾向診断</button>
+  </div>
+
+  <!-- 問いかけシート -->
+  <div id="sheet-cheat" class="sheet active">
+
+    <div class="sheet-header">
+      <div>
+        <div class="sheet-label">バイアスを外す問いかけシート · filagu</div>
+        <div class="sheet-title">
+          問いかけシート
+          <span>明日の1on1でそのまま使える「バイアスを外す問い」</span>
+        </div>
+      </div>
+      <div class="sheet-meta">filagu<br>マネージャー向け<br>v1.0</div>
+    </div>
+
+    <div class="core-message">
+      「質問」は答えを引き出す。「問い」はともに考えるきっかけをつくる。<br>
+      バイアスから抜け出した問いは、相手を変えようとするためにあるのではない。<strong style="color:#a8d5c0">自分の見え方を更新するためにある。</strong>
+    </div>
+
+    <div class="section-title">3つの核心的な問いかけ</div>
+
+    <div class="question-grid">
+
+      <div class="question-card">
+        <div class="q-number">01</div>
+        <div class="q-scene">使いどころ：1on1の冒頭 ／ 元気がなさそうなとき</div>
+        <div class="q-main">「今、一番気になっていることは何？」</div>
+        <div class="q-mechanism">
+          <strong>なぜこの問いがバイアスに効くのか</strong>
+          「最近どう？」は漠然としているため、相手も漠然と答える。「一番」と焦点を絞ることで、相手は自分の内側を探し始める。その探す過程で、マネージャーが持っていた「あの人はこういう状況だ」という先入観が更新される。問いかける前に浮かんだ「予測の答え」と実際の答えがズレたとき、それがバイアスに気づく瞬間だ。
+        </div>
+        <div class="q-ng">「何か問題ある？」——「問題がある前提」が相手を防御的にする。</div>
+        <div class="q-purpose">自分が見えていなかったものを、相手に教えてもらうための問い。</div>
+      </div>
+
+      <div class="question-card type-2">
+        <div class="q-number" style="color:#e0cfc8">02</div>
+        <div class="q-scene" style="color:#a07060">使いどころ：行動が止まっているメンバーへ</div>
+        <div class="q-main">「今、どこで詰まっている？」</div>
+        <div class="q-mechanism">
+          <strong>なぜこの問いがバイアスに効くのか</strong>
+          行動が止まると「やる気がない」「覚悟が足りない」という成功体験バイアスが作動しやすい。「どこで」と場所を問うことで、原因を「性格・意欲」ではなく「状況・環境」に向ける。これにより、マネージャー自身が「原因を本人に帰属させていた」という自分のフィルターに気づきやすくなる。
+        </div>
+        <div class="q-ng" style="color:#8b2e2e;border-color:#8b2e2e">「なんで進んでないの？」——原因追及のニュアンスが相手を追い詰め、守りに入らせる。</div>
+        <div class="q-purpose" style="color:#8b6a58">自分が見えていなかった障害を、相手と一緒に探すための問い。</div>
+      </div>
+
+      <div class="question-card type-3">
+        <div class="q-number" style="color:#c8c8e0">03</div>
+        <div class="q-scene" style="color:#6060a0">使いどころ：自分が答えを先に出しそうになったとき</div>
+        <div class="q-main">「あなたはどうしたい？」</div>
+        <div class="q-mechanism">
+          <strong>なぜこの問いがバイアスに効くのか</strong>
+          マネージャーが先に答えを示すと、「自分ならこうする」という成功の型バイアスが全面に出る。主語を「あなた」に移すだけで、相手は考える人になり、マネージャーは観察する人になる。相手の答えが「この人はこういう人だ」という事前の決めつけと違うとき、その驚きが決めつけバイアスの更新につながる。「自分が思っていた答えと違った」という経験が、人物像の固定化を解く入口になる。
+        </div>
+        <div class="q-ng" style="color:#8b2e2e;border-color:#8b2e2e">「自分だったらこうするけど、どう思う？」——答えを先に示すと相手の思考はそこで止まる。</div>
+        <div class="q-purpose" style="color:#6060a0">自分がまだ知らない相手の考えを、はじめて見るための問い。</div>
+      </div>
+
+    </div>
+
+    <div class="section-title">バイアス作動サイン ——この感覚が浮かんだら、一度立ち止まる</div>
+
+    <div class="bias-awareness">
+      <div class="awareness-title">バイアス作動サイン · 3つのタイプ</div>
+      <div class="sign-grid">
+        <div class="sign-item">
+          <div class="sign-label" style="color:#2c4a3e">タイプ 01 · 当たり前の空気</div>
+          <div class="sign-text">「なんでそんなことも<br>わからないんだ」</div>
+        </div>
+        <div class="sign-item">
+          <div class="sign-label" style="color:#6b3a2a">タイプ 02 · 成功の型</div>
+          <div class="sign-text">「根性が足りない」<br>「覚悟がない」</div>
+        </div>
+        <div class="sign-item">
+          <div class="sign-label" style="color:#3a3a6b">タイプ 03 · 決めつけ</div>
+          <div class="sign-text">「やっぱりそうか」が<br>続くとき</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">バイアスリセット · 3ステップ</div>
+
+    <div class="reset-protocol">
+      <div class="stamp">バイアスリセット</div>
+      <div style="font-size:11px;color:var(--インク薄);margin-bottom:4px;letter-spacing:0.06em">
+        サインが浮かんだとき、この流れで問いをリセットする
+      </div>
+      <div class="reset-steps">
+        <div class="reset-step">
+          <div class="step-num">01</div>
+          <div class="step-action">仮定を置く</div>
+          <div class="step-detail">「自分はこの人のことを<br>まだわかっていない<br>かもしれない」</div>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="reset-step">
+          <div class="step-num">02</div>
+          <div class="step-action">サインを名指す</div>
+          <div class="step-detail">上の3つのサインのどれが<br>浮かんでいるかを<br>確認する</div>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="reset-step">
+          <div class="step-num">03</div>
+          <div class="step-action">問いを変える</div>
+          <div class="step-detail">3つの問いかけの<br>いずれかを<br>使ってみる</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sheet-footer">
+      <span>filagu · 気づきの物語を紡ぐ、人と学びのキュレーター</span>
+      <span>© 2026 まさ / filagu</span>
+    </div>
+  </div>
+
+
+  <!-- バイアス傾向診断 -->
+  <div id="sheet-diag" class="sheet">
+
+    <div class="sheet-header">
+      <div>
+        <div class="sheet-label">バイアス傾向 自己診断シート · filagu</div>
+        <div class="sheet-title">
+          バイアス傾向診断
+          <span>自分はどのタイプの思い込みを持ちやすいか</span>
+        </div>
+      </div>
+      <div class="sheet-meta">filagu<br>自己診断<br>v1.0</div>
+    </div>
+
+    <p class="diagnosis-intro">
+      どのタイプも、悪意から生まれたものではない。経験から生まれた枠組みだからこそ、自分では気づきにくい。
+      大事なのは分類することではなく、「今、自分はどのフィルターで見ているか」に気づく習慣をつくることだ。
+      まず自分のパターンを知ることが、その入口になる。
+    </p>
+
+    <div class="diag-instructions">
+      <div style="font-size:20px">📋</div>
+      <div>
+        <strong>使い方</strong><br>
+        各設問について「当てはまる」「当てはまらない」を選んでください。直感で答えるのがコツです。全問回答後、「診断する」ボタンを押すと結果が表示されます。
+      </div>
+    </div>
+
+    <div class="progress-indicator">
+      回答済み：<span id="answered-count">0</span> / 15 問
+    </div>
+
+    <!-- タイプ 01 -->
+    <div class="bias-block open" id="block-0">
+      <div class="bias-block-header" onclick="toggleBlock(0)">
+        <div class="bias-icon">🌫️</div>
+        <div class="bias-name-group">
+          <div class="bias-type-label">タイプ 01</div>
+          <div class="bias-name" style="color:#2c4a3e">当たり前の空気<sub>環境に染まったフィルター</sub></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="bias-score-preview"><span class="score-num" id="score-0">—</span>該当</div>
+          <div class="toggle-icon">▼</div>
+        </div>
+      </div>
+      <div class="bias-questions always-open" id="questions-0">
+        <div class="diag-q">
+          <div class="diag-q-num">Q1</div>
+          <div class="diag-q-text">新入社員や転職者が「なぜこのやり方なんですか？」と聞いてきたとき、「うちはそういうものだから」と感じたことがある。</div>
+          <div class="diag-q-opts">
+            <button class="opt-btn" onclick="answer(0,0,1,this)">当てはまる</button>
+            <button class="opt-btn" onclick="answer(0,0,0,this)">当てはまらない</button>
+          </div>
+        </div>
+        <div class="diag-q">
+          <div class="diag-q-num">Q2</div>
+          <div class="diag-q-text">「他社ではこうしている」という話を聞いたとき、「うちとは環境が違うから」と思って聞き流したことがある。</div>
+          <div class="diag-q-opts">
+            <button class="opt-btn" onclick="answer(0,1,1,this)">当てはまる</button>
+            <button class="opt-btn" onclick="answer(0,1,0,this)">当てはまらない</button>
+          </div>
+        </div>
+        <div class="diag-q">
+          <div class="diag-q-num">Q3</div>
+          <div class="diag-q-text">チームの暗黙のルールや雰囲気を、新しいメンバーも当然わかっているはずだと思って伝えなかったことがある。</div>
+          <div class="diag-q-opts">
+            <button class="opt-btn" onclick="answer(0,2,1,this)">当てはまる</button>
+            <button class="opt-btn" onclick="answer(0,2,0,this)">当てはまらない</button>
+          </div>
+        </div>
+        <div class="diag-q">
+          <div class="diag-q-num">Q4</div>
+          <div class="diag-q-text">「前はこれで問題なかったのに」と感じて、新しいやり方の提案に対して慎重になったことがある。</div>
+          <div class="diag-q-opts">
+            <button class="opt-btn" onclick="answer(0,3,1,this)">当てはまる</button>
+            <button class="opt-btn" onclick="answer(0,3,0,this)">当てはまらない</button>
+          </div>
+        </div>
+        <div class="diag-q">
+          <div class="diag-q-num">Q5</div>
+          <div class="diag-q-text">部下の疑問や提案に対して、内容を吟味する前に「経験が浅いから仕方ない」と思ったことがある。</div>
+          <div class="diag-q-opts">
+            <button class="opt-btn" onclick="answer(0,4,1,this)">当てはまる</button>
+            <button class="opt-btn" onclick="answer(0,4,0,this)">当てはまらない</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- タイプ 02 -->
+    <div class="bias-block open" id="block-1">
+      <div class="bias-block-header" onclick="toggleBlock(1)">
+        <div class="bias-icon">🏆</div>
+        <div class="bias-name-group">
+          <div class="bias-type-label">タイプ 02</div>
+          <div class="bias-name" style="color:#6b3a2a">成功の型<sub>自分の経験が正解フィルターになる</sub></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="bias-score-preview"><span class="score-num" id="score-1">—</span>該当</div>
+          <div class="toggle-icon">▼</div>
+        </div>
+      </div>
+      <div class="bias-questions always-open" id="questions-1">
+        <div class="diag-q">
+          <div class="diag-q-num">Q6</div>
+          <div class="diag-q-text">部下が悩んでいるとき、相手の話を最後まで聞く前に「自分のときはこうして乗り越えた」という話をしてしまうことがある。</div>
+          <div class="diag-q-opts">
+            <button class="opt-btn" onclick="answer(1,0,1,this)">当てはまる</button>
+            <button class="opt-btn" onclick="answer(1,0,0,this)">当てはまらない</button>
+          </div>
+        </div>
+        <div class="diag-q">
+          <div class="diag-q-num">Q7</div>
+          <div class="diag-q-text">部下の結果が出ないとき、環境や状況より先に「本人の気持ちの問題」だと感じることがある。</div>
+          <div class="diag-q-opts">
+            <button class="opt-btn" onclick="answer(1,1,1,this)">当てはまる</button>
+            <button class="opt-btn" onclick="answer(1,1,0,this)">当てはまらない</button>
+          </div>
+        </div>
+        <div class="diag-q">
+          <div class="diag-q-num">Q8</div>
+          <div class="diag-q-text">部下からの相談を聞きながら、「自分ならこうする」という答えが先に頭に浮かんでいることがある。</div>
+          <div class="diag-q-opts">
+            <button class="opt-btn" onclick="answer(1,2,1,this)">当てはまる</button>
+            <button class="opt-btn" onclick="answer(1,2,0,this)">当てはまらない</button>
+          </div>
+        </div>
+        <div class="diag-q">
+          <div class="diag-q-num">Q9</div>
+          <div class="diag-q-text">1on1で「どうしたいですか？」と聞く前に、すでに「こうすべき」という答えを持って臨んでいることがある。</div>
+          <div class="diag-q-opts">
+            <button class="opt-btn" onclick="answer(1,3,1,this)">当てはまる</button>
+            <button class="opt-btn" onclick="answer(1,3,0,this)">当てはまらない</button>
+          </div>
+        </div>
+        <div class="diag-q">
+          <div class="diag-q-num">Q10</div>
+          <div class="diag-q-text">部下が自分とは違うアプローチを選んだとき、結果が出ていても「遠回りをしている」と感じることがある。</div>
+          <div class="diag-q-opts">
+            <button class="opt-btn" onclick="answer(1,4,1,this)">当てはまる</button>
+            <button class="opt-btn" onclick="answer(1,4,0,this)">当てはまらない</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- タイプ 03 -->
+    <div class="bias-block open" id="block-2">
+      <div class="bias-block-header" onclick="toggleBlock(2)">
+        <div class="bias-icon">🔍</div>
+        <div class="bias-name-group">
+          <div class="bias-type-label">タイプ 03</div>
+          <div class="bias-name" style="color:#3a3a6b">決めつけ<sub>最初の判断が確認装置になる</sub></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="bias-score-preview"><span class="score-num" id="score-2">—</span>該当</div>
+          <div class="toggle-icon">▼</div>
+        </div>
+      </div>
+      <div class="bias-questions always-open" id="questions-2">
+        <div class="diag-q">
+          <div class="diag-q-num">Q11</div>
+          <div class="diag-q-text">ある部下について「この人はこういう人だ」と一度決めると、それを覆す出来事が起きても「たまたまだ」と思ってしまうことがある。</div>
+          <div class="diag-q-opts">
+            <button class="opt-btn" onclick="answer(2,0,1,this)">当てはまる</button>
+            <button class="opt-btn" onclick="answer(2,0,0,this)">当てはまらない</button>
+          </div>
+        </div>
+        <div class="diag-q">
+          <div class="diag-q-num">Q12</div>
+          <div class="diag-q-text">1on1で部下の話を聞きながら、「やっぱりそういうことか」と思う瞬間が続いたことがある。</div>
+          <div class="diag-q-opts">
+            <button class="opt-btn" onclick="answer(2,1,1,this)">当てはまる</button>
+            <button class="opt-btn" onclick="answer(2,1,0,this)">当てはまらない</button>
+          </div>
+        </div>
+        <div class="diag-q">
+          <div class="diag-q-num">Q13</div>
+          <div class="diag-q-text">1on1の前に「今日はどうせこういう話になるだろう」と予測してから臨んでいることがある。</div>
+          <div class="diag-q-opts">
+            <button class="opt-btn" onclick="answer(2,2,1,this)">当てはまる</button>
+            <button class="opt-btn" onclick="answer(2,2,0,this)">当てはまらない</button>
+          </div>
+        </div>
+        <div class="diag-q">
+          <div class="diag-q-num">Q14</div>
+          <div class="diag-q-text">部下が反論や言い訳をしてきたとき、内容より先に「また同じパターンだ」と感じたことがある。</div>
+          <div class="diag-q-opts">
+            <button class="opt-btn" onclick="answer(2,3,1,this)">当てはまる</button>
+            <button class="opt-btn" onclick="answer(2,3,0,this)">当てはまらない</button>
+          </div>
+        </div>
+        <div class="diag-q">
+          <div class="diag-q-num">Q15</div>
+          <div class="diag-q-text">「あの部下はこういう人」という自分の評価が、半年以上ほとんど変わっていないことがある。</div>
+          <div class="diag-q-opts">
+            <button class="opt-btn" onclick="answer(2,4,1,this)">当てはまる</button>
+            <button class="opt-btn" onclick="answer(2,4,0,this)">当てはまらない</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="run-btn" onclick="runDiagnosis()">診断する →</button>
+    <button class="reset-btn" onclick="resetAll()">リセットして最初からやり直す</button>
+
+    <div class="result-area" id="result-area">
+      <div class="result-header">診断結果 · あなたのバイアス傾向</div>
+      <div class="result-body">
+        <div class="result-bars" id="result-bars"></div>
+        <div class="result-dominant" id="result-dominant"></div>
+        <div class="result-action" id="result-action"></div>
+      </div>
+    </div>
+
+    <div class="sheet-footer">
+      <span>filagu · 気づきの物語を紡ぐ、人と学びのキュレーター</span>
+      <span>© 2026 まさ / filagu</span>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+const scores = [[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]];
+const answered = [[null,null,null,null,null],[null,null,null,null,null],[null,null,null,null,null]];
+
+const typeData = [
+  {
+    name: '当たり前の空気',
+    color: '#2c4a3e',
+    desc: '長く同じ環境にいることで形成された「見えない前提」が、新しい視点や人を無意識にふるいにかけています。このバイアスは、自分では「常識的な判断をしている」と感じているため、最も気づきにくいタイプのひとつです。',
+    why: '経験年数が長いほど、この傾向は強くなりやすい。「当たり前」は積み重ねた知識ではなく、問い直しをやめた習慣から生まれることが多い。新しいメンバーの「なぜ？」は、あなたが見えなくなっているものを指していることがある。',
+    action: '「今、一番気になっていることは何？」から始めましょう。相手の言葉の文脈を先に受け取ることで、自分の前提を一度脇に置く練習になります。「なんでわからないんだ」という感覚が浮かんだとき、それがこのバイアスのサインです。'
+  },
+  {
+    name: '成功の型',
+    color: '#6b3a2a',
+    desc: '自分がうまくいった経験が「正解フィルター」として作動し、相手の話を聴く前に「こうあるべき」という結論が先に立つ傾向があります。1on1が「相手を理解する場」ではなく、「自分の信念が正しいことを確認する場」になっていないか、立ち止まってみてください。',
+    why: '成功体験は本物の資産だが、それが「唯一の正解」になったとき、他者の成長の可能性を狭める。「自分はこうして乗り越えた」は事実だが、相手が同じ文脈にいるとは限らない。問いかける前に答えを持っている状態は、すでに対話ではない。',
+    action: '「あなたはどうしたい？」を先に投げましょう。答えを渡すのではなく、相手が自分の答えにたどり着くのを待つこと。あなたの経験は「問い」の形で渡すのが、最も力を発揮します。'
+  },
+  {
+    name: '決めつけ',
+    color: '#3a3a6b',
+    desc: '「この人はこういう人だ」という初期判断が「確認装置」として作動し、新しい情報をその判断に沿って解釈し続ける傾向があります。自分では「ちゃんと観察している」と感じていることが多く、3つの中で最も自覚しにくいタイプです。',
+    why: '厄介なのは、相手が反論しても「やっぱりそういう人だから」になり、黙れば「認めたくないのだろう」になる点だ。観察しているのではなく、最初の判断を検証し続けている。「やっぱりそうか」という感覚が続くとき、それは気づきではなくバイアスの作動サインかもしれない。',
+    action: '「今、どこで詰まっている？」で状況・環境に焦点を向けましょう。相手の言動の原因を「性格」ではなく「状況」から探す問いを意識することが、このバイアスの解毒剤になります。'
+  }
+];
+
+function switchTab(tab) {
+  document.getElementById('sheet-cheat').classList.toggle('active', tab === 'cheat');
+  document.getElementById('sheet-diag').classList.toggle('active', tab === 'diag');
+  document.querySelectorAll('.nav-btn').forEach((b, i) => {
+    b.classList.toggle('active', (i === 0) === (tab === 'cheat'));
+  });
+}
+
+function toggleBlock(idx) {
+  document.getElementById('block-' + idx).classList.toggle('open');
+}
+
+function answer(type, index, val, btn) {
+  answered[type][index] = val;
+  scores[type][index] = val;
+  btn.closest('.diag-q').querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected-yes', 'selected-no'));
+  btn.classList.add(val ? 'selected-yes' : 'selected-no');
+  document.getElementById('score-' + type).textContent = scores[type].reduce((a, b) => a + b, 0);
+  let count = 0;
+  for (let t = 0; t < 3; t++) for (let i = 0; i < 5; i++) if (answered[t][i] !== null) count++;
+  document.getElementById('answered-count').textContent = count;
+}
+
+function runDiagnosis() {
+  let total = 0;
+  for (let t = 0; t < 3; t++) for (let i = 0; i < 5; i++) if (answered[t][i] !== null) total++;
+  if (total < 15) { alert('まだ ' + (15 - total) + ' 問が未回答です。すべて回答してから診断してください。'); return; }
+
+  const totals = scores.map(s => s.reduce((a, b) => a + b, 0));
+  const max = Math.max(...totals);
+
+  const barsEl = document.getElementById('result-bars');
+  barsEl.innerHTML = '';
+  typeData.forEach((t, i) => {
+    const row = document.createElement('div');
+    row.className = 'result-row';
+    row.innerHTML = '<div class="result-label" style="color:' + t.color + '">' + t.name + '</div><div class="result-bar-wrap"><div class="result-bar-fill bar-type-' + i + '" style="width:' + (totals[i] / 5 * 100) + '%"></div></div><div class="result-count">' + totals[i] + ' / 5</div>';
+    barsEl.appendChild(row);
+  });
+
+  const allZero = totals.every(t => t === 0);
+  const tiedTypes = totals.map((t, i) => ({ t, i })).filter(x => x.t === max);
+  let domHtml = '', actHtml = '';
+
+  if (allZero) {
+    domHtml = '<div class="dominant-label">診断結果</div><div class="dominant-name">バイアスの自覚度が高いタイプ</div><div class="dominant-desc">現時点では顕在化しているバイアス傾向は低い結果です。ただし、バイアスは無意識に作動するものです。定期的にこの診断を繰り返して、自分の変化を観察し続けることが重要です。</div><div class="dominant-why"><strong>なぜ定期的な確認が必要か</strong>バイアスは状況・役職・経験によって変化する。「今は大丈夫」ではなく、「今はどのフィルターが動いているか」を問い続けることが、長期的な成長につながる。</div>';
+    actHtml = '<strong>明日からのアクション</strong>3つの核心的な問いかけを意識的に使い続けることで、気づきの精度をさらに高めていきましょう。';
+  } else if (tiedTypes.length > 1) {
+    const names = tiedTypes.map(x => typeData[x.i].name).join(' × ');
+    domHtml = '<div class="dominant-label">診断結果 · 複合型</div><div class="dominant-name">' + names + ' の複合傾向</div><div class="dominant-desc">複数のバイアスが同程度に作動しやすい傾向があります。状況によって異なるフィルターが起動するため、「今、どのフィルターが動いているか」を意識する習慣が特に重要です。</div><div class="dominant-why"><strong>複合型の特徴</strong>複数のバイアスが組み合わさると、互いを補強し合う。例えば「成功の型」と「決めつけ」が重なると、1on1が「自分の正解を相手に確認させる場」になりやすい。まず最もスコアが高いタイプを起点に意識を向けることをおすすめします。</div>';
+    actHtml = '<strong>明日からのアクション</strong>まず「あなたはどうしたい？」を1on1の冒頭に置くことから始めてみてください。答えを渡す前に相手の考えを先に受け取る習慣が、複合バイアスを同時に緩和する入口になります。';
+  } else {
+    const dom = typeData[tiedTypes[0].i];
+    domHtml = '<div class="dominant-label">最も強いバイアス傾向</div><div class="dominant-name" style="color:' + dom.color + '">' + dom.name + '</div><div class="dominant-desc">' + dom.desc + '</div><div class="dominant-why"><strong>なぜこの傾向が生まれやすいのか</strong>' + dom.why + '</div>';
+    actHtml = '<strong>明日からのアクション</strong>' + dom.action;
+  }
+
+  document.getElementById('result-dominant').innerHTML = domHtml;
+  document.getElementById('result-action').innerHTML = actHtml;
+  const ra = document.getElementById('result-area');
+  ra.classList.add('visible');
+  setTimeout(() => ra.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+}
+
+function resetAll() {
+  for (let t = 0; t < 3; t++) {
+    for (let i = 0; i < 5; i++) { scores[t][i] = 0; answered[t][i] = null; }
+    document.getElementById('score-' + t).textContent = '—';
+  }
+  document.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected-yes', 'selected-no'));
+  document.getElementById('answered-count').textContent = '0';
+  document.getElementById('result-area').classList.remove('visible');
+}
+</script>
+
+</body>
+</html>
