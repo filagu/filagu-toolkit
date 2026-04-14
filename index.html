@@ -32,6 +32,7 @@
     color: var(--インク);
     line-height: 1.8;
     font-size: 13px;
+    -webkit-text-size-adjust: 100%;
   }
 
   body::before {
@@ -51,7 +52,7 @@
     z-index: 1;
     max-width: 860px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 16px;
   }
 
   .nav {
@@ -74,6 +75,9 @@
     letter-spacing: 0.08em;
     transition: all 0.2s;
     border-radius: 4px 4px 0 0;
+    flex: 1;
+    text-align: center;
+    white-space: nowrap;
   }
 
   .nav-btn.active {
@@ -87,7 +91,7 @@
     display: none;
     border: 1.5px solid var(--罫線);
     background: var(--紙);
-    padding: 40px 44px;
+    padding: 28px 24px;
     position: relative;
   }
 
@@ -96,7 +100,7 @@
   .sheet::before {
     content: '';
     position: absolute;
-    left: 18px; top: 0; bottom: 0;
+    left: 14px; top: 0; bottom: 0;
     width: 1px;
     background: repeating-linear-gradient(to bottom, transparent 0px, transparent 28px, var(--罫線) 28px, var(--罫線) 30px);
   }
@@ -105,9 +109,10 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    margin-bottom: 32px;
-    padding-bottom: 20px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
     border-bottom: 2px solid var(--インク);
+    gap: 12px;
   }
 
   .sheet-label {
@@ -118,7 +123,7 @@
   }
 
   .sheet-title {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: bold;
     letter-spacing: 0.04em;
     line-height: 1.4;
@@ -130,8 +135,9 @@
     font-size: 11px;
     font-weight: normal;
     color: var(--インク淡);
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     margin-top: 4px;
+    line-height: 1.6;
   }
 
   .sheet-meta {
@@ -140,13 +146,14 @@
     color: var(--インク淡);
     letter-spacing: 0.08em;
     line-height: 2;
+    flex-shrink: 0;
   }
 
   .core-message {
     background: var(--緑);
     color: #f0f4f2;
-    padding: 16px 22px;
-    margin-bottom: 32px;
+    padding: 14px 18px;
+    margin-bottom: 28px;
     border-radius: 2px;
     font-size: 12px;
     letter-spacing: 0.04em;
@@ -157,8 +164,8 @@
   .core-message::before {
     content: '""';
     position: absolute;
-    top: -4px; left: 16px;
-    font-size: 32px;
+    top: -4px; left: 12px;
+    font-size: 28px;
     color: rgba(255,255,255,0.15);
     font-family: Georgia, serif;
     line-height: 1;
@@ -186,16 +193,16 @@
     display: grid;
     grid-template-columns: 1fr;
     gap: 16px;
-    margin-bottom: 32px;
+    margin-bottom: 28px;
   }
 
   .question-card {
     border: 1px solid var(--罫線);
     background: white;
-    padding: 18px 20px;
+    padding: 16px 16px 16px 20px;
     display: grid;
     grid-template-columns: auto 1fr;
-    gap: 0 16px;
+    gap: 0 12px;
     position: relative;
     overflow: hidden;
   }
@@ -212,7 +219,7 @@
   .question-card.type-3::before { background: var(--紺); }
 
   .q-number {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: bold;
     color: var(--紙暗);
     line-height: 1;
@@ -235,7 +242,7 @@
   .q-scene::before { content: '▸'; font-size: 8px; }
 
   .q-main {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: bold;
     letter-spacing: 0.02em;
     color: var(--インク);
@@ -284,8 +291,8 @@
   .bias-awareness {
     background: var(--黄薄);
     border: 1px solid var(--黄);
-    padding: 16px 20px;
-    margin-bottom: 32px;
+    padding: 14px 16px;
+    margin-bottom: 28px;
   }
 
   .awareness-title {
@@ -299,20 +306,20 @@
   .sign-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+    gap: 8px;
   }
 
   .sign-item {
     background: white;
     border: 1px solid var(--罫線);
-    padding: 10px 12px;
+    padding: 10px 10px;
     text-align: center;
   }
 
   .sign-label {
     font-size: 9px;
     color: var(--インク淡);
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     margin-bottom: 4px;
   }
 
@@ -325,13 +332,13 @@
 
   .reset-protocol {
     border: 2px solid var(--インク);
-    padding: 20px 24px;
+    padding: 18px 18px 18px;
     position: relative;
   }
 
   .reset-protocol .stamp {
     position: absolute;
-    top: 12px; right: 16px;
+    top: 10px; right: 12px;
     font-size: 9px;
     letter-spacing: 0.15em;
     color: var(--緑);
@@ -349,8 +356,10 @@
 
   .reset-step { text-align: center; }
 
+  .step-body { text-align: inherit; }
+
   .step-num {
-    font-size: 22px;
+    font-size: 20px;
     color: var(--紙暗);
     font-weight: bold;
     font-family: Georgia, serif;
@@ -381,7 +390,7 @@
   .diagnosis-intro {
     font-size: 12px;
     color: var(--インク薄);
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     line-height: 1.9;
     border-left: 3px solid var(--緑);
     padding-left: 14px;
@@ -390,11 +399,11 @@
   .diag-instructions {
     background: var(--紙暗);
     border: 1px solid var(--罫線);
-    padding: 12px 16px;
-    margin-bottom: 24px;
+    padding: 12px 14px;
+    margin-bottom: 20px;
     display: flex;
-    align-items: center;
-    gap: 12px;
+    align-items: flex-start;
+    gap: 10px;
     font-size: 11px;
     color: var(--インク薄);
   }
@@ -406,16 +415,16 @@
 
   .bias-block {
     border: 1px solid var(--罫線);
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     overflow: hidden;
   }
 
   .bias-block-header {
-    padding: 14px 18px;
+    padding: 12px 14px;
     display: grid;
     grid-template-columns: auto 1fr auto;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     cursor: pointer;
     user-select: none;
     transition: background 0.15s;
@@ -425,7 +434,7 @@
   .bias-block:nth-child(2) .bias-block-header { background: #faf4f0; border-left: 4px solid #6b3a2a; }
   .bias-block:nth-child(3) .bias-block-header { background: #f0f0f7; border-left: 4px solid #3a3a6b; }
 
-  .bias-icon { font-size: 22px; width: 36px; text-align: center; }
+  .bias-icon { font-size: 20px; width: 30px; text-align: center; }
 
   .bias-type-label {
     font-size: 9px;
@@ -435,7 +444,7 @@
   }
 
   .bias-name {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: bold;
     letter-spacing: 0.04em;
   }
@@ -444,7 +453,7 @@
     font-size: 10px;
     font-weight: normal;
     color: var(--インク淡);
-    margin-left: 6px;
+    margin-left: 4px;
     vertical-align: baseline;
   }
 
@@ -452,10 +461,11 @@
     font-size: 10px;
     color: var(--インク淡);
     text-align: right;
+    white-space: nowrap;
   }
 
   .bias-score-preview .score-num {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: bold;
     color: var(--インク);
     font-family: Georgia, serif;
@@ -464,7 +474,7 @@
   }
 
   .bias-questions {
-    padding: 0 18px 16px;
+    padding: 0 14px 14px;
     border-top: 1px solid var(--罫線);
     display: none;
   }
@@ -477,7 +487,8 @@
     border-bottom: 1px solid rgba(0,0,0,0.04);
     display: flex;
     align-items: flex-start;
-    gap: 12px;
+    gap: 8px;
+    flex-wrap: wrap;
   }
 
   .diag-q:last-child { border-bottom: none; }
@@ -492,6 +503,7 @@
 
   .diag-q-text {
     flex: 1;
+    min-width: 200px;
     font-size: 12px;
     color: var(--インク);
     line-height: 1.7;
@@ -500,14 +512,15 @@
   .diag-q-opts {
     display: flex;
     gap: 6px;
-    flex-shrink: 0;
-    align-items: center;
+    width: 100%;
+    padding-left: 28px;
+    margin-top: 4px;
   }
 
   .opt-btn {
     font-family: 'Meiryo', 'メイリオ', serif;
-    font-size: 10px;
-    padding: 4px 10px;
+    font-size: 11px;
+    padding: 7px 14px;
     border: 1px solid var(--罫線);
     background: white;
     cursor: pointer;
@@ -515,9 +528,14 @@
     color: var(--インク薄);
     letter-spacing: 0.05em;
     white-space: nowrap;
+    flex: 1;
+    text-align: center;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 
   .opt-btn:hover { border-color: var(--インク薄); color: var(--インク); }
+  .opt-btn:active { opacity: 0.8; }
 
   .opt-btn.selected-yes {
     background: var(--緑);
@@ -533,7 +551,7 @@
   }
 
   .result-area {
-    margin-top: 28px;
+    margin-top: 24px;
     border: 2px solid var(--インク);
     overflow: hidden;
     display: none;
@@ -544,24 +562,23 @@
   .result-header {
     background: var(--インク);
     color: var(--紙);
-    padding: 12px 20px;
+    padding: 10px 16px;
     font-size: 11px;
     letter-spacing: 0.15em;
   }
 
-  .result-body { padding: 20px 24px; }
+  .result-body { padding: 16px 18px; }
 
   .result-bars {
     display: grid;
-    gap: 14px;
-    margin-bottom: 20px;
+    gap: 12px;
+    margin-bottom: 18px;
   }
 
   .result-row {
     display: grid;
-    grid-template-columns: 130px 1fr auto;
-    align-items: center;
-    gap: 12px;
+    grid-template-columns: 1fr;
+    gap: 6px;
   }
 
   .result-label {
@@ -570,7 +587,14 @@
     letter-spacing: 0.05em;
   }
 
+  .result-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
   .result-bar-wrap {
+    flex: 1;
     height: 12px;
     background: var(--紙暗);
     border: 1px solid var(--罫線);
@@ -590,14 +614,15 @@
   .result-count {
     font-size: 11px;
     color: var(--インク淡);
-    width: 40px;
+    width: 36px;
     text-align: right;
+    flex-shrink: 0;
   }
 
   .result-dominant {
     background: var(--黄薄);
     border: 1px solid var(--黄);
-    padding: 14px 18px;
+    padding: 14px 16px;
     margin-top: 4px;
   }
 
@@ -640,7 +665,7 @@
 
   .result-action {
     margin-top: 14px;
-    padding: 12px 16px;
+    padding: 12px 14px;
     background: var(--緑);
     color: white;
     font-size: 11px;
@@ -659,37 +684,42 @@
     display: block;
     width: 100%;
     margin-top: 20px;
-    padding: 14px;
+    padding: 16px;
     background: var(--インク);
     color: var(--紙);
     border: none;
-    font-size: 13px;
+    font-size: 14px;
     letter-spacing: 0.1em;
     cursor: pointer;
     transition: background 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 
   .run-btn:hover { background: var(--緑); }
+  .run-btn:active { opacity: 0.85; }
 
   .reset-btn {
     font-family: 'Meiryo', 'メイリオ', serif;
     display: block;
     width: 100%;
     margin-top: 8px;
-    padding: 10px;
+    padding: 12px;
     background: transparent;
     color: var(--インク淡);
     border: 1px solid var(--罫線);
     font-size: 11px;
     cursor: pointer;
     letter-spacing: 0.1em;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 
   .reset-btn:hover { color: var(--インク); border-color: var(--インク); }
 
   .sheet-footer {
-    margin-top: 32px;
-    padding-top: 16px;
+    margin-top: 28px;
+    padding-top: 14px;
     border-top: 1px solid var(--罫線);
     display: flex;
     justify-content: space-between;
@@ -697,6 +727,8 @@
     font-size: 9px;
     color: var(--インク淡);
     letter-spacing: 0.1em;
+    gap: 8px;
+    flex-wrap: wrap;
   }
 
   .toggle-icon {
@@ -717,6 +749,250 @@
   .progress-indicator span {
     color: var(--インク);
     font-weight: bold;
+  }
+
+  /* ===== モバイル対応 ===== */
+  @media (max-width: 480px) {
+    .page {
+      padding: 10px;
+    }
+
+    .nav-btn {
+      font-size: 11px;
+      padding: 9px 8px;
+      letter-spacing: 0.04em;
+    }
+
+    .sheet {
+      padding: 20px 14px 20px 20px;
+    }
+
+    .sheet::before {
+      left: 10px;
+    }
+
+    .sheet-header {
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .sheet-meta {
+      text-align: left;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .sheet-meta span::after {
+      content: '·';
+      margin-left: 6px;
+      opacity: 0.4;
+    }
+
+    .sheet-meta span:last-child::after {
+      display: none;
+    }
+
+    .sheet-title {
+      font-size: 16px;
+    }
+
+    .sheet-title span {
+      font-size: 10px;
+    }
+
+    .core-message {
+      font-size: 11px;
+      padding: 12px 14px;
+      line-height: 1.9;
+    }
+
+    .section-title {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+    }
+
+    .question-card {
+      display: block;
+      padding: 14px 14px 14px 18px;
+    }
+
+    .q-number {
+      display: none;
+    }
+
+    .q-main {
+      font-size: 14px;
+    }
+
+    /* 3列→1列 on very small screens */
+    .sign-grid {
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+
+    .sign-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-align: left;
+      padding: 10px 12px;
+    }
+
+    .sign-label {
+      flex-shrink: 0;
+      width: 90px;
+      font-size: 9px;
+      margin-bottom: 0;
+    }
+
+    .sign-text {
+      font-size: 12px;
+    }
+
+    /* リセットステップ：横→縦 */
+    .reset-steps {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+
+    .step-arrow {
+      transform: rotate(90deg);
+      font-size: 14px;
+      text-align: center;
+      padding: 2px 0;
+    }
+
+    .reset-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      text-align: left;
+      padding: 10px 0;
+      border-bottom: 1px dashed var(--罫線);
+    }
+
+    .reset-step:last-child {
+      border-bottom: none;
+    }
+
+    .step-num {
+      font-size: 18px;
+      min-width: 28px;
+      margin-bottom: 0;
+      flex-shrink: 0;
+    }
+
+    .step-action {
+      margin-bottom: 2px;
+    }
+
+    .step-detail {
+      font-size: 10px;
+    }
+
+    .reset-protocol .stamp {
+      font-size: 8px;
+      padding: 2px 6px;
+    }
+
+    .bias-block-header {
+      padding: 10px 12px;
+    }
+
+    .bias-name {
+      font-size: 13px;
+    }
+
+    .bias-name sub {
+      display: block;
+      margin-left: 0;
+      margin-top: 1px;
+    }
+
+    .diag-q {
+      flex-direction: column;
+      flex-wrap: nowrap;
+      gap: 6px;
+    }
+
+    .diag-q-num {
+      display: inline;
+    }
+
+    .diag-q-text {
+      min-width: unset;
+      font-size: 12px;
+    }
+
+    .diag-q-opts {
+      padding-left: 0;
+      width: 100%;
+    }
+
+    .opt-btn {
+      padding: 9px 8px;
+      font-size: 12px;
+    }
+
+    .sheet-footer {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+  }
+
+  /* 中間サイズ（481〜639px）: sign-gridを2列に */
+  @media (min-width: 481px) and (max-width: 639px) {
+    .sign-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .sign-grid .sign-item:last-child {
+      grid-column: span 2;
+    }
+
+    .reset-steps {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+
+    .reset-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      text-align: left;
+      padding: 10px 0;
+      border-bottom: 1px dashed var(--罫線);
+    }
+
+    .reset-step:last-child {
+      border-bottom: none;
+    }
+
+    .step-arrow {
+      transform: rotate(90deg);
+      font-size: 14px;
+      text-align: center;
+      padding: 2px 0;
+    }
+
+    .step-num {
+      min-width: 28px;
+      flex-shrink: 0;
+      margin-bottom: 0;
+    }
+
+    .diag-q-opts {
+      padding-left: 28px;
+      width: 100%;
+      margin-top: 4px;
+    }
+
+    .page {
+      padding: 12px;
+    }
   }
 
   @media print {
@@ -748,7 +1024,7 @@
           <span>明日の1on1でそのまま使える「バイアスを外す問い」</span>
         </div>
       </div>
-      <div class="sheet-meta">filagu<br>マネージャー向け<br>v1.0</div>
+      <div class="sheet-meta"><span>filagu</span><span>マネージャー向け</span><span>v1.0</span></div>
     </div>
 
     <div class="core-message">
@@ -822,26 +1098,32 @@
 
     <div class="reset-protocol">
       <div class="stamp">バイアスリセット</div>
-      <div style="font-size:11px;color:var(--インク薄);margin-bottom:4px;letter-spacing:0.06em">
+      <div style="font-size:11px;color:var(--インク薄);margin-bottom:4px;letter-spacing:0.06em;padding-right:80px">
         サインが浮かんだとき、この流れで問いをリセットする
       </div>
       <div class="reset-steps">
         <div class="reset-step">
           <div class="step-num">01</div>
-          <div class="step-action">仮定を置く</div>
-          <div class="step-detail">「自分はこの人のことを<br>まだわかっていない<br>かもしれない」</div>
+          <div class="step-body">
+            <div class="step-action">仮定を置く</div>
+            <div class="step-detail">「自分はこの人のことをまだわかっていないかもしれない」</div>
+          </div>
         </div>
         <div class="step-arrow">→</div>
         <div class="reset-step">
           <div class="step-num">02</div>
-          <div class="step-action">サインを名指す</div>
-          <div class="step-detail">上の3つのサインのどれが<br>浮かんでいるかを<br>確認する</div>
+          <div class="step-body">
+            <div class="step-action">サインを名指す</div>
+            <div class="step-detail">上の3つのサインのどれが浮かんでいるかを確認する</div>
+          </div>
         </div>
         <div class="step-arrow">→</div>
         <div class="reset-step">
           <div class="step-num">03</div>
-          <div class="step-action">問いを変える</div>
-          <div class="step-detail">3つの問いかけの<br>いずれかを<br>使ってみる</div>
+          <div class="step-body">
+            <div class="step-action">問いを変える</div>
+            <div class="step-detail">3つの問いかけのいずれかを使ってみる</div>
+          </div>
         </div>
       </div>
     </div>
@@ -864,7 +1146,7 @@
           <span>自分はどのタイプの思い込みを持ちやすいか</span>
         </div>
       </div>
-      <div class="sheet-meta">filagu<br>自己診断<br>v1.0</div>
+      <div class="sheet-meta"><span>filagu</span><span>自己診断</span><span>v1.0</span></div>
     </div>
 
     <p class="diagnosis-intro">
@@ -874,7 +1156,7 @@
     </p>
 
     <div class="diag-instructions">
-      <div style="font-size:20px">📋</div>
+      <div style="font-size:18px;flex-shrink:0">📋</div>
       <div>
         <strong>使い方</strong><br>
         各設問について「当てはまる」「当てはまらない」を選んでください。直感で答えるのがコツです。全問回答後、「診断する」ボタンを押すと結果が表示されます。
@@ -893,7 +1175,7 @@
           <div class="bias-type-label">タイプ 01</div>
           <div class="bias-name" style="color:#2c4a3e">当たり前の空気<sub>環境に染まったフィルター</sub></div>
         </div>
-        <div style="display:flex;align-items:center;gap:10px">
+        <div style="display:flex;align-items:center;gap:8px">
           <div class="bias-score-preview"><span class="score-num" id="score-0">—</span>該当</div>
           <div class="toggle-icon">▼</div>
         </div>
@@ -950,7 +1232,7 @@
           <div class="bias-type-label">タイプ 02</div>
           <div class="bias-name" style="color:#6b3a2a">成功の型<sub>自分の経験が正解フィルターになる</sub></div>
         </div>
-        <div style="display:flex;align-items:center;gap:10px">
+        <div style="display:flex;align-items:center;gap:8px">
           <div class="bias-score-preview"><span class="score-num" id="score-1">—</span>該当</div>
           <div class="toggle-icon">▼</div>
         </div>
@@ -1007,7 +1289,7 @@
           <div class="bias-type-label">タイプ 03</div>
           <div class="bias-name" style="color:#3a3a6b">決めつけ<sub>最初の判断が確認装置になる</sub></div>
         </div>
-        <div style="display:flex;align-items:center;gap:10px">
+        <div style="display:flex;align-items:center;gap:8px">
           <div class="bias-score-preview"><span class="score-num" id="score-2">—</span>該当</div>
           <div class="toggle-icon">▼</div>
         </div>
@@ -1111,6 +1393,7 @@ function switchTab(tab) {
   document.querySelectorAll('.nav-btn').forEach((b, i) => {
     b.classList.toggle('active', (i === 0) === (tab === 'cheat'));
   });
+  window.scrollTo(0, 0);
 }
 
 function toggleBlock(idx) {
@@ -1141,7 +1424,14 @@ function runDiagnosis() {
   typeData.forEach((t, i) => {
     const row = document.createElement('div');
     row.className = 'result-row';
-    row.innerHTML = '<div class="result-label" style="color:' + t.color + '">' + t.name + '</div><div class="result-bar-wrap"><div class="result-bar-fill bar-type-' + i + '" style="width:' + (totals[i] / 5 * 100) + '%"></div></div><div class="result-count">' + totals[i] + ' / 5</div>';
+    row.innerHTML =
+      '<div class="result-label" style="color:' + t.color + '">' + t.name + '</div>' +
+      '<div class="result-bar-row">' +
+        '<div class="result-bar-wrap">' +
+          '<div class="result-bar-fill bar-type-' + i + '" style="width:' + (totals[i] / 5 * 100) + '%"></div>' +
+        '</div>' +
+        '<div class="result-count">' + totals[i] + ' / 5</div>' +
+      '</div>';
     barsEl.appendChild(row);
   });
 
