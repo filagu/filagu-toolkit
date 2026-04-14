@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>育成者の土台　自己チェックシート — filagu</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;background:#f7f6f3;color:#1a1a1a;font-size:16px;line-height:1.7}
+.app{max-width:680px;margin:0 auto;padding:2rem 1.25rem 4rem}
+.brand{font-size:12px;color:#888;margin-bottom:2rem;letter-spacing:0.05em}
+.progress{display:flex;gap:6px;margin-bottom:2.5rem}
+.progress-step{flex:1;height:3px;background:#e0ddd6;border-radius:2px;transition:background 0.3s}
+.progress-step.done{background:#1a1a1a}
+.step{display:none}
+.step.active{display:block}
+.step-header{margin-bottom:2rem}
+.step-header h1{font-size:22px;font-weight:500;color:#1a1a1a;margin-bottom:8px}
+.step-header p{font-size:14px;color:#666;line-height:1.7}
+.section-title{font-size:11px;font-weight:500;color:#999;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1.25rem;margin-top:2rem}
+.section-title:first-child{margin-top:0}
+.question-block{margin-bottom:2rem;padding-bottom:2rem;border-bottom:0.5px solid #e8e5de}
+.question-block:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.q-num{font-size:11px;color:#aaa;margin-bottom:4px}
+.q-label{font-size:15px;color:#1a1a1a;line-height:1.65;margin-bottom:1rem}
+.rating-labels{display:flex;justify-content:space-between;font-size:11px;color:#aaa;margin-bottom:8px}
+.rating{display:flex;gap:6px;margin-bottom:14px}
+.rating label{flex:1;text-align:center;cursor:pointer;min-width:0}
+.rating input{display:none}
+.rating span{display:block;padding:9px 2px;border:0.5px solid #ddd;border-radius:8px;font-size:14px;color:#666;transition:all 0.15s;background:#fff}
+.rating input:checked+span{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+textarea{width:100%;border:0.5px solid #ddd;border-radius:8px;padding:10px 12px;font-size:16px;font-family:inherit;color:#1a1a1a;background:#fff;resize:vertical;min-height:72px;line-height:1.6}
+textarea:focus{outline:none;border-color:#999}
+textarea::placeholder{color:#bbb}
+.info-card{background:#fff;border:0.5px solid #e8e5de;border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.info-card .ic-title{font-size:12px;color:#999;margin-bottom:6px}
+.info-card .ic-body{font-size:14px;color:#1a1a1a;line-height:1.7}
+.nav{display:flex;gap:12px;margin-top:2.5rem;justify-content:space-between}
+.btn{padding:11px 28px;border:0.5px solid #ccc;border-radius:8px;font-size:14px;cursor:pointer;background:transparent;color:#1a1a1a;transition:all 0.15s;font-family:inherit}
+.btn:hover{background:#f0ede6}
+.btn.primary{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.btn.primary:hover{background:#333}
+.score-bar{margin-bottom:1.25rem}
+.score-label{display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px}
+.score-name{color:#1a1a1a;font-weight:500}
+.score-val{color:#888}
+.bar-track{height:5px;background:#e8e5de;border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;background:#1a1a1a;border-radius:3px;transition:width 0.7s ease}
+.tendency-card{background:#f0ede6;border-radius:10px;padding:1rem 1.25rem;margin-bottom:10px}
+.tendency-card .tc-title{font-size:11px;color:#888;margin-bottom:5px}
+.tendency-card .tc-body{font-size:14px;color:#1a1a1a;line-height:1.6}
+.warn-card{background:#fff8f0;border:0.5px solid #f0d9c0;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem}
+.warn-card p{font-size:13px;color:#a06020;line-height:1.6}
+.balance-box{background:#f7f6f3;border-radius:10px;padding:1rem 1.25rem;margin-top:1rem;margin-bottom:10px}
+.balance-box .bb-title{font-size:11px;color:#888;margin-bottom:6px}
+.balance-box .bb-body{font-size:13px;color:#1a1a1a;line-height:1.7}
+.action-block{margin-bottom:1.75rem}
+.action-label{font-size:14px;color:#1a1a1a;margin-bottom:4px;line-height:1.65;font-weight:500}
+.action-sub{font-size:12px;color:#888;margin-bottom:10px;line-height:1.6}
+.action-context{background:#f0ede6;border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:13px;color:#1a1a1a;line-height:1.6}
+.identity-block{margin-bottom:2rem;padding:1.25rem;background:#fff;border:0.5px solid #e8e5de;border-radius:12px}
+.identity-block .ib-title{font-size:15px;font-weight:500;color:#1a1a1a;margin-bottom:6px}
+.identity-block .ib-sub{font-size:13px;color:#888;margin-bottom:12px;line-height:1.6}
+.strategy-block{margin-bottom:2rem;padding:1.25rem;background:#fff;border:0.5px solid #e8e5de;border-radius:12px}
+.strategy-block .sb-title{font-size:15px;font-weight:500;color:#1a1a1a;margin-bottom:6px}
+.strategy-block .sb-sub{font-size:13px;color:#888;margin-bottom:14px;line-height:1.6}
+.strategy-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.strategy-btn{padding:14px 10px;border:0.5px solid #ddd;border-radius:10px;font-size:13px;cursor:pointer;background:#fff;color:#1a1a1a;font-family:inherit;line-height:1.5;text-align:left;transition:all 0.15s}
+.strategy-btn:hover{background:#f7f6f3;border-color:#bbb}
+.strategy-btn.selected{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.strategy-btn .sb-btn-title{font-weight:500;margin-bottom:3px;font-size:13px}
+.strategy-btn .sb-btn-sub{font-size:11px;opacity:0.7;line-height:1.4}
+.strategy-context{background:#f0ede6;border-radius:8px;padding:10px 12px;font-size:13px;color:#1a1a1a;line-height:1.6}
+.identity-summary{background:#f7f6f3;border-radius:8px;padding:10px 12px;margin-bottom:8px}
+.identity-summary .is-label{font-size:10px;color:#aaa;margin-bottom:3px}
+.identity-summary .is-body{font-size:13px;color:#1a1a1a;line-height:1.6;font-weight:500}
+.strategy-summary{background:#f7f6f3;border-radius:8px;padding:8px 12px;margin-bottom:6px}
+.strategy-summary .ss-label{font-size:10px;color:#aaa;margin-bottom:3px}
+.strategy-summary .ss-body{font-size:12px;color:#1a1a1a;line-height:1.6}
+.summary-sheet{background:#fff;border:0.5px solid #ddd;border-radius:12px;padding:1.75rem}
+.summary-header{text-align:center;margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:0.5px solid #e8e5de}
+.summary-header h2{font-size:16px;font-weight:500;color:#1a1a1a;margin-bottom:4px}
+.summary-header p{font-size:11px;color:#aaa}
+.summary-section{margin-bottom:1.25rem}
+.summary-section:last-child{margin-bottom:0}
+.summary-section h3{font-size:10px;font-weight:500;color:#999;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;padding-bottom:6px;border-bottom:0.5px solid #e8e5de}
+.hl-box{background:#f7f6f3;border-radius:8px;padding:8px 12px;margin-bottom:6px}
+.hl-box .hl-label{font-size:10px;color:#aaa;margin-bottom:3px}
+.hl-box .hl-body{font-size:12px;color:#1a1a1a;line-height:1.6}
+.balance-summary{background:#f7f6f3;border-radius:8px;padding:8px 12px;margin-bottom:6px}
+.balance-summary .bs-label{font-size:10px;color:#aaa;margin-bottom:3px}
+.balance-summary .bs-body{font-size:12px;color:#1a1a1a;line-height:1.6}
+.action-summary-item{margin-bottom:8px}
+.action-summary-label{font-size:10px;color:#aaa;margin-bottom:3px}
+.action-summary-body{font-size:12px;color:#1a1a1a;line-height:1.6;background:#f7f6f3;border-radius:8px;padding:8px 12px}
+.radar-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0.5rem 0}
+.radar-item{display:flex;flex-direction:column;align-items:center}
+.radar-item-title{font-size:10px;color:#888;margin-bottom:4px;text-align:center;letter-spacing:0.05em}
+.print-btn{width:100%;padding:12px;border:0.5px solid #ccc;border-radius:8px;font-size:14px;cursor:pointer;background:transparent;color:#1a1a1a;margin-top:1.25rem;font-family:inherit;transition:all 0.15s}
+.print-btn:hover{background:#f0ede6}
+@media(max-width:480px){
+  .app{padding:1.5rem 1rem 3rem}
+  .step-header h1{font-size:19px}
+  .strategy-btns{grid-template-columns:1fr}
+  .radar-grid{grid-template-columns:1fr}
+}
+@media print{
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:#fff;font-size:11px}
+  .nav,.print-btn,.progress,.brand,.step-header{display:none!important}
+  .app{padding:0;max-width:100%}
+  .step{display:none!important}
+  #step4{display:block!important}
+  .summary-sheet{border:none;padding:0}
+  .summary-section{page-break-inside:avoid;margin-bottom:0.75rem}
+  .summary-header{margin-bottom:0.75rem;padding-bottom:0.5rem}
+  .hl-box,.balance-summary,.action-summary-body,.identity-summary,.strategy-summary{background:#f5f5f5!important}
+  .radar-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="brand">filagu — 育成者の土台</div>
+  <div class="progress" id="progress">
+    <div class="progress-step" id="ps0"></div>
+    <div class="progress-step" id="ps1"></div>
+    <div class="progress-step" id="ps2"></div>
+    <div class="progress-step" id="ps3"></div>
+    <div class="progress-step" id="ps4"></div>
+  </div>
+
+  <div class="step active" id="step0">
+    <div class="step-header">
+      <h1>育成者の土台<br>自己チェックシート</h1>
+      <p>5つの力と3つの土台について、今の自分の状態を確かめます。所要時間は約10〜15分です。正解はありません。「今の自分を知ること」が目的です。</p>
+    </div>
+    <div class="info-card">
+      <div class="ic-title">評価の基準</div>
+      <div class="ic-body">4：自然にできている　3：意識すればできる<br>2：まだ定着していない　1：まだ気づけていない</div>
+    </div>
+    <div class="info-card">
+      <div class="ic-title">このシートの流れ</div>
+      <div class="ic-body">① 5つの力を確かめる<br>② 3つの土台を確かめる<br>③ 目指す姿と明日からの行動を書く<br>④ まとめシートを保存・印刷する</div>
+    </div>
+    <div class="nav" style="justify-content:flex-end">
+      <button class="btn primary" onclick="goStep(1)">はじめる</button>
+    </div>
+  </div>
+
+  <div class="step" id="step1">
+    <div class="step-header">
+      <h1>5つの力</h1>
+      <p>育成者として外に向かっていく力を確かめます。</p>
+    </div>
+    <div id="q5forces"></div>
+    <div class="nav">
+      <button class="btn" onclick="goStep(0)">戻る</button>
+      <button class="btn primary" onclick="goStep(2)">次へ</button>
+    </div>
+  </div>
+
+  <div class="step" id="step2">
+    <div class="step-header">
+      <h1>3つの土台</h1>
+      <p>育成者として内側に向かっていく力を確かめます。</p>
+    </div>
+    <div id="q3base"></div>
+    <div class="nav">
+      <button class="btn" onclick="goStep(1)">戻る</button>
+      <button class="btn primary" onclick="goStep(3)">次へ</button>
+    </div>
+  </div>
+
+  <div class="step" id="step3">
+    <div class="step-header">
+      <h1>目指す姿と行動</h1>
+      <p>チェックの結果を受けて、目指す育成者像と明日からの行動を書きます。</p>
+    </div>
+    <div id="tendency-result"></div>
+    <div id="action-inputs"></div>
+    <div class="nav">
+      <button class="btn" onclick="goStep(2)">戻る</button>
+      <button class="btn primary" onclick="buildSummary();goStep(4)">まとめシートを作成</button>
+    </div>
+  </div>
+
+  <div class="step" id="step4">
+    <div class="step-header">
+      <h1>まとめシート</h1>
+      <p>スクショまたは印刷して、日々の関わりに活かしてください。</p>
+    </div>
+    <div class="summary-sheet" id="summary-sheet">
+      <div class="summary-header">
+        <h2>育成者の土台　自己チェックまとめ</h2>
+        <p id="summary-date"></p>
+      </div>
+      <div class="summary-section">
+        <h3>目指す育成者像</h3>
+        <div id="summary-identity"></div>
+      </div>
+      <div class="summary-section">
+        <h3>成長の方向性</h3>
+        <div id="summary-strategy"></div>
+      </div>
+      <div class="summary-section">
+        <h3>明日からの行動</h3>
+        <div id="summary-actions"></div>
+      </div>
+      <div class="summary-section">
+        <h3>自分の傾向</h3>
+        <div id="summary-tendency"></div>
+      </div>
+      <div class="summary-section">
+        <h3>スコア</h3>
+        <div class="radar-grid">
+          <div class="radar-item">
+            <div class="radar-item-title">5つの力（外への技術）</div>
+            <canvas id="radar5" width="240" height="240"></canvas>
+          </div>
+          <div class="radar-item">
+            <div class="radar-item-title">3つの土台（内への力）</div>
+            <canvas id="radar3" width="240" height="240"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="print-btn" onclick="window.print()">印刷 / PDFで保存</button>
+    <div class="nav" style="justify-content:flex-start;margin-top:1rem">
+      <button class="btn" onclick="goStep(3)">戻って編集する</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const questions5=[
+  {cat:'観察力',qs:[
+    {id:'o1',q:'部下の表情・声のトーン・行動の変化に、自分は気づけているだろうか',ph:'最近、見逃していたと後から気づいた場面があれば：'},
+    {id:'o2',q:'「見えている」と思っているものが、実は自分のフィルターが処理した結果かもしれないと疑えている',ph:'思い込みで見ていたと気づいた場面があれば：'},
+  ]},
+  {cat:'傾聴力',qs:[
+    {id:'l1',q:'相手が話しているとき、自分の判断や結論を先に出さずに最後まで聴けているか',ph:'途中で判断が先に立ってしまった場面があれば：'},
+    {id:'l2',q:'言葉そのものではなく、その奥にある感情や背景を受け取ろうとしているか',ph:'言葉の奥を聴けた場面、または表面だけで止まってしまった場面があれば：'},
+  ]},
+  {cat:'問いを立てる力',qs:[
+    {id:'q1',q:'「答えを渡す」のではなく、相手が自分で考えるきっかけになる問いを使えているか',ph:'相手の思考が動いたと感じた問いかけがあれば：'},
+    {id:'q2',q:'「なぜできないの？」のような詰める問いではなく、相手の視点を広げる問いを意図的に選べているか',ph:'誘導的・詰問的な問いになってしまったと気づいた場面があれば：'},
+  ]},
+  {cat:'伝える力',qs:[
+    {id:'t1',q:'「伝えた」で終わらず、相手に「伝わったか」を確かめているか',ph:'伝えたつもりが届いていなかった、または届いたと感じた場面があれば：'},
+    {id:'t2',q:'自分の伝えやすい方法ではなく、相手の状態やタイミングに合わせて伝え方を変えているか',ph:'伝え方を変えたことで手応えが変わった場面があれば：'},
+  ]},
+  {cat:'関係構築力',qs:[
+    {id:'r1',q:'部下が「本音を言っても大丈夫」と感じている関係を、意識的につくれているか',ph:'本音を話してもらえた場面、または話してもらえなかったと感じた場面があれば：'},
+    {id:'r2',q:'関係の質は、関わりの積み重ねによって変化するものだという認識を持って動けているか',ph:'関係が変わったと気づいた場面、または変わっていないと感じる場面があれば：'},
+  ]},
+];
+
+const questions3=[
+  {cat:'自己認識力',qs:[
+    {id:'s1',q:'関わりの最中に「今の自分、どんな前提でこの人を見ているか」と立ち止まれているか',ph:'そのクセに気づいた場面、または気づけなかった場面があれば：'},
+    {id:'s2',q:'「うまくいっている」と感じているとき、相手が自分に合わせてくれているだけかもしれないと疑えているか',ph:'自分の見方を疑えた場面、または疑えなかった場面があれば：'},
+    {id:'s3',q:'部下への見方が、いつの間にか固定されていないか',ph:'「この人はこういう人だ」と決めてかかっていたと気づいた場面があれば：'},
+  ]},
+  {cat:'分析力',qs:[
+    {id:'a1',q:'「できていない」「やる気がない」という印象が浮かんだとき、その判断は事実に基づいているかと問い直せているか',ph:'印象で動いてしまって、後から的外れだったと気づいた場面があれば：'},
+    {id:'a2',q:'メンバーの行動の背景を「能力の問題か、認識のずれか、環境の問題か」と分けて考えられているか',ph:'原因を整理せずに関わってしまったケースがあれば：'},
+    {id:'a3',q:'今この関わりは「何のため、誰のためにしているのか」を自分の中で明確にしてから動けているか',ph:'目的が曖昧なまま関わってしまったと感じた場面があれば：'},
+  ]},
+  {cat:'内省力',qs:[
+    {id:'n1',q:'うまくいった関わりに対して「なぜうまくいったか」を言語化しているか。成功は振り返らなくていいと思っていないか',ph:'うまくいった関わりで、何が機能していたか言えるとすれば：'},
+    {id:'n2',q:'同じ失敗や詰まりが繰り返されているとき、「相手の問題」ではなく「自分の関わり方に何があるか」を探せているか',ph:'繰り返されているパターンがあるとすれば、自分の側に何があるか：'},
+    {id:'n3',q:'一日の関わりを振り返る時間を、意図的につくれているか',ph:'振り返りができていないとすれば、何がそれを妨げているか：'},
+  ]},
+];
+
+const cats5def=[
+  {name:'観察力',short:'観察',ids:['o1','o2']},
+  {name:'傾聴力',short:'傾聴',ids:['l1','l2']},
+  {name:'問いを立てる力',short:'問い',ids:['q1','q2']},
+  {name:'伝える力',short:'伝える',ids:['t1','t2']},
+  {name:'関係構築力',short:'関係構築',ids:['r1','r2']},
+];
+const cats3def=[
+  {name:'自己認識力',short:'自己認識',ids:['s1','s2','s3']},
+  {name:'分析力',short:'分析',ids:['a1','a2','a3']},
+  {name:'内省力',short:'内省',ids:['n1','n2','n3']},
+];
+
+const allAnswers={};
+const savedInputs={identity:'',action1:'',action2:'',action3:'',strategy:''};
+let currentStep=0;
+let currentStrong=null;
+let currentWeak=null;
+
+function renderQuestions(containerId,groups){
+  const el=document.getElementById(containerId);
+  let html='';
+  groups.forEach(g=>{
+    html+=`<div class="section-title">${g.cat}</div>`;
+    g.qs.forEach((q,i)=>{
+      html+=`<div class="question-block">
+        <div class="q-num">${g.cat} ${i+1}</div>
+        <div class="q-label">${q.q}</div>
+        <div class="rating-labels"><span>まだ気づけていない</span><span>自然にできている</span></div>
+        <div class="rating">
+          ${[1,2,3,4].map(v=>{
+            const checked=allAnswers[q.id+'_score']===v?'checked':'';
+            return `<label><input type="radio" name="${q.id}" value="${v}" ${checked} onchange="allAnswers['${q.id}_score']=${v}"><span>${v}</span></label>`;
+          }).join('')}
+        </div>
+        <textarea id="${q.id}_text" placeholder="${q.ph}" oninput="allAnswers['${q.id}_text']=this.value">${allAnswers[q.id+'_text']||''}</textarea>
+      </div>`;
+    });
+  });
+  el.innerHTML=html;
+}
+
+function getScore(id){return allAnswers[id+'_score']||0;}
+
+function calcCatScore(ids){
+  const scores=ids.map(id=>getScore(id)).filter(s=>s>0);
+  if(!scores.length)return 0;
+  return Math.round((scores.reduce((a,b)=>a+b,0)/scores.length)*10)/10;
+}
+
+function getLabel(score){
+  if(score>=3.5)return '自然にできている';
+  if(score>=2.5)return '意識すればできる';
+  if(score>=1.5)return 'まだ定着していない';
+  return 'まだ気づけていない';
+}
+
+function buildTendency(){
+  const scores5=cats5def.map(c=>({name:c.name,short:c.short,score:calcCatScore(c.ids)}));
+  const scores3=cats3def.map(c=>({name:c.name,short:c.short,score:calcCatScore(c.ids)}));
+  const all=[...scores5,...scores3];
+  const answered=all.filter(s=>s.score>0);
+  const sorted=[...answered].sort((a,b)=>b.score-a.score);
+  const strong=sorted.length>0?sorted[0]:null;
+  const weak=sorted.length>1?sorted[sorted.length-1]:null;
+  const s5=scores5.filter(s=>s.score>0);
+  const s3=scores3.filter(s=>s.score>0);
+  const avg5=s5.length?s5.reduce((a,b)=>a+b.score,0)/s5.length:0;
+  const avg3=s3.length?s3.reduce((a,b)=>a+b.score,0)/s3.length:0;
+  return{scores5,scores3,strong,weak,avg5,avg3,answered};
+}
+
+function getBalanceComment(avg5,avg3){
+  const both_high=avg5>=3.0&&avg3>=3.0;
+  const both_low=avg5<2.5&&avg3<2.5;
+  const force_high=avg5>=3.0&&avg3<3.0;
+  const base_high=avg3>=3.0&&avg5<3.0;
+  if(both_high)return '5つの力も3つの土台も全体的に機能しています。どちらをさらに尖らせるか、方向性を意識して関わる段階です。';
+  if(force_high)return '外への技術（5つの力）は動いていますが、内への力（3つの土台）が追いついていません。土台が崩れていると、技術は精度よく的外れな方向へ動き続けます。まず土台を整えることが先決です。';
+  if(base_high)return '内への力（3つの土台）は整っています。5つの力を意識的に使っていくことで、関わりの質が変わっていきます。';
+  if(both_low)return '力も土台もまだ定着していない状態です。まず3つの土台のどれか一つを選び、そこから動き始めることが先決です。';
+  return '力と土台のバランスはおおむね取れています。スコアの低い項目を一つ選んで意識することから始めてみてください。';
+}
+
+function getActionContext(strategy,strong,weak){
+  const weakName=weak?weak.name:'要注意の項目';
+  const strongName=strong?strong.name:'強みの項目';
+  if(strategy==='weak')return `「${weakName}」を立て直すことに集中します。この力・土台への具体的な行動を書いてください。`;
+  if(strategy==='strong')return `「${strongName}」をさらに尖らせることに集中します。この強みを活かした行動を書いてください。`;
+  return null;
+}
+
+function drawRadar(canvasId,items){
+  const canvas=document.getElementById(canvasId);
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const W=240,H=240,cx=120,cy=120,R=76;
+  const labels=items.map(s=>s.short);
+  const values=items.map(s=>s.score);
+  const N=labels.length;
+  ctx.clearRect(0,0,W,H);
+  const angle=(i)=>(-Math.PI/2)+(2*Math.PI/N)*i;
+  const px=(i,r)=>cx+r*Math.cos(angle(i));
+  const py=(i,r)=>cy+r*Math.sin(angle(i));
+  [1,2,3,4].forEach(level=>{
+    ctx.beginPath();
+    for(let i=0;i<N;i++){
+      const r=R*(level/4);
+      i===0?ctx.moveTo(px(i,r),py(i,r)):ctx.lineTo(px(i,r),py(i,r));
+    }
+    ctx.closePath();
+    ctx.strokeStyle=level===4?'#ccc':'#e8e5de';
+    ctx.lineWidth=0.5;
+    ctx.stroke();
+  });
+  for(let i=0;i<N;i++){
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(px(i,R),py(i,R));
+    ctx.strokeStyle='#e8e5de';
+    ctx.lineWidth=0.5;
+    ctx.stroke();
+  }
+  ctx.beginPath();
+  for(let i=0;i<N;i++){
+    const r=R*((values[i]||0)/4);
+    i===0?ctx.moveTo(px(i,r),py(i,r)):ctx.lineTo(px(i,r),py(i,r));
+  }
+  ctx.closePath();
+  ctx.fillStyle='rgba(26,26,26,0.1)';
+  ctx.fill();
+  ctx.strokeStyle='#1a1a1a';
+  ctx.lineWidth=1.5;
+  ctx.stroke();
+  for(let i=0;i<N;i++){
+    const r=R*((values[i]||0)/4);
+    ctx.beginPath();
+    ctx.arc(px(i,r),py(i,r),3,0,Math.PI*2);
+    ctx.fillStyle='#1a1a1a';
+    ctx.fill();
+  }
+  ctx.font='bold 9px -apple-system,sans-serif';
+  ctx.fillStyle='#555';
+  for(let i=0;i<N;i++){
+    const labelR=R+18;
+    const lx=px(i,labelR);
+    const ly=py(i,labelR);
+    const a=angle(i);
+    if(Math.cos(a)>0.3)ctx.textAlign='left';
+    else if(Math.cos(a)<-0.3)ctx.textAlign='right';
+    else ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText(labels[i],lx,ly);
+  }
+  ctx.font='9px -apple-system,sans-serif';
+  ctx.fillStyle='#bbb';
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  [1,2,3,4].forEach(level=>{
+    ctx.fillText(String(level),cx+4,cy-R*(level/4)+6);
+  });
+}
+
+function saveInputs(){
+  ['identity','action1','action2','action3'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)savedInputs[id]=el.value;
+  });
+  const sel=document.querySelector('.strategy-btn.selected');
+  if(sel)savedInputs.strategy=sel.dataset.strategy;
+}
+
+function selectStrategy(btn,strategy){
+  document.querySelectorAll('.strategy-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  savedInputs.strategy=strategy;
+  const ctx=document.getElementById('strategy-context');
+  const a1ctx=document.getElementById('action1-context');
+  const contextText=getActionContext(strategy,currentStrong,currentWeak);
+  if(ctx&&contextText){ctx.textContent=contextText;}
+  if(a1ctx&&contextText){a1ctx.textContent=contextText;a1ctx.style.display='block';}
+}
+
+function renderTendency(){
+  const{scores5,scores3,strong,weak,avg5,avg3,answered}=buildTendency();
+  currentStrong=strong;
+  currentWeak=weak;
+  let html='';
+
+  if(answered.length===0){
+    html=`<div class="warn-card"><p>まだ回答が入力されていません。前のステップに戻り、選択肢を選んでから進んでください。</p></div>`;
+    document.getElementById('tendency-result').innerHTML=html;
+    renderActionInputs(strong,weak);
+    return;
+  }
+
+  html+=`<div class="section-title">5つの力のスコア</div>`;
+  scores5.forEach(s=>{
+    html+=`<div class="score-bar"><div class="score-label"><span class="score-name">${s.name}</span><span class="score-val">${s.score>0?s.score.toFixed(1):'未回答'} / 4</span></div><div class="bar-track"><div class="bar-fill" style="width:${s.score>0?(s.score/4*100).toFixed(0):0}%"></div></div></div>`;
+  });
+  html+=`<div class="section-title" style="margin-top:1.5rem">3つの土台のスコア</div>`;
+  scores3.forEach(s=>{
+    html+=`<div class="score-bar"><div class="score-label"><span class="score-name">${s.name}</span><span class="score-val">${s.score>0?s.score.toFixed(1):'未回答'} / 4</span></div><div class="bar-track"><div class="bar-fill" style="width:${s.score>0?(s.score/4*100).toFixed(0):0}%"></div></div></div>`;
+  });
+  if(strong)html+=`<div class="tendency-card" style="margin-top:1.5rem"><div class="tc-title">最も機能している</div><div class="tc-body">${strong.name}　${strong.score.toFixed(1)} / 4　→　${getLabel(strong.score)}</div></div>`;
+  if(weak)html+=`<div class="tendency-card"><div class="tc-title">最もスコアが低い項目</div><div class="tc-body">${weak.name}　${weak.score.toFixed(1)} / 4　→　${getLabel(weak.score)}</div></div>`;
+  if(avg5>0&&avg3>0)html+=`<div class="balance-box"><div class="bb-title">5つの力と土台のバランス</div><div class="bb-body">${getBalanceComment(avg5,avg3)}</div></div>`;
+
+  document.getElementById('tendency-result').innerHTML=html;
+  renderActionInputs(strong,weak);
+}
+
+function renderActionInputs(strong,weak){
+  const weakName=weak?weak.name:'要注意の項目';
+  const strongName=strong?strong.name:'強みの項目';
+  const stratSelected=savedInputs.strategy;
+  const contextText=getActionContext(stratSelected,strong,weak);
+
+  const weakIsBase=weak?cats3def.some(c=>c.name===weak.name):false;
+  const weakBtnSub=weakIsBase
+    ?`「${weakName}」を整えて、土台を安定させる`
+    :`「${weakName}」の精度を上げて、関わりを変える`;
+  const strongBtnSub=`「${strongName}」をさらに活かして差をつける`;
+
+  document.getElementById('action-inputs').innerHTML=`
+    <div class="identity-block">
+      <div class="ib-title">目指す育成者像</div>
+      <div class="ib-sub">この結果を受けて、どんな育成者になりたいかを一文で書いてください。</div>
+      <textarea id="identity" placeholder="例：部下が自分で考えて動けるよう、問いかけで支えられる育成者になりたい" style="min-height:60px">${savedInputs.identity}</textarea>
+    </div>
+    <div class="strategy-block">
+      <div class="sb-title">成長の方向性を選ぶ</div>
+      <div class="sb-sub">どちらの方向で成長を進めますか？自分に合う方を選んでください。</div>
+      <div class="strategy-btns">
+        <button class="strategy-btn${stratSelected==='weak'?' selected':''}" data-strategy="weak" onclick="selectStrategy(this,'weak')">
+          <div class="sb-btn-title">弱点を立て直す</div>
+          <div class="sb-btn-sub">${weakBtnSub}</div>
+        </button>
+        <button class="strategy-btn${stratSelected==='strong'?' selected':''}" data-strategy="strong" onclick="selectStrategy(this,'strong')">
+          <div class="sb-btn-title">強みを尖らせる</div>
+          <div class="sb-btn-sub">${strongBtnSub}</div>
+        </button>
+      </div>
+      ${contextText?`<div id="strategy-context" class="strategy-context">${contextText}</div>`:'<div id="strategy-context" class="strategy-context" style="display:none"></div>'}
+    </div>
+    <div class="action-block">
+      <div class="action-label">明日から試す行動を1つ</div>
+      ${contextText?`<div id="action1-context" class="action-context">${contextText}</div>`:`<div id="action1-context" class="action-context" style="display:none"></div>`}
+      <textarea id="action1" placeholder="例：1on1の前に「今の自分、どんな前提で話しに行こうとしているか」と一度立ち止まる">${savedInputs.action1}</textarea>
+    </div>
+    <div class="action-block">
+      <div class="action-label">一週間続けてみること</div>
+      <div class="action-sub">小さくていい。毎日続けられる行動を1つ書いてください。</div>
+      <textarea id="action2" placeholder="例：関わりの後に、うまくいった場面を一つだけ振り返る時間を取る">${savedInputs.action2}</textarea>
+    </div>
+    <div class="action-block">
+      <div class="action-label">一ヶ月後に確かめること</div>
+      <div class="action-sub">一ヶ月後の自分に確かめてほしいことを1つ書いてください。</div>
+      <textarea id="action3" placeholder="例：チームメンバーの本音が引き出せているかどうかを、直接確認してみる">${savedInputs.action3}</textarea>
+    </div>`;
+}
+
+function buildSummary(){
+  saveInputs();
+  const{scores5,scores3,strong,weak,avg5,avg3}=buildTendency();
+  const now=new Date();
+  document.getElementById('summary-date').textContent=`${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`;
+
+  document.getElementById('summary-identity').innerHTML=`<div class="identity-summary"><div class="is-label">私が目指す育成者像</div><div class="is-body">${savedInputs.identity||'（未入力）'}</div></div>`;
+
+  const stratLabels={weak:'弱点を立て直す',strong:'強みを尖らせる'};
+  const stratFocus=savedInputs.strategy==='weak'?(weak?weak.name:''):savedInputs.strategy==='strong'?(strong?strong.name:''):'';
+  const stratText=savedInputs.strategy&&stratFocus?`${stratLabels[savedInputs.strategy]}　→　「${stratFocus}」に集中する`:'（未選択）';
+  document.getElementById('summary-strategy').innerHTML=`<div class="strategy-summary"><div class="ss-label">選んだ方向性</div><div class="ss-body">${stratText}</div></div>`;
+
+  const labels=['明日から試すこと','一週間続けること','一ヶ月後に確かめること'];
+  const keys=['action1','action2','action3'];
+  let actHtml='';
+  keys.forEach((k,i)=>{
+    actHtml+=`<div class="action-summary-item"><div class="action-summary-label">${labels[i]}</div><div class="action-summary-body">${savedInputs[k]||'（未入力）'}</div></div>`;
+  });
+  document.getElementById('summary-actions').innerHTML=actHtml;
+
+  let tendHtml='';
+  if(strong){
+    const strongLabel=savedInputs.strategy==='strong'?'集中する項目（強み）':'最も機能している';
+    tendHtml+=`<div class="hl-box"><div class="hl-label">${strongLabel}</div><div class="hl-body">${strong.name}　${strong.score.toFixed(1)} / 4　${getLabel(strong.score)}</div></div>`;
+  }
+  if(weak){
+    const weakLabel=savedInputs.strategy==='weak'?'集中する項目（要注意）':'最もスコアが低い項目';
+    tendHtml+=`<div class="hl-box"><div class="hl-label">${weakLabel}</div><div class="hl-body">${weak.name}　${weak.score.toFixed(1)} / 4　${getLabel(weak.score)}</div></div>`;
+  }
+  if(avg5>0&&avg3>0)tendHtml+=`<div class="balance-summary"><div class="bs-label">力と土台のバランス</div><div class="bs-body">${getBalanceComment(avg5,avg3)}</div></div>`;
+  document.getElementById('summary-tendency').innerHTML=tendHtml;
+
+  setTimeout(()=>{
+    drawRadar('radar5',scores5);
+    drawRadar('radar3',scores3);
+  },150);
+}
+
+function goStep(n){
+  if(currentStep===3)saveInputs();
+  document.getElementById('step'+currentStep).classList.remove('active');
+  currentStep=n;
+  document.getElementById('step'+currentStep).classList.add('active');
+  for(let i=0;i<5;i++)document.getElementById('ps'+i).classList.toggle('done',i<=n);
+  if(n===3)renderTendency();
+  window.scrollTo(0,0);
+}
+
+renderQuestions('q5forces',questions5);
+renderQuestions('q3base',questions3);
+</script>
+</body>
+</html>
