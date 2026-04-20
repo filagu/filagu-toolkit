@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>伝達ゴール設計ワークシート</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --color-bg: #ffffff;
+  --color-bg-secondary: #f5f5f3;
+  --color-bg-tertiary: #f7f5f0;
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #555550;
+  --color-text-tertiary: #888780;
+  --color-border: rgba(0,0,0,0.12);
+  --color-border-secondary: rgba(0,0,0,0.2);
+  --color-plan: #534AB7;
+  --color-plan-light: #EEEDFE;
+  --color-plan-dark: #3C3489;
+  --color-review: #0F6E56;
+  --color-review-light: #E1F5EE;
+  --color-review-dark: #085041;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #1a1a1a;
+    --color-bg-secondary: #242424;
+    --color-bg-tertiary: #2e2e2e;
+    --color-text-primary: #f0f0f0;
+    --color-text-secondary: #aaaaaa;
+    --color-text-tertiary: #777777;
+    --color-border: rgba(255,255,255,0.12);
+    --color-border-secondary: rgba(255,255,255,0.2);
+    --color-plan-light: #2a2560;
+    --color-plan-dark: #AFA9EC;
+    --color-review-light: #0a3d2e;
+    --color-review-dark: #5DCAA5;
+  }
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif; background: var(--color-bg-tertiary); color: var(--color-text-primary); min-height: 100vh; padding: 2rem 1rem; }
+.app { max-width: 680px; margin: 0 auto; background: var(--color-bg); border-radius: var(--radius-lg); padding: 2rem 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.app-title { font-size: 14px; font-weight: 500; color: var(--color-text-tertiary); margin-bottom: 1.5rem; letter-spacing: 0.04em; }
+.screen { display: none; }
+.screen.active { display: block; }
+.prog-wrap { margin-bottom: 1.75rem; }
+.prog-label { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 6px; display: flex; justify-content: space-between; }
+.prog-bar { height: 4px; background: var(--color-border); border-radius: 2px; }
+.prog-fill { height: 4px; border-radius: 2px; transition: width 0.4s ease; }
+.prog-fill.plan { background: var(--color-plan); }
+.prog-fill.review { background: var(--color-review); }
+.badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 4px 10px; border-radius: var(--radius-md); margin-bottom: 12px; font-weight: 500; }
+.badge.plan { color: var(--color-plan); background: var(--color-plan-light); }
+.badge.review { color: var(--color-review); background: var(--color-review-light); }
+.badge.done { color: #854F0B; background: #FAEEDA; }
+.step-link { font-size: 10px; color: var(--color-plan); background: var(--color-plan-light); padding: 2px 7px; border-radius: var(--radius-md); margin-left: 4px; font-weight: 500; border: 0.5px solid rgba(83,74,183,0.3); }
+.scr-title { font-size: 20px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; line-height: 1.4; }
+.scr-desc { font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1.5rem; line-height: 1.7; }
+.field-group { margin-bottom: 1.25rem; }
+.field-label { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 6px; display: block; }
+.hint { font-size: 13px; color: var(--color-text-tertiary); margin-bottom: 8px; line-height: 1.6; }
+textarea, input[type="text"] { width: 100%; border: 0.5px solid var(--color-border-secondary); border-radius: var(--radius-md); padding: 10px 12px; font-size: 15px; font-family: inherit; color: var(--color-text-primary); background: var(--color-bg); outline: none; line-height: 1.6; transition: border-color 0.15s, box-shadow 0.15s; }
+textarea { resize: vertical; min-height: 80px; }
+textarea:focus, input[type="text"]:focus { border-color: var(--color-plan); box-shadow: 0 0 0 3px var(--color-plan-light); }
+textarea.review:focus, input.review:focus { border-color: var(--color-review); box-shadow: 0 0 0 3px var(--color-review-light); }
+.example { font-size: 13px; color: var(--color-text-tertiary); margin-top: 6px; padding: 8px 12px; background: var(--color-bg-secondary); border-radius: var(--radius-md); border-left: 2px solid #AFA9EC; line-height: 1.6; }
+.choice-group { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.choice-btn { border: 0.5px solid var(--color-border-secondary); border-radius: var(--radius-md); padding: 8px 16px; font-size: 14px; cursor: pointer; background: var(--color-bg); color: var(--color-text-primary); transition: all 0.15s; font-family: inherit; }
+.choice-btn:hover { background: var(--color-bg-secondary); }
+.choice-btn.sel-plan { background: var(--color-plan-light); border-color: var(--color-plan); color: var(--color-plan-dark); font-weight: 500; }
+.choice-btn.sel-review { background: var(--color-review-light); border-color: var(--color-review); color: var(--color-review-dark); font-weight: 500; }
+.choice-btn.sel-multi { background: var(--color-plan-light); border-color: var(--color-plan); color: var(--color-plan-dark); font-weight: 500; }
+.nav { display: flex; gap: 10px; margin-top: 2rem; }
+.btn-p { flex: 1; padding: 12px; border-radius: var(--radius-md); font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.15s; border: 0.5px solid var(--color-plan); background: var(--color-plan); color: #EEEDFE; font-family: inherit; }
+.btn-p:hover { background: var(--color-plan-dark); border-color: var(--color-plan-dark); }
+.btn-r { flex: 1; padding: 12px; border-radius: var(--radius-md); font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.15s; border: 0.5px solid var(--color-review); background: var(--color-review); color: #E1F5EE; font-family: inherit; }
+.btn-r:hover { background: var(--color-review-dark); border-color: var(--color-review-dark); }
+.btn-back { padding: 12px 20px; border-radius: var(--radius-md); border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-secondary); font-size: 15px; cursor: pointer; font-family: inherit; }
+.btn-back:hover { background: var(--color-bg-secondary); }
+.btn-ghost { width: 100%; padding: 11px; border-radius: var(--radius-md); border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-secondary); font-size: 14px; cursor: pointer; margin-top: 8px; font-family: inherit; }
+.btn-ghost:hover { background: var(--color-bg-secondary); }
+.divider { border: none; border-top: 0.5px solid var(--color-border); margin: 2rem 0; }
+.sec-header { font-size: 12px; font-weight: 500; color: var(--color-text-tertiary); letter-spacing: 0.06em; margin-bottom: 1rem; padding-bottom: 8px; border-bottom: 0.5px solid var(--color-border); }
+.sum-card { background: var(--color-bg); border: 0.5px solid var(--color-border); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
+.sum-lbl { font-size: 12px; color: var(--color-text-tertiary); margin-bottom: 4px; font-weight: 500; }
+.sum-val { font-size: 15px; color: var(--color-text-primary); line-height: 1.5; }
+.stag { display: inline-block; font-size: 12px; padding: 3px 10px; border-radius: var(--radius-md); margin-top: 6px; }
+.tag-ok { background: #EAF3DE; color: #3B6D11; }
+.tag-ng { background: #FAEEDA; color: #854F0B; }
+.code-box { background: var(--color-bg-secondary); border: 0.5px solid var(--color-border-secondary); border-radius: var(--radius-md); padding: 14px; font-size: 12px; font-family: 'Courier New', monospace; color: var(--color-text-primary); word-break: break-all; line-height: 1.6; margin: 12px 0; user-select: all; cursor: text; }
+.ref-card { background: var(--color-bg-secondary); border: 0.5px solid var(--color-border); border-radius: var(--radius-lg); padding: 1rem; margin-bottom: 1.5rem; }
+.ref-title { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); letter-spacing: 0.06em; margin-bottom: 10px; }
+.ref-row { margin-bottom: 8px; }
+.ref-lbl { font-size: 11px; color: var(--color-text-tertiary); margin-bottom: 2px; }
+.ref-lbl-sub { font-size: 10px; color: var(--color-plan); margin-left: 4px; }
+.ref-val { font-size: 13px; color: var(--color-text-primary); line-height: 1.5; }
+.top-nav { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+.tab { padding: 7px 14px; border-radius: var(--radius-md); font-size: 13px; cursor: pointer; border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-secondary); font-family: inherit; transition: all 0.15s; }
+.tab.active-plan { background: var(--color-plan-light); border-color: var(--color-plan); color: var(--color-plan-dark); font-weight: 500; }
+.tab.active-review { background: var(--color-review-light); border-color: var(--color-review); color: var(--color-review-dark); font-weight: 500; }
+@media print {
+  @page { margin: 15mm; size: A4; }
+  body { background: white; padding: 0; font-size: 12px; }
+  .app { box-shadow: none; border-radius: 0; padding: 0; max-width: 100%; }
+  .app-title { display: none; }
+  .top-nav, .nav, .btn-ghost, .btn-p, .btn-r, .btn-back { display: none !important; }
+  .screen { display: none !important; }
+  .screen.active { display: block !important; }
+  .print-plan, .print-review { display: block !important; }
+  .print-plan { page-break-after: always; }
+  .print-review { page-break-before: always; }
+  .print-section-title { font-size: 13px; font-weight: 500; color: #534AB7; margin-bottom: 1rem; padding-bottom: 8px; border-bottom: 1px solid #534AB7; letter-spacing: 0.04em; }
+  .print-section-title.review { color: #0F6E56; border-bottom-color: #0F6E56; }
+  .sum-card { border: 0.5px solid #ccc; border-radius: 8px; padding: 10px 14px; margin-bottom: 10px; break-inside: avoid; }
+  .sum-lbl { font-size: 10px; color: #888; margin-bottom: 3px; font-weight: 500; }
+  .sum-val { font-size: 13px; color: #1a1a1a; line-height: 1.5; }
+  .stag { font-size: 10px; padding: 2px 8px; }
+  .divider { margin: 12px 0; }
+  .sec-header { font-size: 10px; letter-spacing: 0.06em; margin-bottom: 10px; padding-bottom: 6px; }
+  .print-meta { font-size: 11px; color: #888; margin-bottom: 1.5rem; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="app-title">伝達ゴール設計ワークシート</div>
+
+  <div class="top-nav">
+    <button class="tab active-plan" id="tab-plan" onclick="switchMode('plan')">事前設計シート</button>
+    <button class="tab" id="tab-review" onclick="switchMode('review')">振り返りシート</button>
+  </div>
+
+  <!-- PLAN -->
+  <div class="screen active" id="p1">
+    <div class="prog-wrap">
+      <div class="prog-label"><span>事前設計</span><span>1 / 4</span></div>
+      <div class="prog-bar"><div class="prog-fill plan" style="width:25%"></div></div>
+    </div>
+    <div class="badge plan">事前設計 ①</div>
+    <div class="scr-title">今日、誰に・何を伝えるか</div>
+    <div class="scr-desc">まず起点を決める。相手と内容を一言で書く。</div>
+    <div class="field-group">
+      <label class="field-label" for="f-person">相手</label>
+      <input type="text" id="f-person" placeholder="例：Aさん（チームリーダー）">
+    </div>
+    <div class="field-group">
+      <label class="field-label" for="f-content">伝える内容（一言で）</label>
+      <input type="text" id="f-content" placeholder="例：報告のタイミングについてフィードバックしたい">
+    </div>
+    <div class="nav"><button class="btn-p" onclick="go('p2')">次へ</button></div>
+  </div>
+
+  <div class="screen" id="p2">
+    <div class="prog-wrap">
+      <div class="prog-label"><span>事前設計</span><span>2 / 4</span></div>
+      <div class="prog-bar"><div class="prog-fill plan" style="width:50%"></div></div>
+    </div>
+    <div class="badge plan">事前設計 ②<span class="step-link">本文 問い①</span></div>
+    <div class="scr-title">伝わった後、相手はどう動いているか</div>
+    <div class="scr-desc">「わかった」ではなく「何をする」まで具体的に書く。これがゴールになる。</div>
+    <div class="field-group">
+      <label class="field-label" for="f-goal">伝わった後の行動</label>
+      <textarea id="f-goal" placeholder="例：作業が半分終わった時点で、自分から一度声をかけている"></textarea>
+      <div class="example">「意識する」「気をつける」はまだゴールではない。「いつ・どの場面で・何をする」まで落とす。</div>
+    </div>
+    <div class="field-group">
+      <span class="field-label">「自分から動いている」状態に近いか</span>
+      <div class="choice-group">
+        <button class="choice-btn" onclick="pick('goal','near',this)">近い</button>
+        <button class="choice-btn" onclick="pick('goal','far',this)">まだ遠い</button>
+      </div>
+      <div id="goal-hint" style="display:none;margin-top:10px;" class="example">ゴールをもう一段具体化してみる。「いつ・どの場面で・何をする」まで落とせると近くなる。</div>
+    </div>
+    <div class="nav">
+      <button class="btn-back" onclick="go('p1')">戻る</button>
+      <button class="btn-p" onclick="go('p3')">次へ</button>
+    </div>
+  </div>
+
+  <div class="screen" id="p3">
+    <div class="prog-wrap">
+      <div class="prog-label"><span>事前設計</span><span>3 / 4</span></div>
+      <div class="prog-bar"><div class="prog-fill plan" style="width:75%"></div></div>
+    </div>
+    <div class="badge plan">事前設計 ③<span class="step-link">本文 問い②</span></div>
+    <div class="scr-title">相手の今の状態を知っているか</div>
+    <div class="scr-desc">相手の思考と今の状態に、言葉が合っているかを確かめる。</div>
+    <div class="field-group">
+      <label class="field-label" for="f-context">相手が今頭に置いていることは？</label>
+      <textarea id="f-context" placeholder="わからなければ「今、何が一番気になってる？」と先に聞く"></textarea>
+    </div>
+    <div class="field-group">
+      <span class="field-label">伝えたい内容は、その状態と合っているか</span>
+      <div class="choice-group">
+        <button class="choice-btn" onclick="pick('ctx','ok',this)">合っている</button>
+        <button class="choice-btn" onclick="pick('ctx','ng',this)">ズレているかもしれない</button>
+      </div>
+      <div id="ctx-hint" style="display:none;margin-top:10px;" class="example"></div>
+    </div>
+    <div class="field-group" id="ctx-action-wrap" style="display:none;">
+      <label class="field-label" for="f-ctx-action">先に確認・整理しておくことは？</label>
+      <textarea id="f-ctx-action" placeholder="例：今月の進捗状況を先に聞いてから話す"></textarea>
+    </div>
+    <div class="nav">
+      <button class="btn-back" onclick="go('p2')">戻る</button>
+      <button class="btn-p" onclick="go('p4')">次へ</button>
+    </div>
+  </div>
+
+  <div class="screen" id="p4">
+    <div class="prog-wrap">
+      <div class="prog-label"><span>事前設計</span><span>4 / 4</span></div>
+      <div class="prog-bar"><div class="prog-fill plan" style="width:100%"></div></div>
+    </div>
+    <div class="badge plan">事前設計 ④<span class="step-link">本文 問い③</span></div>
+    <div class="scr-title">届いたかを確かめるために、何を聞くか</div>
+    <div class="scr-desc">「わかりましたか？」は使わない。相手の頭の中に場面が浮かんでいるかを確かめられる問いを先に決めておく。</div>
+    <div class="field-group">
+      <label class="field-label" for="f-check">確認に使う問い</label>
+      <textarea id="f-check" placeholder="例：今日の話、明日どの場面で使おうと思ってる？"></textarea>
+      <div class="example">相手が自分の言葉で答えられたとき、それが「届いた」サイン。</div>
+    </div>
+    <div class="field-group">
+      <label class="field-label" for="f-emotion">感情の定着も確かめるか（任意）</label>
+      <div class="hint">「やらされ感」ではなく「自分で動く感覚」に近いかを確認する問いも持っておくと定着しやすい。</div>
+      <textarea id="f-emotion" placeholder="例：この件、自分だったらどう動く？"></textarea>
+    </div>
+    <div class="nav">
+      <button class="btn-back" onclick="go('p3')">戻る</button>
+      <button class="btn-p" onclick="showPlanDone()">設計完了 →</button>
+    </div>
+  </div>
+
+  <div class="screen" id="p-done">
+    <div class="badge plan">事前設計 完了</div>
+    <div class="scr-title">設計シートが完成しました</div>
+    <div class="scr-desc">印刷して話に臨んでください。話した後は、引き継ぎコードを振り返りシートに貼り付けてください。</div>
+    <div class="sec-header">事前設計の内容</div>
+    <div class="sum-card"><div class="sum-lbl">① 相手・内容</div><div class="sum-val" id="pd-who"></div></div>
+    <div class="sum-card"><div class="sum-lbl">② ゴール（本文 問い①）</div><div class="sum-val" id="pd-goal"></div><span class="stag" id="pd-goal-tag"></span></div>
+    <div class="sum-card"><div class="sum-lbl">③ 相手の状態（本文 問い②）</div><div class="sum-val" id="pd-ctx"></div><span class="stag" id="pd-ctx-tag"></span><div id="pd-ctx-action" style="margin-top:8px;font-size:13px;color:var(--color-text-secondary);"></div></div>
+    <div class="sum-card"><div class="sum-lbl">④ 確認の問い（本文 問い③）</div><div class="sum-val" id="pd-check"></div><div id="pd-emotion" style="margin-top:8px;font-size:13px;color:var(--color-text-secondary);"></div></div>
+    <div class="divider"></div>
+    <div class="field-label" style="margin-bottom:6px;display:block;">引き継ぎコード</div>
+    <div class="hint">このコードをコピーして、振り返りシートの入力欄に貼り付けると事前設計の内容が復元されます。コピーできない場合はコードを直接選択してコピーしてください。</div>
+    <div class="code-box" id="transfer-code" onclick="selectCode()"></div>
+    <button class="btn-p" onclick="copyCode()" id="copy-btn">コードをコピーする</button>
+    <button class="btn-ghost" onclick="window.print()">印刷・保存する</button>
+    <button class="btn-ghost" onclick="goReviewTab()">振り返りシートへ →</button>
+  </div>
+
+  <!-- REVIEW -->
+  <div class="screen" id="r-entry">
+    <div class="badge review">振り返りシート</div>
+    <div class="scr-title">引き継ぎコードを貼り付ける</div>
+    <div class="scr-desc">事前設計シートで生成したコードをここに貼り付けてください。コードがない場合はそのまま進めます。</div>
+    <div class="field-group">
+      <label class="field-label" for="f-transfer-input">引き継ぎコード</label>
+      <textarea id="f-transfer-input" class="review" placeholder="ここにコードを貼り付ける" style="min-height:60px;font-family:monospace;font-size:13px;"></textarea>
+      <div class="hint" style="margin-top:8px;">事前設計シートの「設計完了」画面に表示されたコードをコピーして貼り付けてください。</div>
+    </div>
+    <div class="nav"><button class="btn-r" onclick="loadCode()">読み込んで振り返りを始める</button></div>
+    <button class="btn-ghost" onclick="startReviewBlank()">コードなしで始める</button>
+  </div>
+
+  <div class="screen" id="r1">
+    <div class="prog-wrap">
+      <div class="prog-label"><span>振り返り</span><span>1 / 3</span></div>
+      <div class="prog-bar"><div class="prog-fill review" style="width:33%"></div></div>
+    </div>
+    <div id="ref-r1" class="ref-card" style="display:none;"></div>
+    <div class="badge review">振り返り ⑤</div>
+    <div class="scr-title">実際に届いたか</div>
+    <div class="scr-desc">相手の反応を事実として書いてから、評価する。</div>
+    <div class="field-group">
+      <label class="field-label" for="f-reaction">相手の反応・言葉</label>
+      <textarea id="f-reaction" class="review" placeholder="例：「わかりました、次回から気をつけます」と言って席に戻った"></textarea>
+    </div>
+    <div class="field-group">
+      <span class="field-label">設計したゴールに近い反応だったか</span>
+      <div class="choice-group">
+        <button class="choice-btn" onclick="pick('result','ok',this,'review')">近かった</button>
+        <button class="choice-btn" onclick="pick('result','ng',this,'review')">ズレていた</button>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn-back" onclick="go('r-entry')">戻る</button>
+      <button class="btn-r" onclick="go('r2')">次へ</button>
+    </div>
+  </div>
+
+  <div class="screen" id="r2">
+    <div class="prog-wrap">
+      <div class="prog-label"><span>振り返り</span><span>2 / 3</span></div>
+      <div class="prog-bar"><div class="prog-fill review" style="width:66%"></div></div>
+    </div>
+    <div id="ref-r2" class="ref-card" style="display:none;"></div>
+    <div class="badge review">振り返り ⑥</div>
+    <div class="scr-title">どこでズレたか</div>
+    <div class="scr-desc">当てはまるものを選ぶ。複数でもいい。</div>
+    <div class="field-group">
+      <div class="choice-group" style="flex-direction:column;">
+        <button class="choice-btn" style="text-align:left;" onclick="toggleMiss(this,'goal')">ゴールの設計が甘かった（行動まで具体化できていなかった）</button>
+        <button class="choice-btn" style="text-align:left;" onclick="toggleMiss(this,'context')">相手の文脈を読めていなかった（タイミング・状態がズレていた）</button>
+        <button class="choice-btn" style="text-align:left;" onclick="toggleMiss(this,'check')">確認の問いが機能しなかった（問いの立て方を変える）</button>
+        <button class="choice-btn" style="text-align:left;" onclick="toggleMiss(this,'other')">その他</button>
+      </div>
+    </div>
+    <div id="other-wrap" style="display:none;" class="field-group">
+      <label class="field-label" for="f-other">その他・メモ</label>
+      <textarea id="f-other" class="review" placeholder="気づいたことを自由に"></textarea>
+    </div>
+    <div class="nav">
+      <button class="btn-back" onclick="go('r1')">戻る</button>
+      <button class="btn-r" onclick="go('r3')">次へ</button>
+    </div>
+  </div>
+
+  <div class="screen" id="r3">
+    <div class="prog-wrap">
+      <div class="prog-label"><span>振り返り</span><span>3 / 3</span></div>
+      <div class="prog-bar"><div class="prog-fill review" style="width:100%"></div></div>
+    </div>
+    <div class="badge review">振り返り ⑦</div>
+    <div class="scr-title">次に変えること（1つだけ）</div>
+    <div class="scr-desc">3つ書かなくていい。1つだけ決める。</div>
+    <div class="field-group">
+      <label class="field-label" for="f-next">次の伝達で変えること</label>
+      <textarea id="f-next" class="review" placeholder="例：話す前に必ず問い①を書いてから臨む"></textarea>
+    </div>
+    <div class="nav">
+      <button class="btn-back" onclick="go('r2')">戻る</button>
+      <button class="btn-r" onclick="showFinal()">完成 →</button>
+    </div>
+  </div>
+
+  <div class="screen" id="s-final">
+    <div class="badge done">完成</div>
+    <div class="scr-title">伝達ゴール設計シート</div>
+    <div class="divider"></div>
+    <div class="sec-header">事前設計</div>
+    <div class="sum-card"><div class="sum-lbl">① 相手・内容</div><div class="sum-val" id="fin-who"></div></div>
+    <div class="sum-card"><div class="sum-lbl">② ゴール（本文 問い①）</div><div class="sum-val" id="fin-goal"></div><span class="stag" id="fin-goal-tag"></span></div>
+    <div class="sum-card"><div class="sum-lbl">③ 相手の状態（本文 問い②）</div><div class="sum-val" id="fin-ctx"></div><span class="stag" id="fin-ctx-tag"></span><div id="fin-ctx-action" style="margin-top:8px;font-size:13px;color:var(--color-text-secondary);"></div></div>
+    <div class="sum-card"><div class="sum-lbl">④ 確認の問い（本文 問い③）</div><div class="sum-val" id="fin-check"></div><div id="fin-emotion" style="margin-top:8px;font-size:13px;color:var(--color-text-secondary);"></div></div>
+    <div class="divider"></div>
+    <div class="sec-header">振り返り</div>
+    <div class="sum-card"><div class="sum-lbl">⑤ 相手の反応</div><div class="sum-val" id="fin-reaction"></div><span class="stag" id="fin-result-tag"></span></div>
+    <div class="sum-card"><div class="sum-lbl">⑥ ズレた箇所</div><div class="sum-val" id="fin-miss"></div></div>
+    <div class="sum-card"><div class="sum-lbl">⑦ 次に変えること</div><div class="sum-val" id="fin-next"></div></div>
+    <button class="btn-p" onclick="restartPlan()" style="margin-top:1.5rem;">新しい事前設計を始める</button>
+    <button class="btn-r" onclick="restartReview()" style="margin-top:8px;">振り返りをやり直す</button>
+    <button class="btn-ghost" onclick="window.print()">印刷・保存する</button>
+  </div>
+
+  <!-- 印刷専用レイアウト（画面では非表示） -->
+  <div class="print-plan" style="display:none;">
+    <div class="print-section-title">伝達ゴール設計シート　事前設計</div>
+    <div class="print-meta" id="print-date"></div>
+    <div class="sum-card"><div class="sum-lbl">① 相手・内容</div><div class="sum-val" id="pr-who"></div></div>
+    <div class="sum-card"><div class="sum-lbl">② ゴール　伝わった後、相手はどう動いているか</div><div class="sum-val" id="pr-goal"></div><span class="stag" id="pr-goal-tag"></span></div>
+    <div class="sum-card"><div class="sum-lbl">③ 相手の状態　今頭に置いていることは何か</div><div class="sum-val" id="pr-ctx"></div><span class="stag" id="pr-ctx-tag"></span><div id="pr-ctx-action" style="margin-top:6px;font-size:12px;color:#888;"></div></div>
+    <div class="sum-card"><div class="sum-lbl">④ 確認の問い　届いたかを確かめるために何を聞くか</div><div class="sum-val" id="pr-check"></div><div id="pr-emotion" style="margin-top:6px;font-size:12px;color:#888;"></div></div>
+  </div>
+  <div class="print-review" style="display:none;">
+    <div class="print-section-title review">伝達ゴール設計シート　振り返り</div>
+    <div class="sum-card" style="margin-bottom:10px;background:#f7f5f0;">
+      <div class="sum-lbl">事前設計のゴール（参照）</div>
+      <div class="sum-val" id="pr-goal-ref" style="font-size:12px;color:#555;"></div>
+    </div>
+    <div class="sum-card"><div class="sum-lbl">⑤ 相手の反応・言葉</div><div class="sum-val" id="pr-reaction"></div><span class="stag" id="pr-result-tag"></span></div>
+    <div class="sum-card"><div class="sum-lbl">⑥ ズレた箇所</div><div class="sum-val" id="pr-miss"></div></div>
+    <div class="sum-card"><div class="sum-lbl">⑦ 次に変えること（1つだけ）</div><div class="sum-val" id="pr-next"></div></div>
+  </div>
+
+</div>
+
+<script>
+const st = { goal:'', ctx:'', result:'', miss:[] };
+let planSnap = {};
+let currentPlanScreen = 'p1';
+let currentReviewScreen = 'r-entry';
+
+function v(id) { const e=document.getElementById(id); return e?e.value.trim():''; }
+function sv(id) { return v(id)||'（未記入）'; }
+
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById(id);
+  if (el) el.classList.add('active');
+  if (id.startsWith('p')) currentPlanScreen=id;
+  if (id.startsWith('r')||id==='s-final') currentReviewScreen=id;
+  if (id==='r1'||id==='r2') buildRefCards();
+  window.scrollTo(0,0);
+}
+
+function switchMode(mode) {
+  document.getElementById('tab-plan').className='tab'+(mode==='plan'?' active-plan':'');
+  document.getElementById('tab-review').className='tab'+(mode==='review'?' active-review':'');
+  if (mode==='plan') go(currentPlanScreen);
+  else go(currentReviewScreen);
+}
+
+function goReviewTab() { switchMode('review'); }
+
+function pick(key, val, btn, mode) {
+  st[key]=val;
+  const cls=mode==='review'?'sel-review':'sel-plan';
+  btn.closest('.choice-group').querySelectorAll('.choice-btn').forEach(b=>{ b.classList.remove('sel-plan'); b.classList.remove('sel-review'); });
+  btn.classList.add(cls);
+  if (key==='goal') { const h=document.getElementById('goal-hint'); if(h) h.style.display=val==='far'?'block':'none'; }
+  if (key==='ctx') {
+    const h=document.getElementById('ctx-hint'); const w=document.getElementById('ctx-action-wrap');
+    if (val==='ng') { if(h){h.style.display='block';h.textContent='タイミングをずらすか、相手が今気にしていることを起点に話を組み直す。';} if(w) w.style.display='block'; }
+    else { if(h) h.style.display='none'; if(w) w.style.display='none'; }
+  }
+}
+
+function toggleMiss(btn, key) {
+  btn.classList.toggle('sel-multi');
+  const idx=st.miss.indexOf(key);
+  if(idx>-1) st.miss.splice(idx,1); else st.miss.push(key);
+  const w=document.getElementById('other-wrap');
+  if(w) w.style.display=st.miss.includes('other')?'block':'none';
+}
+
+function encode(d) { try { return btoa(unescape(encodeURIComponent(JSON.stringify(d)))); } catch(e) { return ''; } }
+function decode(s) { try { return JSON.parse(decodeURIComponent(escape(atob(s)))); } catch(e) { return null; } }
+
+function selectCode() {
+  const el=document.getElementById('transfer-code');
+  if (!el) return;
+  const range=document.createRange();
+  range.selectNodeContents(el);
+  const sel=window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
+function showPlanDone() {
+  planSnap={ p:v('f-person'), c:v('f-content'), g:v('f-goal'), gl:st.goal, x:v('f-context'), xl:st.ctx, xa:v('f-ctx-action'), ch:v('f-check'), em:v('f-emotion') };
+  document.getElementById('pd-who').textContent=sv('f-person')+'　／　'+sv('f-content');
+  document.getElementById('pd-goal').textContent=sv('f-goal');
+  const gt=document.getElementById('pd-goal-tag'); gt.textContent=st.goal==='near'?'自分から動く状態に近い':st.goal==='far'?'もう一段具体化が必要':''; gt.className='stag '+(st.goal==='near'?'tag-ok':'tag-ng');
+  document.getElementById('pd-ctx').textContent=sv('f-context');
+  const ct=document.getElementById('pd-ctx-tag'); ct.textContent=st.ctx==='ok'?'文脈と合っている':st.ctx==='ng'?'ズレあり・要調整':''; ct.className='stag '+(st.ctx==='ok'?'tag-ok':'tag-ng');
+  const ca=v('f-ctx-action'); document.getElementById('pd-ctx-action').textContent=ca?'調整メモ：'+ca:'';
+  document.getElementById('pd-check').textContent=sv('f-check');
+  const em=v('f-emotion'); document.getElementById('pd-emotion').textContent=em?'感情確認の問い：'+em:'';
+  document.getElementById('transfer-code').textContent=encode(planSnap);
+  go('p-done');
+}
+
+function copyCode() {
+  const code=document.getElementById('transfer-code').textContent;
+  const btn=document.getElementById('copy-btn');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(code).then(()=>{ btn.textContent='コピーしました'; setTimeout(()=>{ btn.textContent='コードをコピーする'; },2000); }).catch(()=>{ selectCode(); btn.textContent='選択しました（⌘C / Ctrl+C でコピー）'; setTimeout(()=>{ btn.textContent='コードをコピーする'; },3000); });
+  } else { selectCode(); btn.textContent='選択しました（⌘C / Ctrl+C でコピー）'; setTimeout(()=>{ btn.textContent='コードをコピーする'; },3000); }
+}
+
+function loadCode() {
+  const raw=v('f-transfer-input');
+  if (!raw) { startReviewBlank(); return; }
+  const d=decode(raw);
+  if (!d) { alert('コードを正しく読み込めませんでした。もう一度確認してください。'); return; }
+  planSnap={ p:d.p||'', c:d.c||'', g:d.g||'', gl:d.gl||'', x:d.x||'', xl:d.xl||'', xa:d.xa||'', ch:d.ch||'', em:d.em||'' };
+  st.goal=d.gl||''; st.ctx=d.xl||'';
+  buildRefCards();
+  go('r1');
+}
+
+function startReviewBlank() { planSnap={}; buildRefCards(); go('r1'); }
+
+function buildRefCards() {
+  ['r1','r2'].forEach(id=>{
+    const el=document.getElementById('ref-'+id);
+    if (!el) return;
+    if (!planSnap.g && !planSnap.ch) { el.style.display='none'; return; }
+    el.style.display='block';
+    el.innerHTML='<div class="ref-title">事前設計の内容（参照）</div>'
+      +(planSnap.g?'<div class="ref-row"><div class="ref-lbl">② ゴール <span class="ref-lbl-sub">本文 問い①</span></div><div class="ref-val">'+planSnap.g+'</div></div>':'')
+      +(planSnap.x?'<div class="ref-row"><div class="ref-lbl">③ 相手の状態 <span class="ref-lbl-sub">本文 問い②</span></div><div class="ref-val">'+planSnap.x+'</div></div>':'')
+      +(planSnap.ch?'<div class="ref-row"><div class="ref-lbl">④ 確認の問い <span class="ref-lbl-sub">本文 問い③</span></div><div class="ref-val">'+planSnap.ch+'</div></div>':'');
+  });
+}
+
+const missLabels={ goal:'ゴールの設計が甘かった', context:'相手の文脈を読めていなかった', check:'確認の問いが機能しなかった', other:'その他' };
+
+function showFinal() {
+  const who=planSnap.p?(planSnap.p+(planSnap.c?' / '+planSnap.c:'')):sv('f-person')+' / '+sv('f-content');
+  document.getElementById('fin-who').textContent=who;
+  document.getElementById('fin-goal').textContent=planSnap.g||'（未記入）';
+  const fgt=document.getElementById('fin-goal-tag'); fgt.textContent=st.goal==='near'?'自分から動く状態に近い':st.goal==='far'?'もう一段具体化が必要':''; fgt.className='stag '+(st.goal==='near'?'tag-ok':'tag-ng');
+  document.getElementById('fin-ctx').textContent=planSnap.x||'（未記入）';
+  const fct=document.getElementById('fin-ctx-tag'); fct.textContent=st.ctx==='ok'?'文脈と合っている':st.ctx==='ng'?'ズレあり・要調整':''; fct.className='stag '+(st.ctx==='ok'?'tag-ok':'tag-ng');
+  document.getElementById('fin-ctx-action').textContent=planSnap.xa?'調整メモ：'+planSnap.xa:'';
+  document.getElementById('fin-check').textContent=planSnap.ch||'（未記入）';
+  document.getElementById('fin-emotion').textContent=planSnap.em?'感情確認の問い：'+planSnap.em:'';
+  document.getElementById('fin-reaction').textContent=sv('f-reaction');
+  const frt=document.getElementById('fin-result-tag'); frt.textContent=st.result==='ok'?'ゴールに近かった':st.result==='ng'?'ズレていた':''; frt.className='stag '+(st.result==='ok'?'tag-ok':'tag-ng');
+  const mt=st.miss.length>0?st.miss.map(k=>missLabels[k]).join('　／　'):'（選択なし）';
+  const ov=v('f-other');
+  document.getElementById('fin-miss').textContent=mt+(ov?' 　'+ov:'');
+  document.getElementById('fin-next').textContent=sv('f-next');
+
+  const now=new Date();
+  const dateStr=now.getFullYear()+'年'+(now.getMonth()+1)+'月'+now.getDate()+'日';
+  const pd=document.getElementById('print-date'); if(pd) pd.textContent=dateStr;
+  const setPr=(id,val)=>{ const e=document.getElementById(id); if(e) e.textContent=val; };
+  setPr('pr-who', who);
+  setPr('pr-goal', planSnap.g||'（未記入）');
+  const prgt=document.getElementById('pr-goal-tag'); if(prgt){ prgt.textContent=fgt.textContent; prgt.className=fgt.className; }
+  setPr('pr-ctx', planSnap.x||'（未記入）');
+  const prct=document.getElementById('pr-ctx-tag'); if(prct){ prct.textContent=fct.textContent; prct.className=fct.className; }
+  const prca=document.getElementById('pr-ctx-action'); if(prca) prca.textContent=planSnap.xa?'調整メモ：'+planSnap.xa:'';
+  setPr('pr-check', planSnap.ch||'（未記入）');
+  const prem=document.getElementById('pr-emotion'); if(prem) prem.textContent=planSnap.em?'感情確認の問い：'+planSnap.em:'';
+  setPr('pr-goal-ref', planSnap.g||'（未記入）');
+  setPr('pr-reaction', sv('f-reaction'));
+  const prrt=document.getElementById('pr-result-tag'); if(prrt){ prrt.textContent=frt.textContent; prrt.className=frt.className; }
+  setPr('pr-miss', mt+(ov?' 　'+ov:''));
+  setPr('pr-next', sv('f-next'));
+
+  go('s-final');
+}
+
+function restartPlan() {
+  document.querySelectorAll('input[type="text"], textarea').forEach(el=>el.value='');
+  document.querySelectorAll('.choice-btn').forEach(b=>{ b.classList.remove('sel-plan'); b.classList.remove('sel-review'); b.classList.remove('sel-multi'); });
+  Object.assign(st,{goal:'',ctx:'',result:'',miss:[]});
+  ['goal-hint','ctx-hint','ctx-action-wrap','other-wrap'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display='none'; });
+  planSnap={};
+  currentPlanScreen='p1';
+  switchMode('plan');
+}
+
+function restartReview() {
+  ['f-reaction','f-other','f-next'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  document.querySelectorAll('.choice-btn').forEach(b=>{ b.classList.remove('sel-review'); b.classList.remove('sel-multi'); });
+  st.result=''; st.miss=[];
+  const ow=document.getElementById('other-wrap'); if(ow) ow.style.display='none';
+  const ti=document.getElementById('f-transfer-input'); if(ti) ti.value='';
+  currentReviewScreen='r-entry';
+  switchMode('review');
+}
+</script>
+</body>
+</html>
