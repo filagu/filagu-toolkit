@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>集団浅慮チェックシート</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f4ef;
+    --surface: #ffffff;
+    --ink: #1a1714;
+    --ink-light: #6b6560;
+    --accent: #2d4a3e;
+    --accent-light: #4a7c6a;
+    --border: #e0d9d0;
+    --check-bg: #eef4f1;
+    --radius: 4px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 300;
+    line-height: 1.8;
+    min-height: 100vh;
+  }
+
+  .wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  .header {
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-label {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--accent-light);
+
+    margin-bottom: 16px;
+  }
+
+  .header h1 {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(22px, 5vw, 28px);
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+
+  .header p {
+    font-size: 14px;
+    color: var(--ink-light);
+    line-height: 1.9;
+  }
+
+  .section {
+    margin-bottom: 40px;
+  }
+
+  .section-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--accent);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .section-desc {
+    font-size: 13px;
+    color: var(--ink-light);
+    margin-bottom: 20px;
+  }
+
+  .check-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .check-item:hover {
+    border-color: var(--accent-light);
+    background: var(--check-bg);
+  }
+
+  .check-item.checked {
+    border-color: var(--accent);
+    background: var(--check-bg);
+  }
+
+  .check-box {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    border: 1.5px solid var(--border);
+    border-radius: 2px;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+
+  .check-item.checked .check-box {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .check-item.checked .check-box::after {
+    content: '';
+    width: 10px;
+    height: 6px;
+    border-left: 2px solid white;
+    border-bottom: 2px solid white;
+    transform: rotate(-45deg) translateY(-1px);
+    display: block;
+  }
+
+  .check-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--ink);
+  }
+
+  .result-box {
+    display: none;
+    padding: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-top: 24px;
+  }
+
+  .result-box.visible {
+    display: block;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .result-count {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 32px;
+    font-weight: 300;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .result-count span {
+    font-size: 14px;
+    color: var(--ink-light);
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+
+  .result-label {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  .result-desc {
+    font-size: 13px;
+    color: var(--ink-light);
+    line-height: 1.8;
+  }
+
+  .result-items {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .result-items-title {
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    color: var(--ink-light);
+    margin-bottom: 10px;
+  }
+
+  .result-item-tag {
+    display: inline-block;
+    font-size: 12px;
+    padding: 4px 10px;
+    background: var(--check-bg);
+    border: 1px solid var(--accent-light);
+    border-radius: 20px;
+    color: var(--accent);
+    margin: 3px 3px 3px 0;
+    line-height: 1.6;
+  }
+
+  .result-next {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--accent-light);
+    line-height: 1.8;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 48px 0;
+  }
+
+  .reflect-intro {
+    font-size: 14px;
+    color: var(--ink-light);
+    margin-bottom: 24px;
+    line-height: 1.9;
+  }
+
+  .reflect-item {
+    margin-bottom: 24px;
+  }
+
+  .reflect-q {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 10px;
+    line-height: 1.7;
+    padding-left: 12px;
+    border-left: 2px solid var(--accent);
+  }
+
+  .reflect-note {
+    font-size: 12px;
+    color: var(--ink-light);
+    margin-bottom: 8px;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--ink);
+    line-height: 1.8;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  textarea:focus {
+    border-color: var(--accent-light);
+  }
+
+  textarea::placeholder {
+    color: #bbb;
+  }
+
+  .footer {
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink-light);
+    letter-spacing: 0.05em;
+  }
+
+  .footer a {
+    color: var(--accent-light);
+    text-decoration: none;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="header-label">filagu — 集団浅慮チェックシート</div>
+    <h1>自分のチームに<br>集団浅慮は起きているか</h1>
+    <p>当てはまる項目を選んでください。<br>選んだ結果をもとに、自分の関わり方を振り返ります。</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">会議の場面</div>
+    <div class="section-desc">最近3ヶ月の会議を思い浮かべてください</div>
+    <div class="check-list">
+      <div class="check-item" data-id="m1" data-label="マネージャーや声の大きい人が先に意見を言うことが多い">
+        <div class="check-box"></div>
+        <div class="check-text">マネージャーや声の大きいメンバーが先に意見を言うことが多い</div>
+      </div>
+      <div class="check-item" data-id="m2" data-label="反対意見や懸念が会議中にほとんど出ない">
+        <div class="check-box"></div>
+        <div class="check-text">反対意見や懸念が会議中にほとんど出ない</div>
+      </div>
+      <div class="check-item" data-id="m3" data-label="会議後に「やっぱりあれはおかしかった」という話が出ることがある">
+        <div class="check-box"></div>
+        <div class="check-text">会議後に「やっぱりあれはおかしかった」という話が出ることがある</div>
+      </div>
+      <div class="check-item" data-id="m4" data-label="活発に議論した記憶がないのに「いい会議だった」と感じることがある">
+        <div class="check-box"></div>
+        <div class="check-text">活発に議論した記憶がないのに「いい会議だった」と感じることがある</div>
+      </div>
+      <div class="check-item" data-id="m5" data-label="沈黙が続いても誰も話題を変えようとしない">
+        <div class="check-box"></div>
+        <div class="check-text">沈黙が続いても、誰も話題を変えようとしない</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">チームの判断場面</div>
+    <div class="section-desc">チームが判断を求められる場面を思い浮かべてください</div>
+    <div class="check-list">
+      <div class="check-item" data-id="j1" data-label="判断を委ねると「どうしますか？」と聞き返してくることが多い">
+        <div class="check-box"></div>
+        <div class="check-text">判断を委ねると「どうしますか？」と聞き返してくることが多い</div>
+      </div>
+      <div class="check-item" data-id="j2" data-label="「みんなそう言ってました」が判断の根拠になっていることがある">
+        <div class="check-box"></div>
+        <div class="check-text">「みんなそう言ってました」が判断の根拠になっていることがある</div>
+      </div>
+      <div class="check-item" data-id="j3" data-label="メンバーが自分の意見より誰かの意見に乗ることが多い">
+        <div class="check-box"></div>
+        <div class="check-text">メンバーが自分の意見より、誰かの意見に乗ることが多い</div>
+      </div>
+      <div class="check-item" data-id="j4" data-label="話し合いの結果が最初に誰かが言った意見と同じになることが多い">
+        <div class="check-box"></div>
+        <div class="check-text">話し合いの結果が、最初に誰かが言った意見と同じになることが多い</div>
+      </div>
+      <div class="check-item" data-id="j5" data-label="チームで決めたことへの当事者意識が薄いと感じることがある">
+        <div class="check-box"></div>
+        <div class="check-text">チームで決めたことへの当事者意識が薄いと感じることがある</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="result-box" id="resultBox">
+    <div class="result-count" id="resultCount">0 <span>/ 10項目</span></div>
+    <div class="result-label" id="resultLabel"></div>
+    <div class="result-desc" id="resultDesc"></div>
+    <div class="result-items" id="resultItems" style="display:none">
+      <div class="result-items-title">当てはまった項目</div>
+      <div id="resultTags"></div>
+    </div>
+    <div class="result-next" id="resultNext" style="display:none">
+      当てはまった項目を手がかりに、下の振り返りの問いに答えてみてください。
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section">
+    <div class="section-title">振り返りの問い</div>
+    <div class="reflect-intro">チェックした結果を見ながら、以下の問いに答えてみてください。<br>書き出すことで、頭の中にある「なんとなく気になっていること」が言葉になります。</div>
+
+    <div class="reflect-item">
+      <div class="reflect-q">当てはまった場面を一つ、具体的に思い出せますか？<br>そのとき、自分はどう関わっていましたか？</div>
+      <div class="reflect-note">いつ・どんな状況だったかを書いてみてください</div>
+      <textarea id="reflect1" placeholder="例：先週の定例会議で、自分が最初に方向性を示してしまい、その後は同意の意見しか出なかった…"></textarea>
+    </div>
+
+    <div class="reflect-item">
+      <div class="reflect-q">メンバーが違和感を飲み込んでいると感じた場面はありますか？<br>そのとき、何が言い出しにくくさせていたと思いますか？</div>
+      <div class="reflect-note">メンバーの立場から考えてみてください</div>
+      <textarea id="reflect2" placeholder="例：自分が「これでいこう」と言った後、場の空気が変わった気がした…"></textarea>
+    </div>
+
+    <div class="reflect-item">
+      <div class="reflect-q">チームの思考の質を上げるために、<br>明日から一つだけ変えるとしたら何ですか？</div>
+      <div class="reflect-note">具体的な行動を一つだけ書いてみてください</div>
+      <textarea id="reflect3" placeholder="例：会議の最初に自分の意見を言わず、メンバーに先に問いかけるようにする…"></textarea>
+    </div>
+  </div>
+
+  <div class="footer">
+    <a href="https://note.com/filagu_masa" target="_blank">filagu on note</a>
+    &nbsp;／&nbsp;
+    <a href="https://x.com/filagu_masa" target="_blank">X @filagu_masa</a>
+  </div>
+
+</div>
+
+<script>
+  const results = [
+    { max: 2, label: '今のところ兆候は少ない', desc: '会議やチームの判断で、大きな問題は起きていないようです。ただ、集団浅慮は「関係性が良いチームほど起きやすい」という性質があります。定期的に確認する習慣をもつと安心です。' },
+    { max: 5, label: '一部の場面で起きている可能性がある', desc: '特定の場面や状況で、思考が浅くなっているかもしれません。当てはまった項目を振り返り、どの場面で起きているかを具体的に確認してみてください。' },
+    { max: 10, label: '構造として定着しているかもしれない', desc: '複数の場面で集団浅慮のサインが出ています。これはチームの問題ではなく、集団という状況が生み出す構造の問題です。マネージャーの関わり方を少し変えるだけで、思考の質は変わります。' }
+  ];
+
+  function updateResult() {
+    const checked = document.querySelectorAll('.check-item.checked');
+    const count = checked.length;
+    const resultBox = document.getElementById('resultBox');
+
+    if (count === 0) {
+      resultBox.classList.remove('visible');
+      return;
+    }
+
+    resultBox.classList.add('visible');
+    document.getElementById('resultCount').innerHTML = `${count} <span>/ 10項目</span>`;
+
+    const r = count <= 2 ? results[0] : count <= 5 ? results[1] : results[2];
+    document.getElementById('resultLabel').textContent = r.label;
+    document.getElementById('resultDesc').textContent = r.desc;
+
+    const resultItems = document.getElementById('resultItems');
+    const resultTags = document.getElementById('resultTags');
+    const resultNext = document.getElementById('resultNext');
+    resultItems.style.display = 'block';
+    resultNext.style.display = 'block';
+    resultTags.innerHTML = '';
+    checked.forEach(item => {
+      const tag = document.createElement('span');
+      tag.className = 'result-item-tag';
+      tag.textContent = item.dataset.label;
+      resultTags.appendChild(tag);
+    });
+  }
+
+  document.querySelectorAll('.check-item').forEach(item => {
+    item.addEventListener('click', () => {
+      item.classList.toggle('checked');
+      updateResult();
+    });
+  });
+</script>
+</body>
+</html>
