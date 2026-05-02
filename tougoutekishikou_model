@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>統合的３思考モデル 思考スタイル診断</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#1a1714;--paper:#f7f4ef;--paper-dark:#ede9e1;
+  --accent:#2d5a3d;--accent-light:#4a8a60;--accent-pale:#e8f0eb;
+  --system:#2c4a7c;--system-pale:#e8edf5;
+  --integrate:#6b3a2a;--integrate-pale:#f5ede9;
+  --analogy:#4a3a6b;--analogy-pale:#edeaf5;
+  --muted:#7a7268;--border:#d4cfc6;--shadow:rgba(26,23,20,.08);
+  --warn-bg:#fffbf0;--warn-border:#e8d5a0;
+  --notice-bg:#f0f4ff;--notice-border:#c0ccee;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;font-size:15px;line-height:1.8;}
+.wrap{max-width:680px;margin:0 auto;padding:40px 24px 80px;}
+
+.site-header{text-align:center;margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid var(--border);}
+.site-label{font-size:11px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;font-weight:300;}
+.site-header h1{font-family:'Noto Serif JP',serif;font-size:clamp(20px,5vw,27px);font-weight:700;line-height:1.4;letter-spacing:.04em;margin-bottom:10px;}
+.site-header p{font-size:13px;color:var(--muted);line-height:1.75;}
+
+.read-first{background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:6px;padding:13px 17px;margin-bottom:24px;}
+.read-first-label{font-size:10px;letter-spacing:.12em;font-weight:500;color:#8a6a10;text-transform:uppercase;margin-bottom:6px;}
+.read-first p{font-size:13px;line-height:1.75;color:var(--ink);}
+.read-first ul{margin:6px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:2px;}
+.read-first ul li{font-size:12px;color:var(--muted);padding-left:13px;position:relative;}
+.read-first ul li::before{content:'→';position:absolute;left:0;color:#8a6a10;font-size:11px;}
+
+.steps{display:flex;align-items:center;margin-bottom:24px;}
+.step{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}
+.step-circle{width:27px;height:27px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:var(--muted);background:white;transition:all .3s;}
+.step-label{font-size:10px;color:var(--muted);letter-spacing:.04em;text-align:center;transition:color .3s;}
+.step.active .step-circle{background:var(--accent);border-color:var(--accent);color:white;}
+.step.active .step-label{color:var(--accent);font-weight:500;}
+.step.done .step-circle{background:var(--accent-pale);border-color:var(--accent);color:var(--accent);}
+.step.done .step-label{color:var(--accent);}
+.step-line{flex:.5;height:1px;background:var(--border);margin-bottom:14px;}
+
+.progress-wrap{margin-bottom:24px;}
+.progress-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:5px;}
+.progress-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+.progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .4s ease;}
+
+.sec-label{display:inline-flex;align-items:center;font-size:11px;letter-spacing:.13em;font-weight:500;margin-bottom:11px;padding:4px 11px;border-radius:2px;}
+.label-system{background:var(--system-pale);color:var(--system);}
+.label-integrate{background:var(--integrate-pale);color:var(--integrate);}
+.label-analogy{background:var(--analogy-pale);color:var(--analogy);}
+.sec-title{font-family:'Noto Serif JP',serif;font-size:17px;font-weight:600;margin-bottom:4px;}
+.sec-desc{font-size:13px;color:var(--muted);margin-bottom:5px;line-height:1.7;}
+.sec-instruction{font-size:12px;color:var(--muted);margin-bottom:16px;padding:8px 12px;background:white;border:1px solid var(--border);border-radius:4px;line-height:1.65;}
+.sec-instruction strong{color:var(--ink);font-weight:500;}
+
+.question{background:white;border:1px solid var(--border);border-radius:6px;padding:14px 16px;margin-bottom:8px;cursor:pointer;transition:all .2s;display:flex;align-items:flex-start;gap:11px;}
+.question:hover{border-color:var(--accent-light);box-shadow:0 2px 8px var(--shadow);}
+.question.checked{border-color:var(--accent);background:var(--accent-pale);}
+.q-check{width:19px;height:19px;min-width:19px;border:1.5px solid var(--border);border-radius:3px;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all .2s;background:white;}
+.question.checked .q-check{background:var(--accent);border-color:var(--accent);}
+.q-check-icon{opacity:0;transition:opacity .15s;color:white;font-size:11px;}
+.question.checked .q-check-icon{opacity:1;}
+.q-text{font-size:14px;line-height:1.75;flex:1;}
+
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:26px;padding-top:20px;border-top:1px solid var(--border);}
+.btn{font-family:'Noto Sans JP',sans-serif;font-size:14px;font-weight:500;padding:10px 22px;border-radius:3px;cursor:pointer;transition:all .2s;border:none;letter-spacing:.04em;}
+.btn-primary{background:var(--accent);color:white;}
+.btn-primary:hover{background:var(--accent-light);}
+.btn-secondary{background:transparent;color:var(--muted);border:1px solid var(--border);}
+.btn-secondary:hover{color:var(--ink);border-color:var(--ink);}
+.btn-dark{background:var(--ink);color:var(--paper);}
+.btn-dark:hover{background:#2d2a26;}
+.btn-wide{width:100%;font-size:15px;padding:13px;}
+.btn-sm{font-size:13px;padding:10px 18px;min-height:44px;}
+.btn-danger{background:transparent;color:#c0392b;border:1px solid #e8c0bc;font-size:13px;padding:10px 18px;min-height:44px;}
+.btn-danger:hover{background:#fef5f4;border-color:#c0392b;}
+
+.screen{display:none;}.screen.active{display:block;}
+.screen-hd{text-align:center;padding:4px 0 24px;border-bottom:1px solid var(--border);margin-bottom:26px;}
+.screen-hd h2{font-family:'Noto Serif JP',serif;font-size:clamp(18px,4vw,23px);font-weight:700;margin-bottom:6px;line-height:1.4;}
+.screen-hd p{font-size:13px;color:var(--muted);line-height:1.75;}
+
+.score-section-label{font-size:11px;letter-spacing:.12em;color:var(--muted);font-weight:500;text-transform:uppercase;margin-bottom:11px;}
+.scores{margin-bottom:7px;}
+.score-item{margin-bottom:14px;}
+.score-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.score-name{font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px;}
+.score-dot{width:7px;height:7px;border-radius:50%;}
+.dot-system{background:var(--system);}
+.dot-integrate{background:var(--integrate);}
+.dot-analogy{background:var(--analogy);}
+.score-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
+.score-num{font-size:12px;color:var(--muted);}
+.score-tag{font-size:10px;padding:2px 6px;border-radius:2px;font-weight:500;letter-spacing:.04em;}
+.tag-strong{background:var(--accent-pale);color:var(--accent);}
+.tag-grow{background:#fef3e8;color:#a05a1a;}
+.score-bar{height:5px;background:var(--paper-dark);border-radius:3px;overflow:hidden;}
+.score-fill{height:100%;border-radius:3px;transition:width .8s cubic-bezier(.16,1,.3,1);}
+.fill-system{background:var(--system);}
+.fill-integrate{background:var(--integrate);}
+.fill-analogy{background:var(--analogy);}
+.score-legend{display:flex;gap:12px;font-size:11px;color:var(--muted);margin-bottom:22px;margin-top:4px;}
+.legend-item{display:flex;align-items:center;gap:4px;}
+.legend-dot{width:6px;height:6px;border-radius:50%;}
+.legend-strong{background:var(--accent);}
+.legend-grow{background:#e0a060;}
+
+.type-card{background:white;border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:22px;opacity:0;animation:fadeUp .5s .1s ease forwards;}
+.type-badge{font-size:10px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:6px;}
+.type-name{font-family:'Noto Serif JP',serif;font-size:clamp(19px,4vw,24px);font-weight:700;margin-bottom:12px;line-height:1.3;}
+.type-body{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px;}
+.type-col{background:var(--paper);border-radius:5px;padding:10px 12px;}
+.type-col-label{font-size:10px;letter-spacing:.1em;font-weight:500;color:var(--muted);text-transform:uppercase;margin-bottom:5px;}
+.type-col-text{font-size:13px;line-height:1.75;color:var(--ink);}
+.type-next-wrap{padding-top:11px;border-top:1px solid var(--border);}
+.type-next-label{font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:3px;}
+.type-next-text{font-size:13px;color:var(--ink);font-weight:500;line-height:1.6;}
+.type-next-reason{font-size:12px;color:var(--muted);line-height:1.65;margin-top:4px;}
+@media(max-width:480px){.type-body{grid-template-columns:1fr;}}
+
+.result-card{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:16px;opacity:0;animation:fadeUp .4s ease forwards;}
+.rcard-hd{padding:14px 17px;display:flex;align-items:center;gap:9px;}
+.hd-system{background:var(--system-pale);}
+.hd-integrate{background:var(--integrate-pale);}
+.hd-analogy{background:var(--analogy-pale);}
+.card-icon{width:29px;height:29px;min-width:29px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;}
+.ic-system{background:var(--system);color:white;}
+.ic-integrate{background:var(--integrate);color:white;}
+.ic-analogy{background:var(--analogy);color:white;}
+.card-badge{font-size:10px;letter-spacing:.11em;color:var(--muted);margin-bottom:2px;text-transform:uppercase;}
+.card-title{font-family:'Noto Serif JP',serif;font-size:14px;font-weight:600;line-height:1.3;}
+.rcard-body{padding:17px;background:white;border-top:1px solid var(--border);}
+.rcard-body h4{font-size:11px;letter-spacing:.11em;color:var(--muted);font-weight:500;margin-bottom:7px;text-transform:uppercase;}
+.rcard-body p{font-size:13px;line-height:1.85;color:var(--ink);}
+.divider{width:28px;height:1px;background:var(--border);margin:13px 0;}
+.impr-list{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.impr-item{display:flex;gap:8px;font-size:13px;line-height:1.75;align-items:flex-start;}
+.impr-num{font-size:10px;font-weight:600;color:white;background:var(--accent);width:17px;height:17px;min-width:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:3px;}
+
+/* practice */
+.practice-intro{background:white;border:1px solid var(--border);border-radius:6px;padding:14px 16px;margin-bottom:16px;font-size:13px;line-height:1.8;}
+.practice-intro strong{font-weight:500;}
+.pi-steps{margin-top:9px;padding-top:9px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:5px;}
+.pi-step{display:flex;gap:7px;align-items:flex-start;}
+.pi-step-num{font-size:10px;font-weight:600;color:white;background:var(--accent);width:16px;height:16px;min-width:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:3px;}
+.pi-step-text{font-size:12px;line-height:1.65;color:var(--muted);}
+
+/* ⑤ 場面自分ごと化の案内 */
+.scene-note{background:var(--notice-bg);border:1px solid var(--notice-border);border-radius:4px;padding:8px 12px;margin-bottom:10px;font-size:12px;color:#3a4a8a;line-height:1.65;}
+
+.prac-tabs{display:flex;gap:5px;margin-bottom:14px;flex-wrap:wrap;}
+.prac-tab{font-family:'Noto Sans JP',sans-serif;font-size:12px;font-weight:500;padding:5px 12px;border-radius:3px;cursor:pointer;border:1px solid var(--border);background:white;color:var(--muted);transition:all .2s;}
+.prac-tab.active{border-color:var(--accent);background:var(--accent-pale);color:var(--accent);}
+.prac-tab:hover:not(.active){border-color:var(--ink);color:var(--ink);}
+.prac-tab.weak-tab{border-color:#e8d5a0;background:var(--warn-bg);color:#8a6a10;}
+.prac-tab.weak-tab.active{border-color:var(--accent);background:var(--accent-pale);color:var(--accent);}
+
+.prac-block{display:none;}.prac-block.active{display:block;}
+.prac-wrap{background:var(--paper);border:1px solid var(--border);border-radius:6px;padding:16px;margin-top:12px;}
+.prac-wrap h4{font-size:11px;letter-spacing:.11em;color:var(--muted);font-weight:500;margin-bottom:7px;text-transform:uppercase;}
+.prac-scene{background:white;border:1px solid var(--border);border-radius:5px;padding:12px 14px;font-size:14px;line-height:1.8;color:var(--ink);margin-bottom:10px;}
+
+/* ⑧ 参照ボックスに本文への誘導 */
+.article-ref{background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:4px;padding:9px 12px;margin-bottom:11px;}
+.article-ref-label{font-size:10px;letter-spacing:.1em;font-weight:500;color:#8a6a10;text-transform:uppercase;margin-bottom:4px;}
+.article-ref-text{font-size:12px;color:var(--ink);line-height:1.7;}
+.article-ref-back{font-size:11px;color:#8a6a10;margin-top:5px;line-height:1.5;}
+
+.prac-steps-wrap{display:flex;flex-direction:column;gap:9px;margin-bottom:11px;}
+.prac-step-row{background:white;border:1px solid var(--border);border-radius:5px;padding:11px 13px;}
+.prac-step-label{font-size:11px;font-weight:500;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.prac-step-num{font-size:10px;font-weight:600;color:white;width:16px;height:16px;min-width:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.num-system{background:var(--system);}
+.num-integrate{background:var(--integrate);}
+.num-analogy{background:var(--analogy);}
+.prac-step-input{width:100%;border:1px solid var(--border);border-radius:4px;padding:9px 11px;font-family:'Noto Sans JP',sans-serif;font-size:16px;line-height:1.7;color:var(--ink);background:var(--paper);resize:vertical;outline:none;transition:border-color .2s;overflow:hidden;}
+.prac-step-input:focus{border-color:var(--accent);background:white;}
+.prac-step-input::placeholder{color:#c0bbb4;}
+.prac-step-input.tall{min-height:88px;}
+.prac-step-input.medium{min-height:64px;}
+.prac-step-input.short{min-height:48px;}
+
+.input-warning{display:none;font-size:12px;color:#a05a1a;margin-bottom:7px;padding:6px 10px;background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:4px;}
+.input-warning.visible{display:block;}
+
+.reveal-btn{font-family:'Noto Sans JP',sans-serif;font-size:13px;font-weight:500;padding:7px 14px;border-radius:3px;cursor:pointer;border:1px solid var(--border);background:white;color:var(--muted);transition:all .2s;}
+.reveal-btn:hover{border-color:var(--ink);color:var(--ink);}
+
+/* ① 番号つき比較パネル */
+.compare-panel{display:none;margin-top:11px;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.compare-panel.visible{display:block;animation:fadeUp .3s ease forwards;}
+.compare-row{display:grid;grid-template-columns:1fr 1fr;}
+.compare-col{padding:12px 13px;}
+.compare-col:first-child{border-right:1px solid var(--border);background:var(--paper);}
+.compare-col:last-child{background:var(--accent-pale);}
+.compare-label{font-size:10px;letter-spacing:.1em;color:var(--muted);font-weight:500;text-transform:uppercase;margin-bottom:7px;}
+.compare-label.model{color:var(--accent);}
+.compare-step{margin-bottom:8px;}
+.compare-step:last-child{margin-bottom:0;}
+.compare-step-label{font-size:10px;font-weight:600;color:var(--muted);margin-bottom:3px;}
+.compare-step-text{font-size:13px;line-height:1.7;color:var(--ink);}
+.compare-step-empty{font-size:13px;color:#b8b3ab;font-style:italic;}
+.compare-hint{font-size:12px;color:var(--ink);padding:10px 13px;background:white;border-top:1px solid var(--border);line-height:1.7;}
+.compare-hint-label{font-size:10px;letter-spacing:.1em;font-weight:500;color:var(--accent);text-transform:uppercase;margin-bottom:3px;}
+@media(max-width:600px){.compare-row{grid-template-columns:1fr;}.compare-col:first-child{border-right:none;border-bottom:1px solid var(--border);}}
+
+.insight-wrap{background:var(--notice-bg);border:1px solid var(--notice-border);border-radius:6px;padding:13px 15px;margin-top:11px;}
+.insight-label{font-size:10px;letter-spacing:.1em;font-weight:500;color:#3a4a8a;text-transform:uppercase;margin-bottom:6px;}
+.insight-q{font-size:13px;color:var(--ink);font-weight:500;margin-bottom:5px;line-height:1.65;}
+.insight-hint{font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.6;padding:7px 10px;background:white;border-radius:4px;border:1px solid var(--notice-border);}
+.insight-input{width:100%;min-height:64px;border:1px solid var(--notice-border);border-radius:4px;padding:9px 11px;font-family:'Noto Sans JP',sans-serif;font-size:16px;line-height:1.65;color:var(--ink);background:white;resize:vertical;outline:none;transition:border-color .2s;}
+.insight-input:focus{border-color:#3a4a8a;}
+.insight-input::placeholder{color:#c0bbb4;}
+
+/* plan */
+.plan-intro{background:white;border:1px solid var(--border);border-radius:6px;padding:14px 16px;margin-bottom:18px;font-size:13px;line-height:1.8;}
+.plan-intro strong{font-weight:500;}
+
+.action-card{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:14px;opacity:0;animation:fadeUp .4s ease forwards;}
+.action-card-hd{padding:13px 16px;display:flex;align-items:center;gap:8px;}
+.action-card-body{padding:16px;background:white;border-top:1px solid var(--border);}
+
+/* ⑥ 改善案推奨表示 */
+.action-ref{font-size:12px;color:var(--muted);margin-bottom:11px;padding:8px 11px;background:var(--paper);border:1px solid var(--border);border-radius:4px;line-height:1.6;}
+.action-ref strong{color:var(--ink);font-weight:500;}
+.action-ref-recommend{font-size:11px;color:var(--accent);margin-top:5px;font-weight:500;}
+.action-impr-list{list-style:none;margin-top:5px;padding:0;display:flex;flex-direction:column;gap:3px;}
+.action-impr-item{font-size:12px;color:var(--muted);padding-left:12px;position:relative;line-height:1.6;}
+.action-impr-item::before{content:'·';position:absolute;left:0;}
+.action-impr-item.recommend{color:var(--ink);}
+.action-impr-item.recommend::before{content:'★';font-size:10px;color:var(--accent);}
+
+.action-3fields{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;}
+.action-field{display:flex;flex-direction:column;gap:4px;}
+.action-field-label{font-size:11px;font-weight:500;color:var(--ink);display:flex;align-items:center;gap:5px;}
+.action-field-tag{font-size:10px;color:white;background:var(--accent);padding:1px 6px;border-radius:2px;white-space:nowrap;}
+/* ③ auto-resize対応 */
+.action-field-input{width:100%;min-height:44px;border:1px solid var(--border);border-radius:4px;padding:8px 11px;font-family:'Noto Sans JP',sans-serif;font-size:16px;line-height:1.65;color:var(--ink);background:white;outline:none;transition:border-color .2s;resize:vertical;overflow:hidden;}
+.action-field-input:focus{border-color:var(--accent);}
+.action-field-input::placeholder{color:#c0bbb4;}
+.action-field-input.tall{min-height:64px;}
+
+.followup-wrap{background:var(--paper);border:1px solid var(--border);border-radius:6px;padding:13px 15px;margin-top:10px;}
+.followup-label{font-size:10px;letter-spacing:.1em;font-weight:500;color:var(--muted);text-transform:uppercase;margin-bottom:5px;}
+.followup-timing{font-size:12px;color:#a05a1a;background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:4px;padding:5px 9px;margin-bottom:7px;line-height:1.6;}
+.followup-q{font-size:13px;color:var(--ink);margin-bottom:7px;line-height:1.65;}
+.followup-input{width:100%;min-height:52px;border:1px solid var(--border);border-radius:4px;padding:8px 11px;font-family:'Noto Sans JP',sans-serif;font-size:16px;line-height:1.65;color:var(--ink);background:white;resize:vertical;outline:none;transition:border-color .2s;overflow:hidden;}
+.followup-input:focus{border-color:var(--accent);}
+.followup-input::placeholder{color:#c0bbb4;}
+
+.cta-block{background:white;border:1px solid var(--border);border-radius:8px;padding:20px;margin:10px 0 26px;text-align:center;}
+.cta-block p{font-size:13px;color:var(--muted);margin-bottom:13px;line-height:1.75;}
+
+.copy-section{margin-top:20px;padding-top:20px;border-top:1px solid var(--border);}
+.copy-section>p{font-size:13px;color:var(--muted);margin-bottom:8px;}
+.copy-block{background:var(--paper-dark);border:1px solid var(--border);border-radius:6px;padding:14px;font-size:13px;line-height:1.9;white-space:pre-wrap;font-family:'Noto Sans JP',sans-serif;margin-bottom:7px;user-select:all;}
+.copy-success{font-size:12px;color:var(--accent);text-align:center;height:16px;margin-bottom:5px;}
+
+.all-good{text-align:center;padding:34px 20px;background:white;border:1px solid var(--border);border-radius:8px;margin-bottom:22px;}
+.all-good .ag-icon{font-size:28px;margin-bottom:9px;}
+.all-good h3{font-family:'Noto Serif JP',serif;font-size:17px;font-weight:700;margin-bottom:7px;}
+.all-good p{font-size:13px;color:var(--muted);line-height:1.8;max-width:360px;margin:0 auto;}
+
+.result-footer{margin-top:26px;padding-top:20px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px;align-items:center;}
+
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;align-items:center;justify-content:center;}
+.modal-overlay.visible{display:flex;}
+.modal{background:white;border-radius:8px;padding:26px 22px;max-width:300px;width:90%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.15);}
+.modal h3{font-family:'Noto Serif JP',serif;font-size:16px;font-weight:700;margin-bottom:8px;}
+.modal p{font-size:13px;color:var(--muted);line-height:1.75;margin-bottom:18px;}
+.modal-btns{display:flex;gap:7px;justify-content:center;}
+
+
+@media(max-width:600px){
+  .prac-step-input.tall{min-height:100px;}
+  .prac-step-input.medium{min-height:72px;}
+  .prac-step-input.short{min-height:56px;}
+  .action-field-input.tall{min-height:80px;}
+  .insight-input{min-height:80px;}
+  .followup-input{min-height:64px;}
+  .site-header h1{font-size:22px;}
+  .wrap{padding:28px 16px 60px;}
+  .type-body{grid-template-columns:1fr;}
+  .prac-step-label{font-size:12px;}
+  .nav{flex-direction:column;gap:8px;}
+  .nav .btn{width:100%;}
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="site-header">
+  <div class="site-label">filagu — 思考診断</div>
+  <h1>統合的３思考モデル<br>思考スタイル診断</h1>
+  <p>本文の内容を使った3ステップの実践シートです。<br>診断 → 練習 → アクションプランの順で進めてください。</p>
+</div>
+
+<div class="read-first">
+  <div class="read-first-label">このシートの使い方</div>
+  <p>本文で学んだ内容をここで実践します。各ステップで本文の手順を参照しながら進めてください。</p>
+  <ul>
+    <li>診断：直近1ヶ月の行動を振り返り、思考の使用頻度を把握する</li>
+    <li>練習：本文の手順を使って、職場の場面を実際に分析する</li>
+    <li>プラン：「いつ・どこで・何をするか」を具体的に決めて行動に繋げる</li>
+  </ul>
+</div>
+
+<div class="steps" id="stepIndicator">
+  <div class="step active" id="step1"><div class="step-circle">1</div><div class="step-label">診断</div></div>
+  <div class="step-line"></div>
+  <div class="step" id="step2"><div class="step-circle">2</div><div class="step-label">練習</div></div>
+  <div class="step-line"></div>
+  <div class="step" id="step3"><div class="step-circle">3</div><div class="step-label">プラン</div></div>
+</div>
+
+<div class="screen active" id="quizScreen">
+  <div class="progress-wrap">
+    <div class="progress-meta"><span id="secLabel">セクション 1 / 3</span><span id="secName">システム思考</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:33%"></div></div>
+  </div>
+  <div id="secContent"></div>
+  <div class="nav" id="navArea"></div>
+</div>
+
+<div class="screen" id="resultScreen">
+  <div class="screen-hd"><h2>診断結果</h2><p>あなたの思考スタイルと、各カテゴリの使用頻度です。</p></div>
+  <div class="score-section-label">思考の使用頻度スコア（直近1ヶ月）</div>
+  <div class="scores" id="scoreArea"></div>
+  <div class="score-legend">
+    <div class="legend-item"><div class="legend-dot legend-strong"></div><span>よく使えている（2〜4）</span></div>
+    <div class="legend-item"><div class="legend-dot legend-grow"></div><span>伸びしろがある（0〜1）</span></div>
+  </div>
+  <div id="typeCard"></div>
+  <div id="resultCards"></div>
+  <div id="resultCta"></div>
+  <div class="result-footer"><button class="btn btn-danger" onclick="confirmReset()">最初からやり直す</button></div>
+</div>
+
+<div class="screen" id="practiceScreen">
+  <div class="screen-hd"><h2>思考の練習</h2><p>本文で学んだ手順を使って、職場の場面を実際に分析してください。</p></div>
+  <div id="practiceContent"></div>
+  <div id="practiceCta"></div>
+  <div class="result-footer">
+    <button class="btn btn-secondary btn-sm" onclick="goTo('resultScreen')">← 診断結果に戻る</button>
+    <button class="btn btn-danger" onclick="confirmReset()">最初からやり直す</button>
+  </div>
+</div>
+
+<div class="screen" id="planScreen">
+  <div class="screen-hd"><h2>アクションプラン</h2><p>「いつ・どこで・何をするか」を具体的に書いてください。<br>コピーして手帳やカレンダーに残しましょう。</p></div>
+  <div id="planCards"></div>
+  <div id="copySection"></div>
+  <div class="result-footer">
+    <button class="btn btn-secondary btn-sm" onclick="goTo('practiceScreen')">← 練習に戻る</button>
+    <button class="btn btn-danger" onclick="confirmReset()">最初からやり直す</button>
+  </div>
+</div>
+
+</div>
+
+<div class="modal-overlay" id="resetModal">
+  <div class="modal">
+    <h3>やり直しますか？</h3>
+    <p>入力した内容がすべてリセットされます。</p>
+    <div class="modal-btns">
+      <button class="btn btn-secondary btn-sm" onclick="closeModal()">キャンセル</button>
+      <button class="btn btn-danger" onclick="doReset()">リセットする</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ─── DATA ─── */
+const sections = [
+  {
+    id:'system', label:'SYSTEM THINKING', labelClass:'label-system',
+    title:'システム思考', subtitle:'全体構造と因果を見る力',
+    iconClass:'ic-system', headerClass:'hd-system', dotClass:'dot-system', fillClass:'fill-system', icon:'①',
+    questions:[
+      '問題が起きたとき、「なぜそうなっているか」を3つ以上の視点から考えたことがある',
+      '施策を打つ前に、原因同士がどう繋がっているかを整理してから動いたことがある',
+      '部下やチームの問題を「仕組みや流れの問題かもしれない」と捉え直したことがある',
+      '問題の原因と結果の関係を、図や言葉で可視化して考えたことがある'
+    ],
+    description:'「なぜそうなっているか」という構造を見る思考です。原因と結果を繋いで全体を把握することで、表面の対処ではなく根本への打ち手が見えてきます。',
+    strengths:'問題の本質を見抜く力があります。「なぜ？」を繰り返すことで、他の人が気づいていない構造的な原因にたどり着けます。',
+    blindspot:'構造の把握に集中するあまり、関係者の視点や感情を見落としやすい傾向があります。',
+    improvements:[
+      '問題が起きたとき「なぜ？」を3回繰り返す。最初の原因で止まらず3段階掘り下げると構造が見えてくる。',
+      '問題を図に書き出す。原因と結果を矢印で繋ぐだけでいい。',
+      '「この人個人の問題か、仕組みの問題か」を先に問う習慣をつける。'
+    ],
+    practice:{
+      scene:'部下のAさんが、3ヶ月連続で月次報告の提出が遅れている。先月「気をつけます」と言ったが、今月も遅れた。チームのリズムが乱れ始めている。',
+      articleRef:'手順：① 今起きていることを一文で書く　② なぜそうなっているかを3つ以上挙げる　③ その原因同士がどう繋がっているかを考える',
+      articleRefBack:'詳しい説明は本文「①システム思考——使い方の手順」を参照してください。',
+      numClass:'num-system',
+      steps:[
+        { label:'① 今起きていることを一文で書く', placeholder:'報告遅れの状況を一文で表してください', sizeClass:'short' },
+        { label:'② なぜそうなっているか、3つ以上の原因を挙げる', placeholder:'「Aさんだから」で止めず、仕組みや流れの問題も含めて3つ以上書いてください', sizeClass:'tall' },
+        { label:'③ その原因同士はどう繋がっているか（連鎖を見る）', placeholder:'原因がどう連鎖して問題になっているかを書いてください', sizeClass:'medium' }
+      ],
+      modelSteps:[
+        '「3ヶ月連続で月次報告が遅れている」',
+        '「情報が揃うタイミングがずれている」「誰かの確認待ちが発生している」「締め切りと他業務の繁忙が重なっている」',
+        '「情報待ち→判断できない→遅れる」という連鎖。Aさんへの指示ではなくフローの設計が打ち手になる。'
+      ],
+      hint:'③の「連鎖を見る」ができていたか確認してください。原因を列挙するだけでなく「どう連鎖しているか」を見ることがシステム思考の核心です。',
+      insightQ:'③の「繋がりを見る」ステップはできていましたか？',
+      insightHint:'原因を列挙しただけで終わっていたなら、それがシステム思考の伸びしろです。「なぜ原因同士を繋げる視点が抜けたのか」を考えると、次に活かせる気づきになります。',
+      insightPlaceholder:'例：原因を3つ挙げることはできたが、連鎖を見るところが抜けていた。普段から「なぜ→なぜ」で止まっていることに気づいた'
+    },
+    nextReason:'システム思考が強い人は構造を見るのが得意な反面、関係者の感情や他文脈への発想が後回しになりがちです。統合思考とアナロジー思考を育てることで、判断の幅が広がります。',
+    actionFields:[
+      { key:'when', label:'いつやるか', tag:'When', placeholder:'例：来週火曜の1on1で', sizeClass:'' },
+      { key:'scene', label:'何の場面で', tag:'場面', placeholder:'例：Aさんと報告遅れについて話すとき', sizeClass:'' },
+      { key:'what', label:'具体的に何をするか', tag:'What', placeholder:'例：「なぜ？」を3回繰り返して、原因の連鎖を一緒に書き出す', sizeClass:'tall' }
+    ],
+    followupQ:'やってみてどうでしたか？「なぜ？」を繰り返すことで、構造（連鎖）が見えましたか？'
+  },
+  {
+    id:'integrate', label:'INTEGRATIVE THINKING', labelClass:'label-integrate',
+    title:'統合思考', subtitle:'多角的に見てまとめる力',
+    iconClass:'ic-integrate', headerClass:'hd-integrate', dotClass:'dot-integrate', fillClass:'fill-integrate', icon:'②',
+    questions:[
+      '判断する前に、関係する立場の人の視点を3者以上確認してから決めたことがある',
+      '反対意見が出たとき、その背景や理由を確認してから自分の判断を見直したことがある',
+      '1on1や会議で、自分の意見を最後に言って他者の視点を先に集めたことがある',
+      '複数の立場から見たうえで「では自分はどう判断するか」をまとめたことがある'
+    ],
+    description:'複数の視点を集めて、一つの判断に落とし込む思考です。「誰がどう見ているか」を先に集め、そこからまとめることで現場で機能する判断になります。',
+    strengths:'関係者の視点を集めてから動くため、判断への納得感が生まれやすく、実行段階での摩擦が少なくなります。',
+    blindspot:'視点を集めることを優先するあまり判断が遅くなることがあります。自分の判断軸が曖昧になることも。',
+    improvements:[
+      '判断する前に関係する人を3者挙げ、それぞれの視点を一文ずつ書いてから判断する。',
+      '1on1や会議で「自分の意見を最後に言う」習慣をつける。',
+      '会議で「この案の弱点はどこか」と聞く。複数の視点が出やすい。'
+    ],
+    practice:{
+      scene:'チームの新しい業務フローを来月から導入することになった。あなたは効率的だと確信しているが、ベテランのBさんが「今のやり方でいい」と言っている。他のメンバーは沈黙している。',
+      articleRef:'手順：① この場面を見ている人を3者以上挙げる　② それぞれの視点を一文ずつ書く　③ 最も重視する視点を選んで判断をまとめる',
+      articleRefBack:'詳しい説明は本文「②統合思考——使い方の手順」を参照してください。',
+      numClass:'num-integrate',
+      steps:[
+        { label:'① この場面を見ている人を3者以上挙げる', placeholder:'Bさん以外にも、この場面に関わる立場を3者以上書いてください', sizeClass:'short' },
+        { label:'② それぞれはこの状況をどう見ているか（一文ずつ書く）', placeholder:'①で挙げた人それぞれが、この状況をどう感じているか・何を求めているかを一文ずつ書いてください', sizeClass:'tall' },
+        { label:'③ それを踏まえて、自分はどう判断するか', placeholder:'②で集めた視点を踏まえた上で、自分はどう判断するかを書いてください', sizeClass:'medium' }
+      ],
+      modelSteps:[
+        'Bさん、若手メンバー、チーム全体',
+        'Bさん→経験から「なぜ変えるのか」の根拠を求めている　若手→不安はあるが声に出せていない　チーム全体→沈黙は合意ではなく様子見',
+        'この3点を踏まえ「段階的に試す」と判断する。Bさんを無視して進めると実行段階で機能しなくなる可能性がある。'
+      ],
+      hint:'③で判断をまとめる前に、②の視点が出ていたか確認してください。先に結論を出してから視点を当てはめていたら、それは統合思考の使い方ではありません。',
+      insightQ:'「視点を出してからまとめる」順番を守れていましたか？',
+      insightHint:'先に「段階的に導入すればいい」という結論があって、それを正当化するために視点を当てはめていたなら、それは統合思考ではなく確証バイアスです。自分の判断の順番を振り返ってみてください。',
+      insightPlaceholder:'例：Bさんの視点は考えたが、若手やチーム全体の視点が抜けていた。普段から「声が大きい人の視点だけ」で判断していることに気づいた'
+    },
+    nextReason:'統合思考が強い人は視点を集めるのが得意ですが、「全員の合意を取ってから動く」癖がつくと構造的な問題を見逃したり、新しい発想が出にくくなります。システム思考とアナロジー思考を合わせることで、判断の質が上がります。',
+    actionFields:[
+      { key:'when', label:'いつやるか', tag:'When', placeholder:'例：今週木曜の会議で', sizeClass:'' },
+      { key:'scene', label:'何の場面で', tag:'場面', placeholder:'例：チーム全体で新フロー導入を議論するとき', sizeClass:'' },
+      { key:'what', label:'具体的に何をするか', tag:'What', placeholder:'例：自分の意見を最後に言う。まず全員に「この変更をどう見ているか」を聞いてからまとめる', sizeClass:'tall' }
+    ],
+    followupQ:'他者の視点を集めてから判断できましたか？自分が見落としていた視点はありましたか？'
+  },
+  {
+    id:'analogy', label:'ANALOGICAL THINKING', labelClass:'label-analogy',
+    title:'アナロジー思考', subtitle:'他の文脈から転用して発想する力',
+    iconClass:'ic-analogy', headerClass:'hd-analogy', dotClass:'dot-analogy', fillClass:'fill-analogy', icon:'③',
+    questions:[
+      '行き詰まったとき、今の文脈の外に視点を求めて発想を広げたことがある',
+      '目の前の問題を「これは何の問題か」と一言で抽象化してから考えたことがある',
+      '他の業界や職種の事例を参考に、自分の職場での打ち手を考えたことがある',
+      '「この問題に似た構造を持つ場面はないか」と問いを立てて新しい打ち手を見つけたことがある'
+    ],
+    description:'別の領域にある構造を今の問題に当てはめる思考です。「具体→抽象→具体」の往復で閉じた文脈を外に出し、経験では出てこなかった打ち手を生み出します。',
+    strengths:'固定観念にとらわれず、思いがけない視点から突破口を見つけられます。',
+    blindspot:'アナロジーが表面的な類似に止まると、本質的に違う問題に間違った解決策を当てはめてしまうリスクがあります。',
+    improvements:[
+      '週に一度、職場以外の事例を一つ読む。「これを自分の職場に当てはめると？」を1分だけ考える。',
+      '行き詰まったとき「この問題を一言で言い表すと何の問題か」と抽象化してから似た構造の場面を探す。',
+      '「なぜその場所ではうまくいっているのか」を一段掘り下げてから転用する。'
+    ],
+    practice:{
+      scene:'チームの情報共有がうまくいかない。連絡が抜ける、認識がずれる、同じことを何度も確認し合う——この状態が半年続いている。朝会の導入やチャットツールの整備を試みたが効果は薄かった。',
+      articleRef:'手順：① 問題を「これは何の問題か」と一言で抽象化する　② 似た構造を持つ別の場面・業界を2つ以上挙げる　③ なぜそこではうまくいっているかを掘り下げてから転用する',
+      articleRefBack:'詳しい説明は本文「③アナロジー思考——使い方の手順」を参照してください。',
+      numClass:'num-analogy',
+      steps:[
+        { label:'① この問題を一言で抽象化すると何の問題か', placeholder:'「情報共有ツールの問題」ではなく、より本質的な言葉で表してください', sizeClass:'short' },
+        { label:'② 似た構造を持つ別の場面・業界を2つ以上挙げる', placeholder:'①で抽象化した問題と似た構造を、全く別の業界や文脈から2つ以上探してください', sizeClass:'medium' },
+        { label:'③ なぜそこではうまくいっているかを掘り下げ、自分の問題に当てはめる', placeholder:'②で挙げた場面が「なぜうまくいっているか」を掘り下げ、自分のチームに転用してください', sizeClass:'tall' }
+      ],
+      modelSteps:[
+        '「情報が流れる仕組みの設計問題」',
+        '病院の申し送り（誰が・何を・いつ・誰に渡すかが明確に定義されている）、飲食店のオペレーション（マニュアルではなく「流れ」として設計されている）',
+        'どちらも「渡す設計」がある。これを借りると「何を・いつ・誰に・どう渡すか」の設計が打ち手の核心だとわかる。'
+      ],
+      hint:'③の「なぜうまくいっているかを掘り下げてから転用する」ができていたか確認してください。「病院みたいにやれば？」で終わっていたら、それは表面の類似であり、アナロジー思考の本来の使い方ではありません。',
+      insightQ:'「具体→抽象→具体」の3段階のうち、どこが難しかったですか？',
+      insightHint:'①の抽象化が「情報共有の問題」のような言葉で止まっていたなら、抽象度が足りていません。「何の問題か」という問いをもう一段深めると、別の文脈が見えやすくなります。',
+      insightPlaceholder:'例：②で別の業界を挙げることはできたが、③の「なぜうまくいっているか」を掘り下げる前に転用しようとしていた。表面だけ借りる癖があることに気づいた'
+    },
+    nextReason:'アナロジー思考が強い人は発想力がありますが、「なぜうまくいっているか」を掘り下げずに表面だけ借りると精度が下がります。システム思考で構造を見る力と、統合思考で視点を集める力を合わせることで、転用の精度が上がります。',
+    actionFields:[
+      { key:'when', label:'いつやるか', tag:'When', placeholder:'例：今週中に（行き詰まったとき）', sizeClass:'' },
+      { key:'scene', label:'どんな場面・問題で', tag:'場面', placeholder:'例：チームの情報共有の問題を考えるとき', sizeClass:'' },
+      { key:'what', label:'具体的に何をするか', tag:'What', placeholder:'例：問題を一言で抽象化し、別業界の事例を一つ調べ「なぜうまくいっているか」を掘り下げてから転用する', sizeClass:'tall' }
+    ],
+    followupQ:'別の文脈から発想できましたか？「表面の類似」ではなく「なぜうまくいっているかの構造」を借りられましたか？'
+  }
+];
+
+const typeMap = {
+  system:{ name:'構造で考える人', strengths:'問題の本質を見抜く力があります。「なぜ？」を繰り返すことで、他の人が気づいていない構造的な原因にたどり着けます。', blindspot:'構造の把握に集中するあまり、関係者の視点や感情を見落としやすい傾向があります。意識的に「誰がどう見ているか」を確認する習慣をつけると、判断の精度が上がります。', next:'統合思考・アナロジー思考' },
+  integrate:{ name:'合意で動く人', strengths:'複数の立場を踏まえて動くため、判断への納得感が生まれやすく、実行段階での摩擦が少ないです。', blindspot:'視点を集めることを優先するあまり判断が遅くなることがあります。「視点を集めた上で、自分はどう判断するか」という軸を意識的に持ちましょう。', next:'システム思考・アナロジー思考' },
+  analogy:{ name:'経験で判断する人', strengths:'豊富な引き出しと直感から素早く判断できます。既知の問題には強みを発揮します。', blindspot:'経験のない問題に直面したとき判断が止まりやすく、過去の成功パターンを誤って当てはめることもあります。「これは本当に同じ構造か」と問い直す習慣が助けになります。', next:'システム思考・統合思考' },
+  balanced:{ name:'バランス型', strengths:'3つの思考をバランスよく使えています。場面に応じて柔軟に判断でき、特定の思考への依存が少ないです。', blindspot:'バランスよく使えている一方、「今この場面でどの思考を使うべきか」を意識的に選ぶことで、さらに精度が上がります。', next:'3つの思考の意識的な使い分け' },
+  unused:{ name:'これから育てる段階', strengths:'この記事を読んで3つの思考を知ったことが、すでに最初の一歩です。思考は意識することで初めて使えるようになります。', blindspot:'今の段階では特定の盲点より「使ってみること」が最優先です。練習と小さなアクションから始めましょう。', next:'システム思考・統合思考・アナロジー思考（すべて）' }
+};
+
+/* ─── STATE ─── */
+let currentSection=0;
+const answers={system:[],integrate:[],analogy:[]};
+const practiceSteps={};
+const insightInputs={};
+const compareOpen={};
+const actionFields={};
+const followupInputs={};
+let currentPracTab=null;
+
+/* ─── AUTO RESIZE ─── */
+// ③ textareaのauto-resize
+function autoResize(el){ el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }
+function initAutoResize(selector){
+  document.querySelectorAll(selector).forEach(el=>{
+    el.addEventListener('input',()=>autoResize(el));
+    autoResize(el);
+  });
+}
+
+/* ─── QUIZ ─── */
+function renderSection(){
+  const s=sections[currentSection], sid=s.id;
+  if(!answers[sid].length) answers[sid]=new Array(4).fill(false);
+  document.getElementById('secLabel').textContent=`セクション ${currentSection+1} / 3`;
+  document.getElementById('secName').textContent=s.title;
+  document.getElementById('progressFill').style.width=`${((currentSection+1)/3)*100}%`;
+  // ④ 診断前の心理的ハードル解消メッセージ
+  const quizNote = currentSection===0
+    ? `<div style="background:var(--notice-bg);border:1px solid var(--notice-border);border-radius:4px;padding:8px 12px;margin-bottom:14px;font-size:12px;color:#3a4a8a;line-height:1.65;">この記事を読むまで意識していなかった思考もあるはずです。チェックが少なくても問題ありません。現在地を把握することが目的です。</div>`
+    : '';
+  document.getElementById('secContent').innerHTML=`
+    <div class="sec-label ${s.labelClass}">${s.label}</div>
+    <div class="sec-title">${s.title}</div>
+    <p class="sec-desc">${s.subtitle}</p>
+    <div class="sec-instruction"><strong>直近1ヶ月を振り返って</strong>、実際にやったことがある項目にチェックしてください。「できた」ではなく<strong>「やった」かどうか</strong>が基準です。</div>
+    ${quizNote}
+    ${s.questions.map((q,i)=>`
+      <div class="question ${answers[sid][i]?'checked':''}" onclick="toggleQ('${sid}',${i})" id="q_${sid}_${i}">
+        <div class="q-check"><span class="q-check-icon">✓</span></div>
+        <span class="q-text">${q}</span>
+      </div>`).join('')}`;
+  const nav=document.getElementById('navArea');
+  if(currentSection===2) nav.innerHTML=`<button class="btn btn-secondary" onclick="prevSec()">← 前へ</button><button class="btn btn-primary" onclick="showResult()">診断結果を見る →</button>`;
+  else if(currentSection===0) nav.innerHTML=`<span></span><button class="btn btn-primary" onclick="nextSec()">次へ →</button>`;
+  else nav.innerHTML=`<button class="btn btn-secondary" onclick="prevSec()">← 前へ</button><button class="btn btn-primary" onclick="nextSec()">次へ →</button>`;
+}
+function toggleQ(sid,i){ answers[sid][i]=!answers[sid][i]; document.getElementById(`q_${sid}_${i}`).classList.toggle('checked',answers[sid][i]); }
+function nextSec(){ if(currentSection<2){currentSection++;renderSection();st();} }
+function prevSec(){ if(currentSection>0){currentSection--;renderSection();st();} }
+function st(){ window.scrollTo({top:0,behavior:'smooth'}); }
+
+/* ─── SCORES ─── */
+function getScores(){ return sections.map(s=>({...s,count:answers[s.id].filter(Boolean).length})); }
+function getType(scores){
+  const max=Math.max(...scores.map(s=>s.count));
+  // 全スコア0は「未使用」として専用扱い
+  if(max===0) return {...typeMap.unused,id:'unused'};
+  const leaders=scores.filter(s=>s.count===max);
+  if(leaders.length>=2) return {...typeMap.balanced,id:'balanced'};
+  return {...typeMap[leaders[0].id],id:leaders[0].id};
+}
+function getWeak(scores){ return scores.filter(s=>s.count<=1).sort((a,b)=>a.count-b.count); }
+
+/* ─── RESULT ─── */
+function showResult(){
+  setStep(2); goTo('resultScreen');
+  const scores=getScores();
+  document.getElementById('scoreArea').innerHTML=scores.map(s=>{
+    const isStrong=s.count>=2;
+    const tag=isStrong?`<span class="score-tag tag-strong">よく使えている</span>`:`<span class="score-tag tag-grow">伸びしろあり</span>`;
+    return `<div class="score-item"><div class="score-meta"><div class="score-name"><div class="score-dot ${s.dotClass}"></div>${s.title}</div><div class="score-right">${tag}<span class="score-num">${s.count}/4</span></div></div><div class="score-bar"><div class="score-fill ${s.fillClass}" style="width:0%" id="fill_${s.id}"></div></div></div>`;
+  }).join('');
+  setTimeout(()=>scores.forEach(s=>{ document.getElementById(`fill_${s.id}`).style.width=`${(s.count/4)*100}%`; }),120);
+
+  const type=getType(scores), tm=typeMap[type.id];
+  const leaderId=type.id!=='balanced'?type.id:null;
+  const nextReason = type.id==='unused'
+    ? 'まずはどれか1つの思考から試してみましょう。この記事の練習問題が最初の足がかりになります。'
+    : leaderId ? sections.find(s=>s.id===leaderId)?.nextReason
+    : '3つの思考を意識的に使い分けることで、判断の精度がさらに上がります。';
+  document.getElementById('typeCard').innerHTML=`
+    <div class="type-card">
+      <div class="type-badge">あなたの思考スタイル</div>
+      <div class="type-name">${tm.name}</div>
+      <div class="type-body">
+        <div class="type-col"><div class="type-col-label">あなたの強み</div><div class="type-col-text">${tm.strengths}</div></div>
+        <div class="type-col"><div class="type-col-label">あなたの盲点になりやすい点</div><div class="type-col-text">${tm.blindspot}</div></div>
+      </div>
+      <div class="type-next-wrap">
+        <div class="type-next-label">次に育てる思考</div>
+        <div class="type-next-text">${tm.next}</div>
+        <div class="type-next-reason">${nextReason}</div>
+      </div>
+    </div>`;
+
+  const weak=getWeak(scores);
+  document.getElementById('resultCards').innerHTML=weak.length===0
+    ?`<div class="all-good" style="opacity:0;animation:fadeUp .4s .1s ease forwards"><div class="ag-icon">◎</div><h3>3つの思考、バランスよく使えています</h3><p>各カテゴリで大きな偏りは見られません。練習問題で3つの思考を使い分ける体験をしてみましょう。</p></div>`
+    :weak.map((s,i)=>`
+      <div class="result-card" style="animation-delay:${i*.1+.1}s">
+        <div class="rcard-hd ${s.headerClass}"><div class="card-icon ${s.iconClass}">${s.icon}</div>
+          <div><div class="card-badge">伸びしろがある思考 — ${s.count===0?'直近1ヶ月で使用なし':s.count+'/4項目該当'}</div><div class="card-title">${s.title}——${s.subtitle}</div></div>
+        </div>
+        <div class="rcard-body">
+          <h4>この思考について</h4><p>${s.description}</p>
+          <div class="divider"></div>
+          <h4>本文の改善案（参考）</h4>
+          <ul class="impr-list">${s.improvements.map((imp,j)=>`<li class="impr-item"><div class="impr-num">${j+1}</div><span>${imp}</span></li>`).join('')}</ul>
+          <div class="divider"></div>
+          <p style="font-size:12px;color:var(--muted);">→ 次のステップで、本文の手順を使ってこの思考を練習します。</p>
+        </div>
+      </div>`).join('');
+
+  document.getElementById('resultCta').innerHTML=`<div class="cta-block"><p>本文の手順を使って、実際の場面でこの思考を動かしてみましょう。</p><button class="btn btn-dark btn-wide" onclick="showPractice()">思考の練習へ進む →</button></div>`;
+}
+
+/* ─── PRACTICE ─── */
+function savePracScreenInputs(){
+  sections.forEach(s=>{
+    if(!practiceSteps[s.id]) practiceSteps[s.id]={};
+    s.practice.steps.forEach((_,i)=>{ const el=document.getElementById(`pstep_${s.id}_${i}`); if(el) practiceSteps[s.id][i]=el.value; });
+    const ins=document.getElementById(`insight_${s.id}`); if(ins) insightInputs[s.id]=ins.value;
+  });
+}
+
+// ① ステップ別にyourTextを構造化して返す
+function buildYourSteps(s){
+  return s.practice.steps.map((step,i)=>{
+    const val=(practiceSteps[s.id]&&practiceSteps[s.id][i])||'';
+    return { label:step.label.split(' ').slice(0,2).join(' '), text:val.trim() };
+  });
+}
+
+function buildPracBlock(s){
+  const sid=s.id, isOpen=compareOpen[sid]||false;
+  const stepsHtml=s.practice.steps.map((step,i)=>`
+    <div class="prac-step-row">
+      <div class="prac-step-label"><div class="prac-step-num ${s.practice.numClass}">${i+1}</div>${step.label}</div>
+      <textarea class="prac-step-input ${step.sizeClass}" id="pstep_${sid}_${i}"
+        placeholder="${step.placeholder}"
+        oninput="savePracStep('${sid}',${i},this.value);autoResize(this)">${(practiceSteps[sid]&&practiceSteps[sid][i])||''}</textarea>
+    </div>`).join('');
+
+  // ① 番号つき比較パネルのHTML生成
+  const yourSteps=buildYourSteps(s);
+  const yourHtml=yourSteps.map((step,i)=>`
+    <div class="compare-step" id="your_step_${sid}_${i}">
+      <div class="compare-step-label">${i+1}</div>
+      ${step.text?`<div class="compare-step-text">${step.text}</div>`:`<div class="compare-step-empty">（未入力）</div>`}
+    </div>`).join('');
+  const modelHtml=s.practice.modelSteps.map((text,i)=>`
+    <div class="compare-step">
+      <div class="compare-step-label">${i+1}</div>
+      <div class="compare-step-text">${text}</div>
+    </div>`).join('');
+
+  return `
+    <div class="prac-block ${sid===currentPracTab?'active':''}" id="block_${sid}">
+      <div class="prac-wrap">
+        <h4>職場の場面</h4>
+        <div class="scene-note">以下は練習用の例題です。自分の職場で似た場面を思い浮かべながら取り組んでください。</div>
+        <div class="prac-scene">${s.practice.scene}</div>
+        <div class="article-ref">
+          <div class="article-ref-label">本文の手順（参照）</div>
+          <div class="article-ref-text">${s.practice.articleRef}</div>
+          <div class="article-ref-back">※ ${s.practice.articleRefBack}</div>
+        </div>
+        <div class="prac-steps-wrap">${stepsHtml}</div>
+        <div class="input-warning" id="warn_${sid}">先に自分の考えを各ステップに書いてから照らし合わせましょう。</div>
+        <button class="reveal-btn" id="revbtn_${sid}">${isOpen?'書き直す':'模範例と照らし合わせる'}</button>
+        <div class="compare-panel ${isOpen?'visible':''}" id="compare_${sid}">
+          <div class="compare-row">
+            <div class="compare-col">
+              <div class="compare-label">あなたの考え</div>
+              <div id="your_steps_${sid}">${yourHtml}</div>
+            </div>
+            <div class="compare-col">
+              <div class="compare-label model">本文の手順に沿った考え方</div>
+              ${modelHtml}
+            </div>
+          </div>
+          <div class="compare-hint"><div class="compare-hint-label">照らし合わせるポイント</div>${s.practice.hint}</div>
+        </div>
+        <div class="insight-wrap" id="insight_wrap_${sid}" style="${isOpen?'':'display:none'}">
+          <div class="insight-label">内省</div>
+          <p class="insight-q">${s.practice.insightQ}</p>
+          <div class="insight-hint">${s.practice.insightHint}</div>
+          <textarea class="insight-input" id="insight_${sid}"
+            placeholder="${s.practice.insightPlaceholder}"
+            oninput="insightInputs['${sid}']=this.value;autoResize(this)">${insightInputs[sid]||''}</textarea>
+        </div>
+      </div>
+    </div>`;
+}
+
+function showPractice(){
+  savePracScreenInputs();
+  goTo('practiceScreen');
+  const scores=getScores(), weak=getWeak(scores), weakIds=weak.map(s=>s.id);
+  const allOrdered=[...sections.filter(s=>weakIds.includes(s.id)),...sections.filter(s=>!weakIds.includes(s.id))];
+  if(!currentPracTab||!allOrdered.find(s=>s.id===currentPracTab)) currentPracTab=allOrdered[0].id;
+
+  const weakNote=weakIds.length>0
+    ?`<div style="background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:4px;padding:8px 12px;margin-bottom:10px;font-size:12px;color:#8a6a10;line-height:1.6;"><strong>★ マークがついている思考</strong>が、診断で伸びしろがあったカテゴリです。まずそこから練習しましょう。</div>`:''
+
+  const tabs=allOrdered.map(s=>`<button class="prac-tab ${weakIds.includes(s.id)?'weak-tab':''} ${s.id===currentPracTab?'active':''}" id="tab_${s.id}" onclick="switchPracTab('${s.id}')">${weakIds.includes(s.id)?'★ ':''}${s.title}</button>`).join('');
+  const blocks=allOrdered.map(s=>buildPracBlock(s)).join('');
+
+  document.getElementById('practiceContent').innerHTML=`
+    <div class="practice-intro">
+      <strong>この練習の使い方</strong><br>本文の手順を参照しながら、各ステップに自分の考えを書いてください。
+      <div class="pi-steps">
+        <div class="pi-step"><div class="pi-step-num">1</div><div class="pi-step-text">本文の手順を参照しながら、各ステップに考えを書く</div></div>
+        <div class="pi-step"><div class="pi-step-num">2</div><div class="pi-step-text">「模範例と照らし合わせる」でステップごとに比較し、違いに気づく</div></div>
+        <div class="pi-step"><div class="pi-step-num">3</div><div class="pi-step-text">「内省」欄に、次に活かせる気づきを具体的に書く</div></div>
+      </div>
+    </div>
+    ${weakNote}
+    <div class="prac-tabs">${tabs}</div>
+    ${blocks}`;
+
+  // ① ボタンのonclickをcompareOpenに基づいて正しく設定
+  sections.forEach(s=>{
+    const btn=document.getElementById(`revbtn_${s.id}`);
+    if(btn) btn.onclick=compareOpen[s.id]?()=>rewritePrac(s.id):()=>revealCompare(s.id);
+  });
+
+  // ③ auto-resize初期化
+  initAutoResize('.prac-step-input');
+  initAutoResize('.insight-input');
+
+  document.getElementById('practiceCta').innerHTML=`<div class="cta-block"><p>模範例と照らし合わせ、内省欄に気づきを書いたら次へ進みましょう。<br>練習での気づきはコピーテキストに反映されます。</p><button class="btn btn-dark btn-wide" onclick="showPlan()">アクションプランを作る →</button></div>`;
+}
+
+function switchPracTab(sid){
+  savePracScreenInputs();
+  currentPracTab=sid;
+  document.querySelectorAll('.prac-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.prac-block').forEach(b=>b.classList.remove('active'));
+  document.getElementById(`tab_${sid}`).classList.add('active');
+  document.getElementById(`block_${sid}`).classList.add('active');
+  // ② タブ切り替え後にauto-resizeを再初期化
+  setTimeout(()=>{
+    document.querySelectorAll(`#block_${sid} .prac-step-input, #block_${sid} .insight-input`).forEach(el=>autoResize(el));
+  }, 30);
+}
+
+function savePracStep(sid,i,val){
+  if(!practiceSteps[sid]) practiceSteps[sid]={};
+  practiceSteps[sid][i]=val;
+  // ① compareが開いていれば該当ステップの左側をリアルタイム更新
+  if(compareOpen[sid]){
+    const stepEl=document.getElementById(`your_step_${sid}_${i}`);
+    if(stepEl){
+      const text=val.trim();
+      stepEl.innerHTML=`<div class="compare-step-label">${i+1}</div>${text?`<div class="compare-step-text">${text}</div>`:`<div class="compare-step-empty">（未入力）</div>`}`;
+    }
+  }
+}
+
+function revealCompare(sid){
+  savePracScreenInputs();
+  const s=sections.find(s=>s.id===sid);
+  const filledSteps=s.practice.steps.filter((_,i)=>(practiceSteps[sid]&&practiceSteps[sid][i]||'').trim()).length;
+  if(filledSteps===0){ document.getElementById(`warn_${sid}`).classList.add('visible'); return; }
+  // ③ 未入力ステップがある場合は確認（全空でなければ続行可能だが警告を出す）
+  if(filledSteps < s.practice.steps.length){
+    const warnEl=document.getElementById(`warn_${sid}`);
+    warnEl.textContent=`まだ入力していないステップがあります（${filledSteps}/${s.practice.steps.length}ステップ記入済み）。このまま照らし合わせますか？もう少し書いてみることをおすすめします。`;
+    warnEl.classList.add('visible');
+    // 2秒後に自動で閉じて続行
+    setTimeout(()=>{ warnEl.classList.remove('visible'); warnEl.textContent='先に自分の考えを各ステップに書いてから照らし合わせましょう。'; doReveal(sid); }, 2500);
+    return;
+  }
+  doReveal(sid);
+}
+function doReveal(sid){
+  const s=sections.find(s=>s.id===sid);
+  document.getElementById(`warn_${sid}`).classList.remove('visible');
+  compareOpen[sid]=true;
+  document.getElementById(`compare_${sid}`).classList.add('visible');
+  const btn=document.getElementById(`revbtn_${sid}`);
+  if(btn){ btn.textContent='書き直す'; btn.onclick=()=>rewritePrac(sid); }
+  // ① 全ステップの左側を更新
+  s.practice.steps.forEach((_,i)=>{
+    const stepEl=document.getElementById(`your_step_${sid}_${i}`);
+    if(stepEl){
+      const text=(practiceSteps[sid]&&practiceSteps[sid][i]||'').trim();
+      stepEl.innerHTML=`<div class="compare-step-label">${i+1}</div>${text?`<div class="compare-step-text">${text}</div>`:`<div class="compare-step-empty">（未入力）</div>`}`;
+    }
+  });
+  const iw=document.getElementById(`insight_wrap_${sid}`); if(iw) iw.style.display='';
+  const insEl=document.getElementById(`insight_${sid}`); if(insEl){ autoResize(insEl); }
+}
+
+function rewritePrac(sid){
+  compareOpen[sid]=false;
+  document.getElementById(`compare_${sid}`).classList.remove('visible');
+  const iw=document.getElementById(`insight_wrap_${sid}`); if(iw) iw.style.display='none';
+  const btn=document.getElementById(`revbtn_${sid}`);
+  btn.textContent='模範例と照らし合わせる'; btn.onclick=()=>revealCompare(sid);
+  const first=document.getElementById(`pstep_${sid}_0`); if(first) first.focus();
+}
+
+/* ─── PLAN ─── */
+function showPlan(){
+  savePracScreenInputs();
+  setStep(3); goTo('planScreen');
+  const scores=getScores(), weak=getWeak(scores);
+  const targets=weak.length>0?weak:sections;
+  const multiNote=targets.length>1?'<br><span style="font-size:12px;color:var(--muted);">すべてに書く必要はありません。一番取り組みやすいものを一つ選んでください。</span>':'';
+
+  document.getElementById('planCards').innerHTML=`
+    <div class="plan-intro">
+      <strong>本文の改善案を参考に、具体的に書いてください。</strong>
+      「今週1回やる」という小さな一歩から始めましょう。${multiNote}
+    </div>`
+    +targets.map((s,i)=>`
+    <div class="action-card" style="animation-delay:${i*.08}s">
+      <div class="action-card-hd ${s.headerClass}"><div class="card-icon ${s.iconClass}">${s.icon}</div><div><div class="card-badge">${s.title}</div><div class="card-title">${s.subtitle}</div></div></div>
+      <div class="action-card-body">
+        <div class="action-ref">
+          <strong>本文の改善案（参考）：</strong>
+          <div class="action-ref-recommend">★ まずは1番目から始めることをおすすめします</div>
+          <ul class="action-impr-list">
+            ${s.improvements.map((imp,j)=>`<li class="action-impr-item ${j===0?'recommend':''}">${imp}</li>`).join('')}
+          </ul>
+        </div>
+        <div class="action-3fields">
+          ${s.actionFields.map(f=>`
+            <div class="action-field">
+              <div class="action-field-label"><span class="action-field-tag">${f.tag}</span>${f.label}</div>
+              <textarea class="action-field-input ${f.sizeClass}" id="af_${s.id}_${f.key}"
+                placeholder="${f.placeholder}"
+                oninput="saveActionField('${s.id}','${f.key}',this.value);autoResize(this)">${(actionFields[s.id]&&actionFields[s.id][f.key])||''}</textarea>
+            </div>`).join('')}
+        </div>
+        <div class="followup-wrap">
+          <div class="followup-label">1週間後の振り返り</div>
+          <div class="followup-timing">アクションを実行した後に、ここに答えを書き込んでください。</div>
+          <p class="followup-q">${s.followupQ}</p>
+          <textarea class="followup-input" id="followup_${s.id}"
+            placeholder="（実行後に記入）"
+            oninput="followupInputs['${s.id}']=this.value;autoResize(this)">${followupInputs[s.id]||''}</textarea>
+        </div>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('copySection').innerHTML=`
+    <div class="cta-block"><p>入力が終わったらコピーして、手帳やカレンダーに貼り付けてください。<br>振り返り問いも含まれています。1週間後に答えを書き込みましょう。</p><button class="btn btn-primary btn-wide" onclick="generateCopy()">プランをコピーする</button></div>
+    <div id="copyOutput"></div>`;
+
+  // ③ auto-resize初期化
+  setTimeout(()=>initAutoResize('.action-field-input, .followup-input'), 50);
+}
+
+function saveActionField(sid,key,val){ if(!actionFields[sid]) actionFields[sid]={}; actionFields[sid][key]=val; }
+
+/* ─── COPY ─── */
+function generateCopy(){
+  sections.forEach(s=>{
+    s.actionFields.forEach(f=>{ const el=document.getElementById(`af_${s.id}_${f.key}`); if(el){ if(!actionFields[s.id]) actionFields[s.id]={}; actionFields[s.id][f.key]=el.value; } });
+    const fu=document.getElementById(`followup_${s.id}`); if(fu) followupInputs[s.id]=fu.value;
+  });
+  const scores=getScores(), weak=getWeak(scores);
+  const targets=weak.length>0?weak:sections;
+  const type=getType(scores), tm=typeMap[type.id];
+  const leaderId=type.id!=='balanced'?type.id:null;
+  const nextReason = type.id==='unused'
+    ? 'まずはどれか1つの思考から試してみましょう。練習問題が最初の足がかりになります。'
+    : leaderId ? sections.find(s=>s.id===leaderId)?.nextReason
+    : '3つの思考を意識的に使い分けることで、判断の精度がさらに上がります。';
+  const today=new Date();
+  const dateStr=`${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日`;
+  // ⑦ 振り返り予定日（7日後）を自動計算
+  const followupDate=new Date(today); followupDate.setDate(today.getDate()+7);
+  const followupDateStr=`${followupDate.getFullYear()}年${followupDate.getMonth()+1}月${followupDate.getDate()}日`;
+
+  const lines=[
+    `統合的３思考モデル アクションプラン`,`作成日：${dateStr}`,`振り返り予定日：${followupDateStr}`,
+    `思考スタイル：${tm.name}`,`${'─'.repeat(28)}`,``,
+    `【あなたの強み】`,tm.strengths,``,
+    `【あなたの盲点になりやすい点】`,tm.blindspot,``,
+    `【次に育てる思考】${tm.next}`,nextReason,``,`${'─'.repeat(28)}`,``
+  ];
+
+  const hasInsight=targets.some(s=>(insightInputs[s.id]||'').trim());
+  if(hasInsight){
+    lines.push(`【練習での気づき】`);
+    targets.forEach(s=>{ const t=(insightInputs[s.id]||'').trim(); if(t) lines.push(`▶ ${s.title}`,t,``); });
+    lines.push(`${'─'.repeat(28)}`,``);
+  }
+
+  lines.push(`【今週のアクション】`);
+  targets.forEach(s=>{
+    const af=actionFields[s.id]||{};
+    lines.push(``,`▶ ${s.title}`,
+      `いつ：${(af.when||'').trim()||'（未入力）'}`,
+      `場面：${(af.scene||'').trim()||'（未入力）'}`,
+      `何をする：${(af.what||'').trim()||'（未入力）'}`);
+  });
+
+  lines.push(``,`${'─'.repeat(28)}`,``,`【1週間後の振り返り】（${followupDateStr}に記入してください）`);
+  targets.forEach(s=>{
+    lines.push(``,`▶ ${s.title}`,`問い：${s.followupQ}`,`答え：${(followupInputs[s.id]||'').trim()||'（実行後に記入）'}`);
+  });
+
+  const copyText=lines.join('\n');
+  window._rawCopyText=copyText;
+  document.getElementById('copyOutput').innerHTML=`
+    <div class="copy-section">
+      <p>以下のテキストをコピーして手帳やメモに貼り付けてください。</p>
+      <div class="copy-block" id="copyBlock">${esc(copyText)}</div>
+      <div class="copy-success" id="copySuccess"></div>
+      <button class="btn btn-primary btn-wide" style="margin-top:4px;" onclick="doCopy()">コピーする</button>
+    </div>`;
+}
+
+/* ─── UTILS ─── */
+function doCopy(){
+  const text=(window._rawCopyText&&window._rawCopyText.trim())?window._rawCopyText:'';
+  const done=()=>{ const el=document.getElementById('copySuccess'); el.textContent='コピーしました ✓'; setTimeout(()=>el.textContent='',2500); };
+  if(navigator.clipboard) navigator.clipboard.writeText(text).then(done).catch(()=>fb(text,done));
+  else fb(text,done);
+}
+function fb(text,cb){ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); cb(); }
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+function setStep(n){ [1,2,3].forEach(i=>{ const el=document.getElementById(`step${i}`); el.classList.remove('active','done'); if(i<n) el.classList.add('done'); else if(i===n) el.classList.add('active'); }); }
+function goTo(id){ ['quizScreen','resultScreen','practiceScreen','planScreen'].forEach(s=>document.getElementById(s).classList.remove('active')); document.getElementById(id).classList.add('active'); st(); }
+function confirmReset(){ document.getElementById('resetModal').classList.add('visible'); }
+function closeModal(){ document.getElementById('resetModal').classList.remove('visible'); }
+function doReset(){
+  closeModal(); currentSection=0;
+  [answers,practiceSteps,insightInputs,compareOpen,actionFields,followupInputs].forEach(o=>Object.keys(o).forEach(k=>delete o[k]));
+  currentPracTab=null; window._rawCopyText=null; setStep(1); goTo('quizScreen'); renderSection();
+}
+renderSection();
+</script>
+</body>
+</html>
