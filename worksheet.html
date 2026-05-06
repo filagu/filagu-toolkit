@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>育成アプローチ診断 | filagu</title>
+  <style>
+    :root {
+      --bg: #f7f6f2;
+      --card: #ffffff;
+      --primary: #1a3a2e;
+      --accent: #3d7a55;
+      --text: #1c1c1c;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --fish:  #1e40af;
+      --teach: #b45309;
+      --place: #166534;
+      --radius: 18px;
+      --shadow: 0 2px 20px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 16px 60px;
+    }
+
+    .container { max-width: 500px; width: 100%; }
+
+    /* ── Steps ── */
+    .step { display: none; }
+    .step.active { display: block; animation: up 0.28s cubic-bezier(0.22,1,0.36,1); }
+    @keyframes up {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Progress ── */
+    .progress { display: flex; gap: 6px; margin-bottom: 24px; }
+    .pd {
+      height: 3px; flex: 1; border-radius: 99px;
+      background: var(--border); transition: background 0.3s;
+    }
+    .pd.active { background: var(--accent); }
+    .pd.done   { background: var(--primary); }
+
+    /* ── Card ── */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 36px 32px;
+      box-shadow: var(--shadow);
+    }
+
+    /* ── Welcome ── */
+    .icon { font-size: 40px; margin-bottom: 18px; line-height: 1; }
+    .w-title {
+      font-size: 21px; font-weight: 800; color: var(--primary);
+      line-height: 1.45; margin-bottom: 10px;
+    }
+    .w-core {
+      font-size: 13px; font-weight: 700; color: var(--accent);
+      line-height: 1.6; margin-bottom: 12px;
+      padding: 10px 14px;
+      background: #f0fbf4;
+      border-radius: 8px;
+      border-left: 3px solid var(--accent);
+    }
+    .w-desc {
+      font-size: 13px; color: var(--muted);
+      line-height: 1.85; margin-bottom: 26px;
+    }
+
+    /* ── Question ── */
+    .q-label {
+      font-size: 11px; font-weight: 700; color: var(--accent);
+      letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px;
+    }
+    .q-text {
+      font-size: 19px; font-weight: 800; color: var(--text);
+      line-height: 1.5; margin-bottom: 6px;
+    }
+    .q-sub {
+      font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 20px;
+    }
+
+    /* ── Options ── */
+    .options { display: flex; flex-direction: column; gap: 9px; }
+    .opt {
+      border: 1.5px solid var(--border); border-radius: 12px;
+      padding: 15px 18px; cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, transform 0.1s, box-shadow 0.15s;
+      text-align: left; background: white; width: 100%;
+    }
+    .opt:hover {
+      border-color: var(--accent); background: #f0fbf4;
+      transform: translateY(-1px);
+    }
+    .opt.selected {
+      border-color: var(--primary); background: #eef8f2;
+      box-shadow: 0 0 0 1px var(--primary);
+    }
+    .opt-main { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+    .opt-sub  { font-size: 12px; color: var(--muted); line-height: 1.55; }
+
+    /* ── Back button ── */
+    .btn-back {
+      width: 100%; padding: 13px; border-radius: 12px;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      border: 1.5px solid var(--border);
+      background: transparent; color: var(--muted);
+      transition: all 0.18s; margin-top: 10px; font-family: inherit;
+    }
+    .btn-back:hover { border-color: var(--muted); color: var(--text); }
+
+    /* ── Primary button ── */
+    .btn-primary {
+      width: 100%; padding: 15px; border-radius: 12px;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+      border: none; background: var(--primary); color: white;
+      transition: all 0.18s; margin-top: 20px; font-family: inherit;
+    }
+    .btn-primary:hover {
+      background: #0f2419;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(26,58,46,0.25);
+    }
+
+    /* ── Result ── */
+    .r-badge {
+      display: inline-block; padding: 5px 13px; border-radius: 99px;
+      font-size: 11px; font-weight: 800; letter-spacing: 0.08em; margin-bottom: 16px;
+    }
+    .r-title {
+      font-size: 23px; font-weight: 800; line-height: 1.35; margin-bottom: 20px;
+    }
+
+    /* Answer summary */
+    .r-answers {
+      background: var(--bg); border-radius: 10px;
+      padding: 14px 16px; margin-bottom: 16px;
+    }
+    .r-answers-label {
+      font-size: 10px; font-weight: 700; color: var(--muted);
+      letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px;
+    }
+    .r-answer-row {
+      display: flex; gap: 8px; align-items: flex-start;
+      font-size: 12px; line-height: 1.5; margin-bottom: 5px;
+    }
+    .r-answer-row:last-child { margin-bottom: 0; }
+    .r-answer-key {
+      font-weight: 700; color: var(--muted); flex-shrink: 0; width: 60px;
+    }
+    .r-answer-val { color: var(--text); font-weight: 600; }
+
+    /* Reason */
+    .r-reason {
+      font-size: 13px; color: var(--text); line-height: 1.8;
+      margin-bottom: 22px; padding: 14px 16px;
+      background: var(--bg); border-radius: 10px;
+    }
+    .r-reason-label {
+      font-size: 10px; font-weight: 700; color: var(--muted);
+      letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px;
+    }
+
+    .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+    .r-section-label {
+      font-size: 10px; font-weight: 800; color: var(--accent);
+      letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px;
+    }
+
+    /* Quote + copy */
+    .r-quote-wrap { position: relative; margin-bottom: 18px; }
+    .r-quote {
+      border-left: 3px solid; border-radius: 0 10px 10px 0;
+      padding: 14px 48px 14px 18px;
+      font-size: 15px; font-weight: 700; line-height: 1.65;
+    }
+    .r-copy {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: 1.5px solid; border-radius: 7px;
+      padding: 5px 9px; font-size: 11px; font-weight: 700;
+      cursor: pointer; transition: all 0.15s; font-family: inherit;
+      white-space: nowrap;
+    }
+    .r-copy:hover { opacity: 0.7; }
+    .r-copy.copied { opacity: 0.5; cursor: default; }
+
+    /* Action */
+    .r-action {
+      font-size: 13px; color: var(--text); line-height: 1.85;
+      padding: 14px 16px; border-radius: 10px; margin-bottom: 0;
+    }
+
+    /* Note */
+    .r-note {
+      font-size: 12px; color: var(--muted); line-height: 1.85;
+      padding-top: 18px; border-top: 1px solid var(--border);
+    }
+
+    /* CTA */
+    .r-cta {
+      margin-top: 18px; padding: 14px 16px;
+      background: var(--bg); border-radius: 10px;
+      font-size: 12px; color: var(--muted); line-height: 1.75;
+    }
+    .r-cta a {
+      color: var(--accent); text-decoration: none; font-weight: 700;
+    }
+    .r-cta a:hover { text-decoration: underline; }
+
+    /* Type colors */
+    .fish .r-badge  { background: #dbeafe; color: var(--fish); }
+    .fish .r-title  { color: var(--fish); }
+    .fish .r-quote  { background: #eff6ff; border-left-color: var(--fish); color: var(--fish); }
+    .fish .r-copy   { border-color: var(--fish); color: var(--fish); }
+    .fish .r-action { background: #eff6ff; }
+
+    .teach .r-badge  { background: #fef3c7; color: var(--teach); }
+    .teach .r-title  { color: var(--teach); }
+    .teach .r-quote  { background: #fffbeb; border-left-color: var(--teach); color: var(--teach); }
+    .teach .r-copy   { border-color: var(--teach); color: var(--teach); }
+    .teach .r-action { background: #fffbeb; }
+
+    .place .r-badge  { background: #dcfce7; color: var(--place); }
+    .place .r-title  { color: var(--place); }
+    .place .r-quote  { background: #f0fdf4; border-left-color: var(--place); color: var(--place); }
+    .place .r-copy   { border-color: var(--place); color: var(--place); }
+    .place .r-action { background: #f0fdf4; }
+
+    /* Brand */
+    .brand {
+      text-align: center; margin-top: 18px;
+      font-size: 11px; color: #d1d5db;
+      letter-spacing: 0.1em; font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ── Step 0: Welcome ── -->
+  <div class="step active" id="step-0">
+    <div class="card">
+      <div class="icon">🎣</div>
+      <div class="w-title">今の場面で、どう関わるか？</div>
+      <div class="w-core">「この人、今、自分なりの答えを出せる状態にあるか？」</div>
+      <div class="w-desc">
+        魚をあたえる・釣り方をおしえる・釣り場をつくる。<br>
+        相手の状態とこの場面の性質から、今のアプローチを診断します。
+      </div>
+      <button class="btn-primary" onclick="go(1)">診断を始める →</button>
+    </div>
+    <div class="brand">filagu</div>
+  </div>
+
+  <!-- ── Step 1: 習熟度 ── -->
+  <div class="step" id="step-1">
+    <div class="progress">
+      <div class="pd done"></div>
+      <div class="pd active"></div>
+      <div class="pd"></div>
+      <div class="pd"></div>
+    </div>
+    <div class="card">
+      <div class="q-label">Q1 / 3 &nbsp;·&nbsp; 習熟度</div>
+      <div class="q-text">今回の場面に対して、相手の経験はどのくらいですか？</div>
+      <div class="q-sub">「このメンバー全体」ではなく、「今回のタスクや状況」に対する経験量を選んでください。</div>
+      <div class="options" id="opts-1">
+        <button class="opt" onclick="pick(1,'low',this)">
+          <div class="opt-main">経験が浅い</div>
+          <div class="opt-sub">この業務・場面は初めて、または数回程度しか経験がない</div>
+        </button>
+        <button class="opt" onclick="pick(1,'med',this)">
+          <div class="opt-main">ある程度経験がある</div>
+          <div class="opt-sub">基礎的な対応はできるが、自分なりの判断軸をまだ持っていない</div>
+        </button>
+        <button class="opt" onclick="pick(1,'high',this)">
+          <div class="opt-main">十分な経験がある</div>
+          <div class="opt-sub">この場面での対応経験が豊富で、自分なりのやり方を持っている</div>
+        </button>
+      </div>
+      <button class="btn-back" onclick="go(0)">← 戻る</button>
+    </div>
+    <div class="brand">filagu</div>
+  </div>
+
+  <!-- ── Step 2: タスクの性質 ── -->
+  <div class="step" id="step-2">
+    <div class="progress">
+      <div class="pd done"></div>
+      <div class="pd done"></div>
+      <div class="pd active"></div>
+      <div class="pd"></div>
+    </div>
+    <div class="card">
+      <div class="q-label">Q2 / 3 &nbsp;·&nbsp; タスクの性質</div>
+      <div class="q-text">この場面の性質は？</div>
+      <div class="q-sub">緊急性や、失敗が許容されるかどうかを選んでください。</div>
+      <div class="options" id="opts-2">
+        <button class="opt" onclick="pick(2,'urgent',this)">
+          <div class="opt-main">緊急、またはミスが許されない</div>
+          <div class="opt-sub">クレーム対応・安全に関わる場面・今すぐ判断が必要な状況</div>
+        </button>
+        <button class="opt" onclick="pick(2,'mod',this)">
+          <div class="opt-main">ある程度の余裕がある</div>
+          <div class="opt-sub">振り返りや修正ができる余地がある</div>
+        </button>
+        <button class="opt" onclick="pick(2,'flex',this)">
+          <div class="opt-main">試行錯誤できる</div>
+          <div class="opt-sub">失敗から学べる、じっくり取り組める場面</div>
+        </button>
+      </div>
+      <button class="btn-back" onclick="go(1)">← 戻る</button>
+    </div>
+    <div class="brand">filagu</div>
+  </div>
+
+  <!-- ── Step 3: 相手の状態 ── -->
+  <div class="step" id="step-3">
+    <div class="progress">
+      <div class="pd done"></div>
+      <div class="pd done"></div>
+      <div class="pd done"></div>
+      <div class="pd active"></div>
+    </div>
+    <div class="card">
+      <div class="q-label">Q3 / 3 &nbsp;·&nbsp; 相手の状態</div>
+      <div class="q-text">今、相手はどんな行動をとっていますか？</div>
+      <div class="q-sub">直近の言動や態度から、最も近いものを選んでください。</div>
+      <div class="options" id="opts-3">
+        <button class="opt" onclick="pick(3,'low',this)">
+          <div class="opt-main">何かあるとすぐ「どうすればいいですか？」と聞いてくる</div>
+          <div class="opt-sub">自分で判断する前に確認してくる。指示を待っている様子</div>
+        </button>
+        <button class="opt" onclick="pick(3,'med',this)">
+          <div class="opt-main">自分なりに考えてはいるが「これでいいですか？」と確認が多い</div>
+          <div class="opt-sub">判断しようとしているが、自信がなくて動けない状態</div>
+        </button>
+        <button class="opt" onclick="pick(3,'high',this)">
+          <div class="opt-main">「こうやってみたいんですが」と自分から提案してくる</div>
+          <div class="opt-sub">承認を求めずに動こうとしている。意見や提案を自発的に持ってくる</div>
+        </button>
+      </div>
+      <button class="btn-back" onclick="go(2)">← 戻る</button>
+    </div>
+    <div class="brand">filagu</div>
+  </div>
+
+  <!-- ── Step 4: Result ── -->
+  <div class="step" id="step-4">
+    <div class="card" id="result-card"></div>
+    <div class="brand">filagu</div>
+  </div>
+
+</div>
+<script>
+  const ans = {};
+
+  /* ── ラベル ── */
+  const LBL = {
+    q1: { low: '経験が浅い', med: 'ある程度経験がある', high: '十分な経験がある' },
+    q2: { urgent: '緊急／ミスが許されない', mod: 'ある程度の余裕がある', flex: '試行錯誤できる' },
+    q3: { low: 'すぐ聞いてくる', med: '確認が多い', high: '自分から提案してくる' }
+  };
+
+  /* ── 判定ロジック ── */
+  function decide() {
+    const p = ans.q1, t = ans.q2, a = ans.q3;
+
+    if (t === 'urgent') return {
+      type: 'fish',
+      reason: '緊急またはミスが許されない場面では、習熟度に関わらず答えを直接渡すことが正しい選択です。まず相手を安心させ、振り返りはその後で。'
+    };
+    if (p === 'low') return {
+      type: 'fish',
+      reason: '経験がまだ浅い段階では、自分なりの答えを出せる状態にありません。考えさせるより先に、安心と信頼を渡すことが育成の土台になります。'
+    };
+    if (p === 'med') {
+      const extra = a === 'high'
+        ? '\n\n自律的に動こうとしていることは良いサインです。今は思考の型を渡しながら、その意欲を育てていきましょう。十分な手応えが出たら釣り場へ移るタイミングを意識してみてください。'
+        : '';
+      return {
+        type: 'teach',
+        reason: '基礎的な対応はできますが、まだ自分なりの思考の軸を持てていない段階です。答えではなく「どう考えたか」のプロセスを渡すことで、判断力が育ちます。' + extra
+      };
+    }
+    // high proficiency
+    if (a !== 'high') return {
+      type: 'teach',
+      reason: '十分な経験がありますが、今はまだ自発的に動こうとしていない状態です。型を渡しながら「自分で決めていい」という感覚を少しずつ育てていく関わりが合っています。'
+    };
+    return {
+      type: 'place',
+      reason: '十分な経験があり、自分なりのアプローチを試そうとしています。ここで型を押しつけることが、その人の余白を狭めます。場をつくり、関心を持ちながら見守ることが今の役割です。'
+    };
+  }
+
+  /* ── 結果データ ── */
+  const DATA = {
+    fish: {
+      badge: '魚をあたえる',
+      title: '今は、答えを直接渡すタイミングです。',
+      quote: '「今回はこうします。落ち着いたら一緒に振り返りましょう。」',
+      action: '答えを渡した後、その日か翌日に15分の振り返りを設けてみてください。「あのとき何が一番不安だった？」から始めると、次に向けた思考の種をつくれます。',
+      note: '⚠ 答えを渡し続けると「聞けば教えてもらえる」という回路が育ちます。この場面を乗り越えたら、次は釣り方へ移るタイミングを意識してみてください。'
+    },
+    teach: {
+      badge: '釣り方をおしえる',
+      title: '今は、考え方の型を渡すタイミングです。',
+      quote: '「次に同じ場面が来たら、何を変えてみたい？」',
+      action: '次の1on1でこの問いをひとつだけ使ってみてください。答えを出そうとせず、相手の思考を前に向けることだけを意識して。「どう考えた？」を一緒に追うことが釣り方を教えることです。',
+      note: '💡 型通りには動くが、その人らしさが消えてきたら釣り場へ移るサインかもしれません。「自分なりの答えを出せる状態にあるか？」を定期的に確認してみてください。'
+    },
+    place: {
+      badge: '釣り場をつくる',
+      title: '今は、自分で試せる環境を整えるタイミングです。',
+      quote: '「やってみて、途中で相談してほしい。」',
+      action: '具体的な指示は最小限にして、この一言だけ伝えてみてください。次に話すタイミングで「どんな感じ？」と軽く聞く。結果ではなく、取り組みの変化に目を向けることが釣り場を維持することです。',
+      note: '⚠ 釣り場は放任ではありません。報告が来なくなる・孤立感が出てきたら、関心が切れているサインです。「見ているよ」というサインを出し続けることが大切です。'
+    }
+  };
+
+  /* ── ナビゲーション ── */
+  function go(n) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById('step-' + n).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* ── 選択（自動進行） ── */
+  function pick(step, val, el) {
+    if (el.classList.contains('selected')) return; // 連打防止
+    document.querySelectorAll('#opts-' + step + ' .opt').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    ans['q' + step] = val;
+
+    const next = step < 3 ? step + 1 : null;
+    setTimeout(() => {
+      if (next) go(next);
+      else showResult();
+    }, 360);
+  }
+
+  /* ── 結果表示 ── */
+  function showResult() {
+    const verdict = decide();
+    const r = DATA[verdict.type];
+    const card = document.getElementById('result-card');
+    card.className = 'card ' + verdict.type;
+
+    card.innerHTML = `
+      <div class="r-badge">${r.badge}</div>
+      <div class="r-title">${r.title}</div>
+
+      <div class="r-answers">
+        <div class="r-answers-label">あなたの回答</div>
+        <div class="r-answer-row">
+          <span class="r-answer-key">習熟度</span>
+          <span class="r-answer-val">${LBL.q1[ans.q1]}</span>
+        </div>
+        <div class="r-answer-row">
+          <span class="r-answer-key">タスク</span>
+          <span class="r-answer-val">${LBL.q2[ans.q2]}</span>
+        </div>
+        <div class="r-answer-row">
+          <span class="r-answer-key">相手の状態</span>
+          <span class="r-answer-val">${LBL.q3[ans.q3]}</span>
+        </div>
+      </div>
+
+      <div class="r-reason">
+        <div class="r-reason-label">なぜこの判断か</div>
+        ${verdict.reason.replace(/\n\n/g, '<br><br>')}
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="r-section-label">今すぐ使える言葉</div>
+      <div class="r-quote-wrap">
+        <div class="r-quote" id="quote-text">${r.quote}</div>
+        <button class="r-copy" id="copy-btn" onclick="copyQuote()">コピー</button>
+      </div>
+
+      <div class="r-section-label">今日やること</div>
+      <div class="r-action">${r.action}</div>
+
+      <div class="divider"></div>
+
+      <div class="r-note">${r.note}</div>
+
+      <div class="r-cta">
+        この診断は note 記事「魚をあたえる、釣り方を教える、釣り場をつくる」をもとに作成しました。
+        使い分けの判断軸・ずれているときのサイン（3パターン×3サイン）など、より詳しい解説は記事内に記載しています。
+      </div>
+
+      <button class="btn-primary" onclick="reset()">別の場面を診断する</button>
+      <button class="btn-back" style="margin-top:8px" onclick="go(3)">← 戻る</button>
+    `;
+    go(4);
+  }
+
+  /* ── コピー ── */
+  function copyQuote() {
+    const text = document.getElementById('quote-text').textContent.trim();
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copy-btn');
+      btn.textContent = 'コピーしました';
+      btn.classList.add('copied');
+    });
+  }
+
+  /* ── リセット ── */
+  function reset() {
+    ans.q1 = ans.q2 = ans.q3 = null;
+    document.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
+    go(0);
+  }
+</script>
+</body>
+</html>
