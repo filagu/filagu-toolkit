@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>観察力診断｜育成者のための5つの視点セルフチェック | filagu</title>
+  <meta name="description" content="育成者・現場マネージャー向けの観察力セルフ診断ツール。15の問いで「非言語・言動の一致・変化・文脈・観察バイアス」の5つの視点ごとに、あなたの観察力の強みと盲点を可視化します。所要時間：約3分。">
+  <meta name="keywords" content="観察力,観察力診断,育成,マネジメント,現場マネージャー,1on1,セルフ診断,filagu,人材育成,マネージャー向け">
+  <meta name="author" content="filagu / まさ">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://nodamasahiro.github.io/filagu-tools/observation-diagnostic.html">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="観察力診断｜育成者のための5つの視点セルフチェック">
+  <meta property="og:description" content="15の問いで、育成者として必要な観察力の強みと盲点を5つの視点ごとに可視化するセルフ診断ツール。所要時間：約3分。">
+  <meta property="og:url" content="https://nodamasahiro.github.io/filagu-tools/observation-diagnostic.html">
+  <meta property="og:site_name" content="filagu">
+  <meta property="og:locale" content="ja_JP">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="観察力診断｜育成者のための5つの視点セルフチェック">
+  <meta name="twitter:description" content="15の問いで観察力の強みと盲点を可視化するセルフ診断ツール。">
+
+  <meta name="theme-color" content="#1a3a2e">
+  <style>
+    :root {
+      --bg: #f7f6f2;
+      --card: #ffffff;
+      --primary: #1a3a2e;
+      --accent: #3d7a55;
+      --text: #1c1c1c;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --radius: 18px;
+      --shadow: 0 2px 20px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
+
+      --nv:   #1e40af;
+      --inc:  #b45309;
+      --chg:  #7c3aed;
+      --ctx:  #0e7490;
+      --bias: #be185d;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 16px 60px;
+    }
+
+    .container { max-width: 500px; width: 100%; }
+
+    .step { display: none; }
+    .step.active { display: block; animation: up 0.28s cubic-bezier(0.22,1,0.36,1); }
+    @keyframes up {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Progress */
+    .progress-wrap { margin-bottom: 18px; }
+    .progress-track {
+      height: 3px; background: var(--border); border-radius: 99px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; background: var(--accent); border-radius: 99px;
+      transition: width 0.35s cubic-bezier(0.22,1,0.36,1);
+    }
+    .progress-label {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 7px;
+    }
+    .progress-dim {
+      font-size: 10px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .progress-num {
+      font-size: 11px; color: var(--muted); font-weight: 600;
+    }
+
+    /* Card */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 36px 32px;
+      box-shadow: var(--shadow);
+    }
+
+    /* Welcome */
+    .icon { font-size: 40px; margin-bottom: 18px; line-height: 1; }
+    .w-title {
+      font-size: 21px; font-weight: 800; color: var(--primary);
+      line-height: 1.45; margin-bottom: 10px;
+    }
+    .w-core {
+      font-size: 13px; font-weight: 700; color: var(--accent);
+      line-height: 1.6; margin-bottom: 12px;
+      padding: 10px 14px;
+      background: #f0fbf4;
+      border-radius: 8px;
+      border-left: 3px solid var(--accent);
+    }
+    .w-desc {
+      font-size: 13px; color: var(--muted); line-height: 1.85; margin-bottom: 22px;
+    }
+    .w-dims {
+      display: flex; flex-direction: column; gap: 8px; margin-bottom: 26px;
+    }
+    .w-dim-row {
+      display: flex; align-items: center; gap: 9px;
+      font-size: 12px; color: var(--text); font-weight: 600;
+      line-height: 1.4;
+    }
+    .w-dim-dot {
+      width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+    }
+    .w-dim-layer {
+      font-size: 10px; color: var(--muted); font-weight: 500; margin-left: 4px;
+    }
+
+    /* Question */
+    .q-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 6px;
+    }
+    .q-layer {
+      display: inline-block;
+      font-size: 10px; font-weight: 700; color: var(--muted);
+      padding: 2px 8px; border-radius: 99px;
+      background: var(--bg); margin-bottom: 12px;
+    }
+    .q-text {
+      font-size: 17px; font-weight: 700; color: var(--text);
+      line-height: 1.6; margin-bottom: 6px;
+    }
+    .q-sub {
+      font-size: 12px; color: var(--muted); line-height: 1.7; margin-bottom: 20px;
+    }
+
+    /* Options */
+    .options { display: flex; flex-direction: column; gap: 8px; }
+    .opt {
+      border: 1.5px solid var(--border); border-radius: 12px;
+      padding: 13px 16px; cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, transform 0.1s, box-shadow 0.15s;
+      text-align: left; background: white; width: 100%;
+      font-family: inherit;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .opt:hover {
+      border-color: var(--accent); background: #f0fbf4;
+      transform: translateY(-1px);
+    }
+    .opt.selected {
+      border-color: var(--primary); background: #eef8f2;
+      box-shadow: 0 0 0 1px var(--primary);
+    }
+    .opt-num {
+      font-size: 11px; font-weight: 800; color: var(--muted);
+      width: 16px; flex-shrink: 0; text-align: center;
+    }
+    .opt-text { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.5; }
+
+    /* Buttons */
+    .btn-back {
+      width: 100%; padding: 13px; border-radius: 12px;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      border: 1.5px solid var(--border);
+      background: transparent; color: var(--muted);
+      transition: all 0.18s; margin-top: 10px; font-family: inherit;
+    }
+    .btn-back:hover { border-color: var(--muted); color: var(--text); }
+    .btn-primary {
+      width: 100%; padding: 15px; border-radius: 12px;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+      border: none; background: var(--primary); color: white;
+      transition: all 0.18s; margin-top: 20px; font-family: inherit;
+    }
+    .btn-primary:hover {
+      background: #0f2419;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(26,58,46,0.25);
+    }
+
+    /* Results */
+    .r-heading {
+      font-size: 12px; font-weight: 800; color: var(--accent);
+      letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px;
+    }
+    .r-total-score {
+      font-size: 38px; font-weight: 900; color: var(--primary); line-height: 1;
+      margin-bottom: 4px;
+    }
+    .r-total-label {
+      font-size: 13px; color: var(--muted); margin-bottom: 6px;
+    }
+    .r-total-msg {
+      font-size: 14px; font-weight: 700; color: var(--text);
+      line-height: 1.65; margin-bottom: 22px;
+      padding: 13px 15px; background: var(--bg); border-radius: 10px;
+    }
+
+    .divider { height: 1px; background: var(--border); margin: 22px 0; }
+
+    /* Dim bars */
+    .dim-bars { display: flex; flex-direction: column; gap: 14px; margin-bottom: 4px; }
+    .dim-bar-row { display: flex; flex-direction: column; gap: 4px; }
+    .dim-bar-header {
+      display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+    }
+    .dim-bar-name { font-size: 13px; font-weight: 700; color: var(--text); }
+    .dim-bar-score { font-size: 13px; font-weight: 800; flex-shrink: 0; }
+    .dim-bar-track {
+      height: 7px; background: var(--border); border-radius: 99px; overflow: hidden;
+    }
+    .dim-bar-fill {
+      height: 100%; border-radius: 99px;
+      transition: width 0.6s cubic-bezier(0.22,1,0.36,1);
+    }
+    .dim-bar-meta {
+      display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    }
+    .dim-bar-layer { font-size: 10px; color: var(--muted); font-weight: 500; }
+    .dim-bar-level {
+      font-size: 10px; font-weight: 800; letter-spacing: 0.06em;
+    }
+
+    /* Advice cards */
+    .advice-list { display: flex; flex-direction: column; gap: 12px; }
+    .advice-card {
+      border-radius: 12px; padding: 16px 18px;
+      border-left: 3px solid;
+    }
+    .advice-head {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 8px; gap: 10px;
+    }
+    .advice-tag {
+      display: inline-block; font-size: 10px; font-weight: 800;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 3px 9px; border-radius: 99px;
+    }
+    .advice-level {
+      font-size: 10px; font-weight: 800; letter-spacing: 0.06em;
+    }
+    .advice-title { font-size: 14px; font-weight: 800; margin-bottom: 7px; line-height: 1.4; }
+    .advice-body { font-size: 13px; line-height: 1.85; color: var(--text); }
+
+    .r-note {
+      font-size: 12px; color: var(--muted); line-height: 1.85;
+      padding: 14px 16px; background: var(--bg); border-radius: 10px;
+      margin-top: 22px;
+    }
+
+    .brand {
+      text-align: center; margin-top: 18px;
+      font-size: 11px; color: #d1d5db;
+      letter-spacing: 0.1em; font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Welcome -->
+  <div class="step active" id="step-0">
+    <div class="card">
+      <div class="icon">👁</div>
+      <div class="w-title">観察力診断</div>
+      <div class="w-core">「見ている」と「観察している」は、違う。</div>
+      <div class="w-desc">
+        15の問いに「全くそう思わない〜そう思う」の4段階で答えると、
+        観察力を構成する5つの視点ごとに、あなたの強みと盲点が可視化されます。<br><br>
+        理想ではなく「今の自分が実際にやっていること」に近いものを選んでください。点数が低く出ても、それは現状を正確に把握するための情報です。
+      </div>
+      <div class="w-dims">
+        <div class="w-dim-row"><div class="w-dim-dot" style="background:var(--nv)"></div>非言語サインを読む<span class="w-dim-layer">感情・状態層</span></div>
+        <div class="w-dim-row"><div class="w-dim-dot" style="background:var(--inc)"></div>言動の一致・不一致を見る<span class="w-dim-layer">行動層・文脈背景層</span></div>
+        <div class="w-dim-row"><div class="w-dim-dot" style="background:var(--chg)"></div>変化に気づく<span class="w-dim-layer">感情・状態層</span></div>
+        <div class="w-dim-row"><div class="w-dim-dot" style="background:var(--ctx)"></div>文脈を読む<span class="w-dim-layer">文脈・背景層</span></div>
+        <div class="w-dim-row"><div class="w-dim-dot" style="background:var(--bias)"></div>自分の観察バイアスを知る<span class="w-dim-layer">3層全体の精度</span></div>
+      </div>
+      <button class="btn-primary" onclick="go('q1')">診断を始める →</button>
+    </div>
+    <div class="brand">© 2026 filagu</div>
+  </div>
+
+  <!-- Questions -->
+  <div id="questions-container"></div>
+
+  <!-- Result -->
+  <div class="step" id="step-result">
+    <div class="card" id="result-card"></div>
+    <div class="brand">© 2026 filagu</div>
+  </div>
+
+</div>
+<script>
+const DIMS = {
+  nv:   { label: '非言語サインを読む',       layer: '感情・状態層',       color: '#1e40af', bg: '#eff6ff', tagBg: '#dbeafe', tagColor: '#1e40af' },
+  inc:  { label: '言動の一致・不一致を見る', layer: '行動層・文脈背景層', color: '#b45309', bg: '#fffbeb', tagBg: '#fef3c7', tagColor: '#b45309' },
+  chg:  { label: '変化に気づく',             layer: '感情・状態層',       color: '#7c3aed', bg: '#f5f3ff', tagBg: '#ede9fe', tagColor: '#7c3aed' },
+  ctx:  { label: '文脈を読む',               layer: '文脈・背景層',       color: '#0e7490', bg: '#ecfeff', tagBg: '#cffafe', tagColor: '#0e7490' },
+  bias: { label: '自分の観察バイアスを知る', layer: '3層全体の精度',      color: '#be185d', bg: '#fdf2f8', tagBg: '#fce7f3', tagColor: '#be185d' },
+};
+
+const DIM_ADVICE = {
+  nv: {
+    weak:   '言葉以外の情報——声のトーン・話すスピード・視線・姿勢——を意識的に取り入れる練習から始めたい。明日の会話から「声のトーン」一つだけに絞って観察してみるところからで十分。',
+    mid:    '非言語サインに気づける場面は増えてきている。次は「気づいた違和感を、その場で言葉にできるか」が課題。「声、少し疲れて聞こえるけど大丈夫？」と確認する一歩から。',
+    strong: '言葉以外の情報を総合的に受け取れている状態。相手が言葉にできていない部分にも気づきやすい。',
+  },
+  inc: {
+    weak:   '「言ったのにやらない」場面で能力やモチベーションの問題と決めつける前に、「言った時点での状態はどうだったか」を振り返る習慣が助けになる。言葉と行動のズレは、本音への近道。',
+    mid:    '言動のズレに気づける段階に来ている。次は「気づいたズレを相手と話せるか」。「やってみますって言ってもらったけど、引っかかったところはある？」と開示する練習が効く。',
+    strong: '言葉と行動のズレを読む力がある。表面的な対応に留まりにくく、相手の本音に近い情報を受け取れている。',
+  },
+  chg: {
+    weak:   '変化に気づくには「いつもの状態」を知っていることが前提。週に一度5分だけ「このメンバーのいつもの状態はどんなだったか」を振り返る習慣から始めてみる。',
+    mid:    '大きな変化には気づけている。次は「微妙な変化」を捉える段階。「先週と今週で、この人の何が変わったか」を一人選んで言葉にしてみる練習をしてみてほしい。',
+    strong: '変化への感度が高い状態。「いつもと違う」という小さなサインを早い段階で拾えているため、問題が大きくなる前に動けていることが多いはず。',
+  },
+  ctx: {
+    weak:   '同じ行動でも人によって意味が違う。「なぜ今、この人はこうしているのか」を問う習慣が、文脈を読む力になる。明日一つだけ「この人にとってこの状況はどんな意味を持つか」を考えてみる。',
+    mid:    '文脈の重要性は把握できている。次は「自分が想像した文脈が、実際と合っているか」を確認する段階。「自分にはこう見えているけど、実際はどう？」と聞いてみる。',
+    strong: '文脈を読む力がある。その人の背景や状況を踏まえた関わりができている状態で、「同じ行動でも意味が違う」を実感として理解できている。',
+  },
+  bias: {
+    weak:   '自分が何を見落としやすいかを知ることが、観察力向上の最短ルート。過去に「見えていなかった」と気づいた場面を一つ思い出し、そのときどんな思い込みがあったかを書き出してみる。',
+    mid:    '自分のバイアスへの認識が育ちつつある。次は「他者の視点で自分の観察を検証する」段階。同じ人を見ている別のマネージャーが、どこを見ているかを聞いてみる。',
+    strong: '自分の観察バイアスへの自覚が高い。何を見落としやすいかを把握し、意識的に補完できているため、観察の「盲点」が少ない状態。',
+  },
+};
+
+// 0: 全くそう思わない / 1: あまりそう思わない / 2: ややそう思う / 3: そう思う
+const SCALE_OPTS = [
+  { t: '全くそう思わない', s: 0 },
+  { t: 'あまりそう思わない', s: 1 },
+  { t: 'ややそう思う',       s: 2 },
+  { t: 'そう思う',           s: 3 },
+];
+
+const QUESTIONS = [
+  // 視点① 非言語サインを読む（感情・状態層）
+  { dim:'nv', q:'部下が「わかりました」と言うとき、声のトーンが言葉と合っているかを確認できている' },
+  { dim:'nv', q:'相手の返事のスピード（速すぎる・遅すぎる）から、その人の状態を読み取れている' },
+  { dim:'nv', q:'ミーティングで黙っている人の表情・視線・姿勢から、その人の状態を察することができる' },
+  // 視点② 言動の一致・不一致を見る（行動層・文脈背景層）
+  { dim:'inc', q:'「やってみます」と言ったのに動かない場面で、能力やモチベーション以外の可能性を考えられている' },
+  { dim:'inc', q:'言葉と行動がズレているスタッフを見たとき、その背景を探ろうとしている' },
+  { dim:'inc', q:'スタッフの発言と実際の状況がずれていると感じたとき、その差を本人と話し合えている' },
+  // 視点③ 変化に気づく（感情・状態層）
+  { dim:'chg', q:'一人ひとりの「いつもの状態」を把握できている' },
+  { dim:'chg', q:'スタッフが少し静かになったとき、その変化に早い段階で気づける' },
+  { dim:'chg', q:'日頃接点が少ないスタッフでも、変化のサインに気づけている' },
+  // 視点④ 文脈を読む（文脈・背景層）
+  { dim:'ctx', q:'同じミスでも、その人の経験・状況に応じて関わり方を変えている' },
+  { dim:'ctx', q:'「やる気がない」と見える行動の背景に、別の理由がないかを考えている' },
+  { dim:'ctx', q:'会議で発言しなかった人について、その人の立場・経験を踏まえて理由を考えている' },
+  // 視点⑤ 自分の観察バイアスを知る（3層全体の精度）
+  { dim:'bias', q:'自分が「見やすい部分」と「見落としやすい部分」のパターンを把握している' },
+  { dim:'bias', q:'過去に「見落としていた」と気づいた経験から、自分の傾向を学んでいる' },
+  { dim:'bias', q:'自分の観察の癖を補うために、意識的に取っている行動がある（例：他者に意見を聞く、いつもと違う角度で見直す、など）' },
+];
+
+const DIM_ORDER = ['nv','inc','chg','ctx','bias'];
+const scores = {};
+let pickPending = false;
+let pickTimeoutId = null;
+
+function buildQuestions() {
+  const container = document.getElementById('questions-container');
+  QUESTIONS.forEach((q, i) => {
+    const dim = DIMS[q.dim];
+    const stepNum = i + 1;
+    const pct = Math.round(((i + 1) / QUESTIONS.length) * 100);
+
+    const div = document.createElement('div');
+    div.className = 'step';
+    div.id = 'step-q' + stepNum;
+    div.innerHTML = `
+      <div class="progress-wrap">
+        <div class="progress-track" role="progressbar" aria-valuenow="${stepNum}" aria-valuemin="1" aria-valuemax="15" aria-label="質問 ${stepNum} / 15">
+          <div class="progress-fill" style="width:${pct}%"></div>
+        </div>
+        <div class="progress-label">
+          <span class="progress-dim" style="color:${dim.color}">${dim.label}</span>
+          <span class="progress-num">${stepNum} / 15</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="q-label" style="color:${dim.color}">Q${stepNum}</div>
+        <div class="q-layer">${dim.layer}</div>
+        <div class="q-text">${q.q}</div>
+        <div class="q-sub">理想ではなく、今の実態に近いものを選んでください。</div>
+        <div class="options" id="opts${stepNum}">
+          ${SCALE_OPTS.map(o => `
+            <button class="opt" onclick="pick(${stepNum},${o.s},this)">
+              <span class="opt-num">${o.s}</span>
+              <span class="opt-text">${o.t}</span>
+            </button>
+          `).join('')}
+        </div>
+        ${stepNum > 1
+          ? `<button class="btn-back" onclick="undoAndGo(${stepNum - 1})">← 戻る</button>`
+          : `<button class="btn-back" onclick="go(0)">← 戻る</button>`}
+      </div>
+      <div class="brand">© 2026 filagu</div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function go(id) {
+  // 進行中の自動進行timeoutがあればキャンセル（戻る・welcome遷移時の暴発防止）
+  // pick()のsetTimeout内から呼ばれた場合はpickTimeoutIdが既にnullなので影響なし
+  if (pickTimeoutId !== null) {
+    clearTimeout(pickTimeoutId);
+    pickTimeoutId = null;
+    pickPending = false;
+  }
+  const target = typeof id === 'number' ? 'step-' + id : 'step-' + id;
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById(target).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function undoAndGo(prevStep) {
+  // 自動進行のtimeoutが走っていたらキャンセル
+  if (pickTimeoutId !== null) {
+    clearTimeout(pickTimeoutId);
+    pickTimeoutId = null;
+    pickPending = false;
+  }
+  // 「戻る」で前の問題に戻るときは、その問題の回答を巻き戻す
+  const currentStep = prevStep + 1;
+  const q = QUESTIONS[currentStep - 1];
+  const opts = document.querySelectorAll('#opts' + currentStep + ' .opt');
+  let prevScore = 0;
+  opts.forEach(o => {
+    if (o.classList.contains('selected') && o.dataset.score !== undefined) {
+      prevScore = parseInt(o.dataset.score, 10);
+    }
+  });
+  // 既に回答済みだった場合、その分を巻き戻す
+  if (scores[q.dim] !== undefined) {
+    scores[q.dim] = Math.max(0, scores[q.dim] - prevScore);
+  }
+  // 選択状態もクリアして再回答できるように
+  opts.forEach(o => o.classList.remove('selected'));
+  go('q' + prevStep);
+}
+
+function pick(stepNum, score, el) {
+  if (pickPending) return;
+  if (el.classList.contains('selected')) return;
+  pickPending = true;
+
+  // 同じ問題で別選択肢を選び直した場合、前の点数を引く
+  const prevSelected = document.querySelector('#opts' + stepNum + ' .opt.selected');
+  if (prevSelected && prevSelected.dataset.score !== undefined) {
+    const q0 = QUESTIONS[stepNum - 1];
+    scores[q0.dim] = Math.max(0, (scores[q0.dim] || 0) - parseInt(prevSelected.dataset.score, 10));
+  }
+  document.querySelectorAll('#opts' + stepNum + ' .opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  el.dataset.score = score;
+
+  const q = QUESTIONS[stepNum - 1];
+  if (!scores[q.dim]) scores[q.dim] = 0;
+  scores[q.dim] += score;
+
+  pickTimeoutId = setTimeout(() => {
+    pickPending = false;
+    pickTimeoutId = null;
+    if (stepNum < 15) go('q' + (stepNum + 1));
+    else showResult();
+  }, 360);
+}
+
+// レベル判定（各視点 0-9 点）
+function levelInfo(score) {
+  if (score >= 7) return { key: 'strong', label: '強み',    color: '#166534' };
+  if (score >= 5) return { key: 'mid',    label: '発展中', color: '#b45309' };
+  return            { key: 'weak',   label: '要強化', color: '#be185d' };
+}
+
+// 総合スコア（0-45点）
+function totalMsg(total) {
+  if (total >= 36) return '観察力が高い水準にあります。5つの視点をバランスよく使えている状態です。強みを起点に、まだ伸びる余地のある視点を一つ選んで深めていきましょう。';
+  if (total >= 27) return '観察力が育ちつつある状態です。意識できている視点と、意識から漏れている視点が混在している段階。スコアの低い視点から一つ選んで、明日からの関わりに反映してみてください。';
+  if (total >= 18) return '観察力に課題がある状態です。特定の視点に偏っている可能性があります。記事の3層構造を再確認し、見えていない層からアプローチしてみてください。';
+  return '観察力の基礎を築く段階にあります。まず「見ること」と「観察すること」は違うという意識を持つことから始めましょう。視点①〜⑤を一度に全部使おうとせず、一つずつ。';
+}
+
+function showResult() {
+  const total = DIM_ORDER.reduce((sum, d) => sum + (scores[d] || 0), 0);
+
+  const card = document.getElementById('result-card');
+
+  // 5視点のスコアバー
+  const barsHtml = DIM_ORDER.map(d => {
+    const s = scores[d] || 0;
+    const pct = Math.round((s / 9) * 100);
+    const lv = levelInfo(s);
+    const dim = DIMS[d];
+    return `
+      <div class="dim-bar-row">
+        <div class="dim-bar-header">
+          <span class="dim-bar-name">${dim.label}</span>
+          <span class="dim-bar-score" style="color:${dim.color}">${s}<span style="font-size:10px;font-weight:600;color:var(--muted)">/9</span></span>
+        </div>
+        <div class="dim-bar-track" role="progressbar" aria-valuenow="${s}" aria-valuemin="0" aria-valuemax="9" aria-label="${dim.label}: ${s}点／9点満点">
+          <div class="dim-bar-fill" data-target="${pct}" style="width:0%;background:${dim.color}"></div>
+        </div>
+        <div class="dim-bar-meta">
+          <span class="dim-bar-layer">${dim.layer}</span>
+          <span class="dim-bar-level" style="color:${lv.color}">${lv.label}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // スコア順（低→高）で並べる：要強化を上に、強みを下に
+  const sortedDims = DIM_ORDER.slice().sort((a, b) => (scores[a] || 0) - (scores[b] || 0));
+
+  // 5視点全てにアドバイスカード
+  const adviceHtml = sortedDims.map(d => {
+    const dim = DIMS[d];
+    const s = scores[d] || 0;
+    const lv = levelInfo(s);
+    const adviceText = DIM_ADVICE[d][lv.key];
+    return `
+      <div class="advice-card" style="background:${dim.bg};border-left-color:${dim.color}">
+        <div class="advice-head">
+          <span class="advice-tag" style="background:${dim.tagBg};color:${dim.tagColor}">${dim.label}</span>
+          <span class="advice-level" style="color:${lv.color}">${lv.label} ・ ${s}/9</span>
+        </div>
+        <div class="advice-body">${adviceText}</div>
+      </div>
+    `;
+  }).join('');
+
+  card.innerHTML = `
+    <div class="r-heading">診断結果</div>
+    <div class="r-total-score">${total}<span style="font-size:18px;font-weight:700;color:var(--muted)">/45</span></div>
+    <div class="r-total-label">総合スコア</div>
+    <div class="r-total-msg">${totalMsg(total)}</div>
+
+    <div class="r-heading">5つの視点スコア</div>
+    <div class="dim-bars">${barsHtml}</div>
+
+    <div class="divider"></div>
+
+    <div class="r-heading" style="margin-bottom:12px">視点ごとの今日からできること</div>
+    <div class="advice-list">${adviceHtml}</div>
+
+    <div class="r-note">
+      この診断はnote有料記事「「ちゃんと見ている」が一番危ない。観察力を構成する5つの視点【診断ツール付き】」の付録として作成しました。
+      観察の3層構造、5つの視点それぞれの詳細、3つの基盤能力との関係は記事内に整理しています。
+      もう一度診断する場合は下のボタンから。
+    </div>
+
+    <button class="btn-primary" onclick="resetDiag()">もう一度診断する</button>
+  `;
+
+  go('result');
+
+  // バーアニメーション
+  setTimeout(() => {
+    card.querySelectorAll('.dim-bar-fill').forEach(el => {
+      const target = el.dataset.target;
+      if (target !== undefined) el.style.width = target + '%';
+    });
+  }, 100);
+}
+
+function resetDiag() {
+  if (pickTimeoutId !== null) {
+    clearTimeout(pickTimeoutId);
+    pickTimeoutId = null;
+  }
+  pickPending = false;
+  DIM_ORDER.forEach(d => delete scores[d]);
+  document.querySelectorAll('.opt').forEach(o => {
+    o.classList.remove('selected');
+    delete o.dataset.score;
+  });
+  go(0);
+}
+
+buildQuestions();
+</script>
+</body>
+</html>
