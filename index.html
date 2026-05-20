@@ -1,1474 +1,781 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>バイアス認知ツールキット | filagu</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&display=swap');
-
-  :root {
-    --インク: #1a1a1a;
-    --インク薄: #4a4a4a;
-    --インク淡: #8a8a8a;
-    --紙: #f7f4ef;
-    --紙暗: #ede9e1;
-    --罫線: #d0c8bc;
-    --緑: #2c4a3e;
-    --茶: #6b3a2a;
-    --紺: #3a3a6b;
-    --緑薄: #4a7c68;
-    --黄: #e8d5a3;
-    --黄薄: #f2e8c8;
-    --赤: #8b2e2e;
-    --格子: rgba(0,0,0,0.04);
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'Meiryo', 'メイリオ', 'Noto Serif JP', serif;
-    background: var(--紙);
-    color: var(--インク);
-    line-height: 1.8;
-    font-size: 13px;
-    -webkit-text-size-adjust: 100%;
-  }
-
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(var(--格子) 1px, transparent 1px),
-      linear-gradient(90deg, var(--格子) 1px, transparent 1px);
-    background-size: 24px 24px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .page {
-    position: relative;
-    z-index: 1;
-    max-width: 860px;
-    margin: 0 auto;
-    padding: 16px;
-  }
-
-  .nav {
-    display: flex;
-    gap: 4px;
-    margin-bottom: 0;
-    position: relative;
-    z-index: 2;
-  }
-
-  .nav-btn {
-    font-family: 'Meiryo', 'メイリオ', serif;
-    font-size: 12px;
-    padding: 10px 22px;
-    border: 1.5px solid var(--罫線);
-    border-bottom: none;
-    background: var(--紙暗);
-    color: var(--インク淡);
-    cursor: pointer;
-    letter-spacing: 0.08em;
-    transition: all 0.2s;
-    border-radius: 4px 4px 0 0;
-    flex: 1;
-    text-align: center;
-    white-space: nowrap;
-  }
-
-  .nav-btn.active {
-    background: var(--紙);
-    color: var(--インク);
-    border-color: var(--罫線);
-    font-weight: bold;
-  }
-
-  .sheet {
-    display: none;
-    border: 1.5px solid var(--罫線);
-    background: var(--紙);
-    padding: 28px 24px;
-    position: relative;
-  }
-
-  .sheet.active { display: block; }
-
-  .sheet::before {
-    content: '';
-    position: absolute;
-    left: 14px; top: 0; bottom: 0;
-    width: 1px;
-    background: repeating-linear-gradient(to bottom, transparent 0px, transparent 28px, var(--罫線) 28px, var(--罫線) 30px);
-  }
-
-  .sheet-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 2px solid var(--インク);
-    gap: 12px;
-  }
-
-  .sheet-label {
-    font-size: 9px;
-    letter-spacing: 0.25em;
-    color: var(--インク淡);
-    margin-bottom: 6px;
-  }
-
-  .sheet-title {
-    font-size: 18px;
-    font-weight: bold;
-    letter-spacing: 0.04em;
-    line-height: 1.4;
-    color: var(--インク);
-  }
-
-  .sheet-title span {
-    display: block;
-    font-size: 11px;
-    font-weight: normal;
-    color: var(--インク淡);
-    letter-spacing: 0.06em;
-    margin-top: 4px;
-    line-height: 1.6;
-  }
-
-  .sheet-meta {
-    text-align: right;
-    font-size: 10px;
-    color: var(--インク淡);
-    letter-spacing: 0.08em;
-    line-height: 2;
-    flex-shrink: 0;
-  }
-
-  .core-message {
-    background: var(--緑);
-    color: #f0f4f2;
-    padding: 14px 18px;
-    margin-bottom: 28px;
-    border-radius: 2px;
-    font-size: 12px;
-    letter-spacing: 0.04em;
-    line-height: 2;
-    position: relative;
-  }
-
-  .core-message::before {
-    content: '""';
-    position: absolute;
-    top: -4px; left: 12px;
-    font-size: 28px;
-    color: rgba(255,255,255,0.15);
-    font-family: Georgia, serif;
-    line-height: 1;
-  }
-
-  .section-title {
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    color: var(--緑);
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .section-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--緑);
-    opacity: 0.3;
-  }
-
-  .question-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 16px;
-    margin-bottom: 28px;
-  }
-
-  .question-card {
-    border: 1px solid var(--罫線);
-    background: white;
-    padding: 16px 16px 16px 20px;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 0 12px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .question-card::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 4px;
-    background: var(--緑);
-  }
-
-  .question-card.type-2::before { background: var(--茶); }
-  .question-card.type-3::before { background: var(--紺); }
-
-  .q-number {
-    font-size: 24px;
-    font-weight: bold;
-    color: var(--紙暗);
-    line-height: 1;
-    padding-top: 4px;
-    font-family: Georgia, serif;
-    grid-row: span 5;
-    align-self: center;
-  }
-
-  .q-scene {
-    font-size: 9px;
-    letter-spacing: 0.12em;
-    color: var(--インク淡);
-    margin-bottom: 4px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .q-scene::before { content: '▸'; font-size: 8px; }
-
-  .q-main {
-    font-size: 15px;
-    font-weight: bold;
-    letter-spacing: 0.02em;
-    color: var(--インク);
-    margin-bottom: 10px;
-    line-height: 1.5;
-  }
-
-  .q-mechanism {
-    font-size: 11px;
-    color: var(--インク薄);
-    line-height: 1.8;
-    margin-bottom: 8px;
-    padding: 8px 10px;
-    background: var(--紙暗);
-    border-left: 2px solid var(--罫線);
-  }
-
-  .q-mechanism strong {
-    color: var(--インク);
-    display: block;
-    font-size: 10px;
-    letter-spacing: 0.08em;
-    margin-bottom: 3px;
-  }
-
-  .q-ng {
-    font-size: 10px;
-    color: var(--赤);
-    background: #fdf0f0;
-    padding: 5px 10px;
-    border-left: 2px solid var(--赤);
-    margin-top: 4px;
-  }
-
-  .q-ng::before { content: '✕ NG例：'; font-weight: bold; }
-
-  .q-purpose {
-    font-size: 10px;
-    color: var(--緑薄);
-    margin-top: 8px;
-    font-style: italic;
-  }
-
-  .q-purpose::before { content: '→ この問いの本質：'; }
-
-  .bias-awareness {
-    background: var(--黄薄);
-    border: 1px solid var(--黄);
-    padding: 14px 16px;
-    margin-bottom: 28px;
-  }
-
-  .awareness-title {
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    color: var(--茶);
-    margin-bottom: 10px;
-    font-weight: bold;
-  }
-
-  .sign-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-  }
-
-  .sign-item {
-    background: white;
-    border: 1px solid var(--罫線);
-    padding: 10px 10px;
-    text-align: center;
-  }
-
-  .sign-label {
-    font-size: 9px;
-    color: var(--インク淡);
-    letter-spacing: 0.06em;
-    margin-bottom: 4px;
-  }
-
-  .sign-text {
-    font-size: 11px;
-    color: var(--インク);
-    font-weight: bold;
-    line-height: 1.6;
-  }
-
-  .reset-protocol {
-    border: 2px solid var(--インク);
-    padding: 18px 18px 18px;
-    position: relative;
-  }
-
-  .reset-protocol .stamp {
-    position: absolute;
-    top: 10px; right: 12px;
-    font-size: 9px;
-    letter-spacing: 0.15em;
-    color: var(--緑);
-    border: 1px solid var(--緑);
-    padding: 2px 8px;
-  }
-
-  .reset-steps {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr auto 1fr;
-    gap: 8px;
-    margin-top: 12px;
-    align-items: center;
-  }
-
-  .reset-step { text-align: center; }
-
-  .step-body { text-align: inherit; }
-
-  .step-num {
-    font-size: 20px;
-    color: var(--紙暗);
-    font-weight: bold;
-    font-family: Georgia, serif;
-    line-height: 1;
-    margin-bottom: 4px;
-  }
-
-  .step-action {
-    font-size: 11px;
-    font-weight: bold;
-    color: var(--インク);
-    margin-bottom: 3px;
-  }
-
-  .step-detail {
-    font-size: 10px;
-    color: var(--インク薄);
-    line-height: 1.6;
-  }
-
-  .step-arrow {
-    color: var(--罫線);
-    font-size: 18px;
-    text-align: center;
-  }
-
-  /* 診断シート */
-  .diagnosis-intro {
-    font-size: 12px;
-    color: var(--インク薄);
-    margin-bottom: 20px;
-    line-height: 1.9;
-    border-left: 3px solid var(--緑);
-    padding-left: 14px;
-  }
-
-  .diag-instructions {
-    background: var(--紙暗);
-    border: 1px solid var(--罫線);
-    padding: 12px 14px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    font-size: 11px;
-    color: var(--インク薄);
-  }
-
-  .diag-instructions strong {
-    color: var(--インク);
-    font-size: 13px;
-  }
-
-  .bias-block {
-    border: 1px solid var(--罫線);
-    margin-bottom: 16px;
-    overflow: hidden;
-  }
-
-  .bias-block-header {
-    padding: 12px 14px;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    user-select: none;
-    transition: background 0.15s;
-  }
-
-  .bias-block:nth-child(1) .bias-block-header { background: #f0f7f3; border-left: 4px solid #2c4a3e; }
-  .bias-block:nth-child(2) .bias-block-header { background: #faf4f0; border-left: 4px solid #6b3a2a; }
-  .bias-block:nth-child(3) .bias-block-header { background: #f0f0f7; border-left: 4px solid #3a3a6b; }
-
-  .bias-icon { font-size: 20px; width: 30px; text-align: center; }
-
-  .bias-type-label {
-    font-size: 9px;
-    letter-spacing: 0.2em;
-    color: var(--インク淡);
-    margin-bottom: 2px;
-  }
-
-  .bias-name {
-    font-size: 14px;
-    font-weight: bold;
-    letter-spacing: 0.04em;
-  }
-
-  .bias-name sub {
-    font-size: 10px;
-    font-weight: normal;
-    color: var(--インク淡);
-    margin-left: 4px;
-    vertical-align: baseline;
-  }
-
-  .bias-score-preview {
-    font-size: 10px;
-    color: var(--インク淡);
-    text-align: right;
-    white-space: nowrap;
-  }
-
-  .bias-score-preview .score-num {
-    font-size: 20px;
-    font-weight: bold;
-    color: var(--インク);
-    font-family: Georgia, serif;
-    display: block;
-    line-height: 1;
-  }
-
-  .bias-questions {
-    padding: 0 14px 14px;
-    border-top: 1px solid var(--罫線);
-    display: none;
-  }
-
-  .bias-block.open .bias-questions { display: block; }
-  .bias-questions.always-open { display: block !important; }
-
-  .diag-q {
-    padding: 12px 0;
-    border-bottom: 1px solid rgba(0,0,0,0.04);
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .diag-q:last-child { border-bottom: none; }
-
-  .diag-q-num {
-    font-size: 10px;
-    color: var(--インク淡);
-    width: 20px;
-    padding-top: 2px;
-    flex-shrink: 0;
-  }
-
-  .diag-q-text {
-    flex: 1;
-    min-width: 200px;
-    font-size: 12px;
-    color: var(--インク);
-    line-height: 1.7;
-  }
-
-  .diag-q-opts {
-    display: flex;
-    gap: 6px;
-    width: 100%;
-    padding-left: 28px;
-    margin-top: 4px;
-  }
-
-  .opt-btn {
-    font-family: 'Meiryo', 'メイリオ', serif;
-    font-size: 11px;
-    padding: 7px 14px;
-    border: 1px solid var(--罫線);
-    background: white;
-    cursor: pointer;
-    transition: all 0.15s;
-    color: var(--インク薄);
-    letter-spacing: 0.05em;
-    white-space: nowrap;
-    flex: 1;
-    text-align: center;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
-
-  .opt-btn:hover { border-color: var(--インク薄); color: var(--インク); }
-  .opt-btn:active { opacity: 0.8; }
-
-  .opt-btn.selected-yes {
-    background: var(--緑);
-    border-color: var(--緑);
-    color: white;
-    font-weight: bold;
-  }
-
-  .opt-btn.selected-no {
-    background: var(--紙暗);
-    border-color: var(--罫線);
-    color: var(--インク淡);
-  }
-
-  .result-area {
-    margin-top: 24px;
-    border: 2px solid var(--インク);
-    overflow: hidden;
-    display: none;
-  }
-
-  .result-area.visible { display: block; }
-
-  .result-header {
-    background: var(--インク);
-    color: var(--紙);
-    padding: 10px 16px;
-    font-size: 11px;
-    letter-spacing: 0.15em;
-  }
-
-  .result-body { padding: 16px 18px; }
-
-  .result-bars {
-    display: grid;
-    gap: 12px;
-    margin-bottom: 18px;
-  }
-
-  .result-row {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 6px;
-  }
-
-  .result-label {
-    font-size: 11px;
-    font-weight: bold;
-    letter-spacing: 0.05em;
-  }
-
-  .result-bar-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .result-bar-wrap {
-    flex: 1;
-    height: 12px;
-    background: var(--紙暗);
-    border: 1px solid var(--罫線);
-    overflow: hidden;
-  }
-
-  .result-bar-fill {
-    height: 100%;
-    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    width: 0%;
-  }
-
-  .bar-type-0 { background: #2c4a3e; }
-  .bar-type-1 { background: #6b3a2a; }
-  .bar-type-2 { background: #3a3a6b; }
-
-  .result-count {
-    font-size: 11px;
-    color: var(--インク淡);
-    width: 36px;
-    text-align: right;
-    flex-shrink: 0;
-  }
-
-  .result-dominant {
-    background: var(--黄薄);
-    border: 1px solid var(--黄);
-    padding: 14px 16px;
-    margin-top: 4px;
-  }
-
-  .dominant-label {
-    font-size: 9px;
-    letter-spacing: 0.2em;
-    color: var(--インク淡);
-    margin-bottom: 6px;
-  }
-
-  .dominant-name {
-    font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 8px;
-  }
-
-  .dominant-desc {
-    font-size: 11px;
-    color: var(--インク薄);
-    line-height: 1.9;
-  }
-
-  .dominant-why {
-    font-size: 11px;
-    color: var(--インク薄);
-    line-height: 1.9;
-    background: white;
-    border: 1px solid var(--罫線);
-    padding: 8px 12px;
-    margin-top: 10px;
-  }
-
-  .dominant-why strong {
-    display: block;
-    font-size: 10px;
-    letter-spacing: 0.08em;
-    color: var(--インク淡);
-    margin-bottom: 3px;
-  }
-
-  .result-action {
-    margin-top: 14px;
-    padding: 12px 14px;
-    background: var(--緑);
-    color: white;
-    font-size: 11px;
-    line-height: 1.9;
-    letter-spacing: 0.04em;
-  }
-
-  .result-action strong {
-    display: block;
-    font-size: 13px;
-    margin-bottom: 4px;
-  }
-
-  .run-btn {
-    font-family: 'Meiryo', 'メイリオ', serif;
-    display: block;
-    width: 100%;
-    margin-top: 20px;
-    padding: 16px;
-    background: var(--インク);
-    color: var(--紙);
-    border: none;
-    font-size: 14px;
-    letter-spacing: 0.1em;
-    cursor: pointer;
-    transition: background 0.2s;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
-
-  .run-btn:hover { background: var(--緑); }
-  .run-btn:active { opacity: 0.85; }
-
-  .reset-btn {
-    font-family: 'Meiryo', 'メイリオ', serif;
-    display: block;
-    width: 100%;
-    margin-top: 8px;
-    padding: 12px;
-    background: transparent;
-    color: var(--インク淡);
-    border: 1px solid var(--罫線);
-    font-size: 11px;
-    cursor: pointer;
-    letter-spacing: 0.1em;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
-
-  .reset-btn:hover { color: var(--インク); border-color: var(--インク); }
-
-  .sheet-footer {
-    margin-top: 28px;
-    padding-top: 14px;
-    border-top: 1px solid var(--罫線);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 9px;
-    color: var(--インク淡);
-    letter-spacing: 0.1em;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .toggle-icon {
-    font-size: 12px;
-    transition: transform 0.2s;
-    color: var(--インク淡);
-  }
-
-  .bias-block.open .toggle-icon { transform: rotate(180deg); }
-
-  .progress-indicator {
-    font-size: 10px;
-    color: var(--インク淡);
-    text-align: right;
-    margin-bottom: 12px;
-  }
-
-  .progress-indicator span {
-    color: var(--インク);
-    font-weight: bold;
-  }
-
-  /* ===== モバイル対応 ===== */
-  @media (max-width: 480px) {
-    .page {
-      padding: 10px;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>特性と向き合うワークシート | filagu</title>
+  <style>
+    :root {
+      --bg: #f7f6f2;
+      --card: #ffffff;
+      --primary: #1a3a2e;
+      --accent: #3d7a55;
+      --text: #1c1c1c;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --radius: 18px;
+      --shadow: 0 2px 20px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
+      --focus:  #1e40af;
+      --sprint: #b45309;
+      --sense:  #7c3aed;
+      --bw:     #0e7490;
+      --solo:   #15803d;
+      --result: #be185d;
     }
 
-    .nav-btn {
-      font-size: 11px;
-      padding: 9px 8px;
-      letter-spacing: 0.04em;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex; align-items: flex-start; justify-content: center;
+      padding: 40px 16px 60px;
     }
 
-    .sheet {
-      padding: 20px 14px 20px 20px;
+    .container { max-width: 500px; width: 100%; }
+
+    .step { display: none; }
+    .step.active { display: block; animation: up 0.28s cubic-bezier(0.22,1,0.36,1); }
+    @keyframes up {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
-    .sheet::before {
-      left: 10px;
-    }
+    .progress { display: flex; gap: 6px; margin-bottom: 24px; }
+    .pd { height: 3px; flex: 1; border-radius: 99px; background: var(--border); transition: background 0.3s; }
+    .pd.active { background: var(--accent); }
+    .pd.done   { background: var(--primary); }
 
-    .sheet-header {
-      flex-direction: column;
-      gap: 8px;
-    }
+    .card { background: var(--card); border-radius: var(--radius); padding: 36px 32px; box-shadow: var(--shadow); }
 
-    .sheet-meta {
-      text-align: left;
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
+    .step-label { font-size: 11px; font-weight: 700; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+    .step-title { font-size: 20px; font-weight: 800; color: var(--primary); line-height: 1.45; margin-bottom: 8px; }
+    .step-desc  { font-size: 13px; color: var(--muted); line-height: 1.8; margin-bottom: 20px; }
 
-    .sheet-meta span::after {
-      content: '·';
-      margin-left: 6px;
-      opacity: 0.4;
+    .type-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; min-height: 0; }
+    .type-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px; border-radius: 99px; font-size: 11px; font-weight: 700;
     }
+    .type-tag.focus  { background: #dbeafe; color: var(--focus); }
+    .type-tag.sprint { background: #fef3c7; color: var(--sprint); }
+    .type-tag.sense  { background: #ede9fe; color: var(--sense); }
+    .type-tag.bw     { background: #cffafe; color: var(--bw); }
+    .type-tag.solo   { background: #dcfce7; color: var(--solo); }
+    .type-tag.result { background: #fce7f3; color: var(--result); }
 
-    .sheet-meta span:last-child::after {
-      display: none;
+    .type-cards { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+    .type-card {
+      border: 2px solid var(--border); border-radius: 14px;
+      padding: 16px 18px; cursor: pointer; transition: all 0.18s;
+      background: white; text-align: left; width: 100%;
     }
+    .type-card:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .type-card.selected.focus  { border-color: var(--focus);  background: #eff6ff; }
+    .type-card.selected.sprint { border-color: var(--sprint); background: #fffbeb; }
+    .type-card.selected.sense  { border-color: var(--sense);  background: #f5f3ff; }
+    .type-card.selected.bw     { border-color: var(--bw);     background: #ecfeff; }
+    .type-card.selected.solo   { border-color: var(--solo);   background: #f0fdf4; }
+    .type-card.selected.result { border-color: var(--result); background: #fdf2f8; }
 
-    .sheet-title {
-      font-size: 16px;
+    .type-card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .type-icon { font-size: 20px; line-height: 1; }
+    .type-name { font-size: 15px; font-weight: 800; color: var(--text); flex: 1; }
+    .type-desc { font-size: 12px; color: var(--muted); line-height: 1.65; }
+
+    .type-check {
+      width: 20px; height: 20px; border-radius: 5px; border: 2px solid var(--border);
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s;
     }
+    .type-card.selected.focus  .type-check { background: var(--focus);  border-color: var(--focus); }
+    .type-card.selected.sprint .type-check { background: var(--sprint); border-color: var(--sprint); }
+    .type-card.selected.sense  .type-check { background: var(--sense);  border-color: var(--sense); }
+    .type-card.selected.bw     .type-check { background: var(--bw);     border-color: var(--bw); }
+    .type-card.selected.solo   .type-check { background: var(--solo);   border-color: var(--solo); }
+    .type-card.selected.result .type-check { background: var(--result); border-color: var(--result); }
+    .type-check-mark { color: white; font-size: 12px; font-weight: 900; display: none; }
+    .type-card.selected .type-check-mark { display: block; }
 
-    .sheet-title span {
-      font-size: 10px;
+    .questions { display: flex; flex-direction: column; gap: 22px; margin-bottom: 24px; }
+    .q-num  { font-size: 10px; font-weight: 700; color: var(--accent); letter-spacing: 0.1em; margin-bottom: 4px; }
+    .q-text { font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.5; margin-bottom: 4px; }
+    .q-hint { font-size: 12px; color: var(--muted); line-height: 1.75; margin-bottom: 8px; transition: color 0.2s; }
+
+    textarea {
+      width: 100%; border: 1.5px solid var(--border); border-radius: 10px;
+      padding: 12px 14px; font-size: 14px; font-family: inherit; color: var(--text);
+      background: var(--bg); resize: none; line-height: 1.75; min-height: 82px;
+      transition: border-color 0.15s, background 0.15s; overflow: hidden;
     }
+    textarea:focus { outline: none; border-color: var(--accent); background: white; }
+    textarea::placeholder { color: #b0b7bf; }
 
-    .core-message {
-      font-size: 11px;
-      padding: 12px 14px;
-      line-height: 1.9;
+    .btn-primary {
+      width: 100%; padding: 15px; border-radius: 12px;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+      border: none; background: var(--primary); color: white;
+      transition: all 0.18s; font-family: inherit;
     }
+    .btn-primary:hover { background: #0f2419; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(26,58,46,0.25); }
+    .btn-primary:disabled { background: var(--border); color: var(--muted); transform: none; box-shadow: none; cursor: not-allowed; }
 
-    .section-title {
-      font-size: 10px;
-      letter-spacing: 0.12em;
+    .btn-back {
+      width: 100%; padding: 13px; border-radius: 12px;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      border: 1.5px solid var(--border); background: transparent; color: var(--muted);
+      transition: all 0.18s; margin-top: 10px; font-family: inherit;
     }
+    .btn-back:hover { border-color: var(--muted); color: var(--text); }
 
-    .question-card {
-      display: block;
-      padding: 14px 14px 14px 18px;
+    .btn-danger {
+      border-color: #dc2626;
+      color: #dc2626;
     }
+    .btn-danger:hover { background: #fef2f2; border-color: #dc2626; }
 
-    .q-number {
-      display: none;
+    .btn-outline {
+      width: 100%; padding: 13px; border-radius: 12px;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      border: 1.5px solid var(--primary); background: transparent; color: var(--primary);
+      transition: all 0.18s; font-family: inherit; margin-top: 10px;
     }
+    .btn-outline:hover { background: #f0fbf4; }
 
-    .q-main {
-      font-size: 14px;
+    .w-icon  { font-size: 44px; margin-bottom: 18px; line-height: 1; }
+    .w-title { font-size: 22px; font-weight: 800; color: var(--primary); line-height: 1.4; margin-bottom: 14px; }
+    .w-note  {
+      font-size: 13px; color: var(--accent); font-weight: 700;
+      padding: 11px 14px; background: #f0fbf4;
+      border-radius: 8px; border-left: 3px solid var(--accent);
+      margin-bottom: 16px; line-height: 1.7;
     }
+    .w-desc { font-size: 13px; color: var(--muted); line-height: 1.85; margin-bottom: 24px; }
+    .w-meta { display: flex; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; }
+    .w-meta-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); }
 
-    /* 3列→1列 on very small screens */
-    .sign-grid {
-      grid-template-columns: 1fr;
-      gap: 6px;
+    .divider { height: 1px; background: var(--border); margin: 22px 0; }
+
+    .r-icon  { font-size: 36px; margin-bottom: 14px; }
+    .r-title { font-size: 22px; font-weight: 800; color: var(--primary); line-height: 1.35; margin-bottom: 8px; }
+    .r-desc  { font-size: 13px; color: var(--muted); line-height: 1.8; margin-bottom: 20px; }
+
+    .type-msg-block {
+      border-radius: 10px; padding: 12px 14px; margin-bottom: 10px;
+      font-size: 13px; line-height: 1.75; border-left: 3px solid;
     }
+    .type-msg-block.focus  { background: #eff6ff; border-color: var(--focus);  color: #1e3a8a; }
+    .type-msg-block.sprint { background: #fffbeb; border-color: var(--sprint); color: #92400e; }
+    .type-msg-block.sense  { background: #f5f3ff; border-color: var(--sense);  color: #5b21b6; }
+    .type-msg-block.bw     { background: #ecfeff; border-color: var(--bw);     color: #155e75; }
+    .type-msg-block.solo   { background: #f0fdf4; border-color: var(--solo);   color: #14532d; }
+    .type-msg-block.result { background: #fdf2f8; border-color: var(--result); color: #9d174d; }
+    .type-msg-label { font-weight: 800; margin-bottom: 4px; font-size: 12px; }
 
-    .sign-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-align: left;
-      padding: 10px 12px;
+    .summary-section { margin-bottom: 22px; }
+    .summary-step-label {
+      font-size: 11px; font-weight: 700; color: var(--accent);
+      letter-spacing: 0.08em; margin-bottom: 12px;
+      padding-bottom: 7px; border-bottom: 1px solid var(--border);
     }
-
-    .sign-label {
-      flex-shrink: 0;
-      width: 90px;
-      font-size: 9px;
-      margin-bottom: 0;
+    .summary-q { margin-bottom: 10px; }
+    .summary-q-text { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+    .summary-answer {
+      font-size: 13px; color: var(--text); line-height: 1.75;
+      background: var(--bg); border-radius: 8px; padding: 10px 12px;
+      white-space: pre-wrap; word-break: break-word;
     }
+    .summary-answer.empty { color: #b0b7bf; font-style: italic; }
 
-    .sign-text {
-      font-size: 12px;
+    @media (max-width: 400px) { .card { padding: 28px 20px; } }
+
+    @media print {
+      body { padding: 0; background: white; }
+      .container { max-width: 100%; }
+      .btn-primary, .btn-back, .btn-outline, .progress { display: none !important; }
+      .step { display: none !important; }
+      #step-summary { display: block !important; }
+      .card { box-shadow: none; padding: 20px 0; }
     }
-
-    /* リセットステップ：横→縦 */
-    .reset-steps {
-      grid-template-columns: 1fr;
-      gap: 0;
-    }
-
-    .step-arrow {
-      transform: rotate(90deg);
-      font-size: 14px;
-      text-align: center;
-      padding: 2px 0;
-    }
-
-    .reset-step {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      text-align: left;
-      padding: 10px 0;
-      border-bottom: 1px dashed var(--罫線);
-    }
-
-    .reset-step:last-child {
-      border-bottom: none;
-    }
-
-    .step-num {
-      font-size: 18px;
-      min-width: 28px;
-      margin-bottom: 0;
-      flex-shrink: 0;
-    }
-
-    .step-action {
-      margin-bottom: 2px;
-    }
-
-    .step-detail {
-      font-size: 10px;
-    }
-
-    .reset-protocol .stamp {
-      font-size: 8px;
-      padding: 2px 6px;
-    }
-
-    .bias-block-header {
-      padding: 10px 12px;
-    }
-
-    .bias-name {
-      font-size: 13px;
-    }
-
-    .bias-name sub {
-      display: block;
-      margin-left: 0;
-      margin-top: 1px;
-    }
-
-    .diag-q {
-      flex-direction: column;
-      flex-wrap: nowrap;
-      gap: 6px;
-    }
-
-    .diag-q-num {
-      display: inline;
-    }
-
-    .diag-q-text {
-      min-width: unset;
-      font-size: 12px;
-    }
-
-    .diag-q-opts {
-      padding-left: 0;
-      width: 100%;
-    }
-
-    .opt-btn {
-      padding: 9px 8px;
-      font-size: 12px;
-    }
-
-    .sheet-footer {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 4px;
-    }
-  }
-
-  /* 中間サイズ（481〜639px）: sign-gridを2列に */
-  @media (min-width: 481px) and (max-width: 639px) {
-    .sign-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    .sign-grid .sign-item:last-child {
-      grid-column: span 2;
-    }
-
-    .reset-steps {
-      grid-template-columns: 1fr;
-      gap: 0;
-    }
-
-    .reset-step {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      text-align: left;
-      padding: 10px 0;
-      border-bottom: 1px dashed var(--罫線);
-    }
-
-    .reset-step:last-child {
-      border-bottom: none;
-    }
-
-    .step-arrow {
-      transform: rotate(90deg);
-      font-size: 14px;
-      text-align: center;
-      padding: 2px 0;
-    }
-
-    .step-num {
-      min-width: 28px;
-      flex-shrink: 0;
-      margin-bottom: 0;
-    }
-
-    .diag-q-opts {
-      padding-left: 28px;
-      width: 100%;
-      margin-top: 4px;
-    }
-
-    .page {
-      padding: 12px;
-    }
-  }
-
-  @media print {
-    body::before { display: none; }
-    .nav { display: none; }
-    .sheet { display: block !important; page-break-after: always; }
-    .bias-questions { display: block !important; }
-    .opt-btn, .run-btn, .reset-btn { display: none; }
-  }
-</style>
+  </style>
 </head>
 <body>
+<div class="container">
 
-<div class="page">
-
-  <div class="nav">
-    <button class="nav-btn active" onclick="switchTab('cheat')">問いかけシート</button>
-    <button class="nav-btn" onclick="switchTab('diag')">バイアス傾向診断</button>
-  </div>
-
-  <!-- 問いかけシート -->
-  <div id="sheet-cheat" class="sheet active">
-
-    <div class="sheet-header">
-      <div>
-        <div class="sheet-label">バイアスを外す問いかけシート · filagu</div>
-        <div class="sheet-title">
-          問いかけシート
-          <span>明日の1on1でそのまま使える「バイアスを外す問い」</span>
-        </div>
+  <!-- Welcome -->
+  <div class="step active" id="step-welcome">
+    <div class="card">
+      <div class="w-icon">🌿</div>
+      <div class="w-title">特性と向き合う<br>リーダーのためのワークシート</div>
+      <div class="w-note">立場をすぐに変えることは難しい。<br>でも、自分との付き合い方は今日から変えられる。</div>
+      <div class="w-desc">
+        このシートを書き終えたとき、消耗に対して「自分が弱いからだ」ではなく「設計のズレがあるからだ」と、少し別の言葉で語れるようになっているはずです。<br><br>
+        自分のタイプを選ぶと、それに合わせた問いと例が表示されます。STEP 1〜4と最後のふりかえりで、今日からの動き方が一つでも変わることを目指しています。
       </div>
-      <div class="sheet-meta"><span>filagu</span><span>マネージャー向け</span><span>v1.0</span></div>
-    </div>
-
-    <div class="core-message">
-      「質問」は答えを引き出す。「問い」はともに考えるきっかけをつくる。<br>
-      バイアスから抜け出した問いは、相手を変えようとするためにあるのではない。<strong style="color:#a8d5c0">自分の見え方を更新するためにある。</strong>
-    </div>
-
-    <div class="section-title">3つの核心的な問いかけ</div>
-
-    <div class="question-grid">
-
-      <div class="question-card">
-        <div class="q-number">01</div>
-        <div class="q-scene">使いどころ：1on1の冒頭 ／ 元気がなさそうなとき</div>
-        <div class="q-main">「今、一番気になっていることは何？」</div>
-        <div class="q-mechanism">
-          <strong>なぜこの問いがバイアスに効くのか</strong>
-          「最近どう？」は漠然としているため、相手も漠然と答える。「一番」と焦点を絞ることで、相手は自分の内側を探し始める。その探す過程で、マネージャーが持っていた「あの人はこういう状況だ」という先入観が更新される。問いかける前に浮かんだ「予測の答え」と実際の答えがズレたとき、それがバイアスに気づく瞬間だ。
-        </div>
-        <div class="q-ng">「何か問題ある？」——「問題がある前提」が相手を防御的にする。</div>
-        <div class="q-purpose">自分が見えていなかったものを、相手に教えてもらうための問い。</div>
+      <div class="w-meta">
+        <div class="w-meta-item">⏱ 約10〜15分</div>
+        <div class="w-meta-item">📝 記述式</div>
+        <div class="w-meta-item">💾 自動保存あり</div>
       </div>
-
-      <div class="question-card type-2">
-        <div class="q-number" style="color:#e0cfc8">02</div>
-        <div class="q-scene" style="color:#a07060">使いどころ：行動が止まっているメンバーへ</div>
-        <div class="q-main">「今、どこで詰まっている？」</div>
-        <div class="q-mechanism">
-          <strong>なぜこの問いがバイアスに効くのか</strong>
-          行動が止まると「やる気がない」「覚悟が足りない」という成功体験バイアスが作動しやすい。「どこで」と場所を問うことで、原因を「性格・意欲」ではなく「状況・環境」に向ける。これにより、マネージャー自身が「原因を本人に帰属させていた」という自分のフィルターに気づきやすくなる。
-        </div>
-        <div class="q-ng" style="color:#8b2e2e;border-color:#8b2e2e">「なんで進んでないの？」——原因追及のニュアンスが相手を追い詰め、守りに入らせる。</div>
-        <div class="q-purpose" style="color:#8b6a58">自分が見えていなかった障害を、相手と一緒に探すための問い。</div>
-      </div>
-
-      <div class="question-card type-3">
-        <div class="q-number" style="color:#c8c8e0">03</div>
-        <div class="q-scene" style="color:#6060a0">使いどころ：自分が答えを先に出しそうになったとき</div>
-        <div class="q-main">「あなたはどうしたい？」</div>
-        <div class="q-mechanism">
-          <strong>なぜこの問いがバイアスに効くのか</strong>
-          マネージャーが先に答えを示すと、「自分ならこうする」という成功の型バイアスが全面に出る。主語を「あなた」に移すだけで、相手は考える人になり、マネージャーは観察する人になる。相手の答えが「この人はこういう人だ」という事前の決めつけと違うとき、その驚きが決めつけバイアスの更新につながる。「自分が思っていた答えと違った」という経験が、人物像の固定化を解く入口になる。
-        </div>
-        <div class="q-ng" style="color:#8b2e2e;border-color:#8b2e2e">「自分だったらこうするけど、どう思う？」——答えを先に示すと相手の思考はそこで止まる。</div>
-        <div class="q-purpose" style="color:#6060a0">自分がまだ知らない相手の考えを、はじめて見るための問い。</div>
-      </div>
-
-    </div>
-
-    <div class="section-title">バイアス作動サイン ——この感覚が浮かんだら、一度立ち止まる</div>
-
-    <div class="bias-awareness">
-      <div class="awareness-title">バイアス作動サイン · 3つのタイプ</div>
-      <div class="sign-grid">
-        <div class="sign-item">
-          <div class="sign-label" style="color:#2c4a3e">タイプ 01 · 当たり前の空気</div>
-          <div class="sign-text">「なんでそんなことも<br>わからないんだ」</div>
-        </div>
-        <div class="sign-item">
-          <div class="sign-label" style="color:#6b3a2a">タイプ 02 · 成功の型</div>
-          <div class="sign-text">「根性が足りない」<br>「覚悟がない」</div>
-        </div>
-        <div class="sign-item">
-          <div class="sign-label" style="color:#3a3a6b">タイプ 03 · 決めつけ</div>
-          <div class="sign-text">「やっぱりそうか」が<br>続くとき</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="section-title">バイアスリセット · 3ステップ</div>
-
-    <div class="reset-protocol">
-      <div class="stamp">バイアスリセット</div>
-      <div style="font-size:11px;color:var(--インク薄);margin-bottom:4px;letter-spacing:0.06em;padding-right:80px">
-        サインが浮かんだとき、この流れで問いをリセットする
-      </div>
-      <div class="reset-steps">
-        <div class="reset-step">
-          <div class="step-num">01</div>
-          <div class="step-body">
-            <div class="step-action">仮定を置く</div>
-            <div class="step-detail">「自分はこの人のことをまだわかっていないかもしれない」</div>
-          </div>
-        </div>
-        <div class="step-arrow">→</div>
-        <div class="reset-step">
-          <div class="step-num">02</div>
-          <div class="step-body">
-            <div class="step-action">サインを名指す</div>
-            <div class="step-detail">上の3つのサインのどれが浮かんでいるかを確認する</div>
-          </div>
-        </div>
-        <div class="step-arrow">→</div>
-        <div class="reset-step">
-          <div class="step-num">03</div>
-          <div class="step-body">
-            <div class="step-action">問いを変える</div>
-            <div class="step-detail">3つの問いかけのいずれかを使ってみる</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="sheet-footer">
-      <span>filagu · 気づきの物語を紡ぐ、人と学びのキュレーター</span>
-      <span>© 2026 まさ / filagu</span>
+      <button class="btn-primary" onclick="goTo('step-0')">はじめる</button>
     </div>
   </div>
 
+  <!-- STEP 0 -->
+  <div class="step" id="step-0">
+    <div class="progress" id="progress-0"></div>
+    <div class="card">
+      <div class="step-label">STEP 0</div>
+      <div class="step-title">自分の消耗パターンを確認する</div>
+      <div class="step-desc">当てはまるタイプを選んでください。複数選択できます。選んだタイプに合わせて、この後の問いが変わります。</div>
 
-  <!-- バイアス傾向診断 -->
-  <div id="sheet-diag" class="sheet">
+      <div class="type-cards">
+        <button class="type-card focus" id="card-focus" onclick="toggleType('focus')">
+          <div class="type-card-head">
+            <span class="type-icon">🔍</span>
+            <span class="type-name">過集中型</span>
+            <span class="type-check" id="check-focus"><span class="type-check-mark">✓</span></span>
+          </div>
+          <div class="type-desc">一つのことに深く入れる。その分、細切れタスクの連続で消耗しやすい。</div>
+        </button>
 
-    <div class="sheet-header">
-      <div>
-        <div class="sheet-label">バイアス傾向 自己診断シート · filagu</div>
-        <div class="sheet-title">
-          バイアス傾向診断
-          <span>自分はどのタイプの思い込みを持ちやすいか</span>
-        </div>
+        <button class="type-card sprint" id="card-sprint" onclick="toggleType('sprint')">
+          <div class="type-card-head">
+            <span class="type-icon">⚡</span>
+            <span class="type-name">スプリント型</span>
+            <span class="type-check" id="check-sprint"><span class="type-check-mark">✓</span></span>
+          </div>
+          <div class="type-desc">ここぞで爆発的に動ける。その分、緊急でない日常の継続で気づかないうちにガス欠になりやすい。</div>
+        </button>
+
+        <button class="type-card sense" id="card-sense" onclick="toggleType('sense')">
+          <div class="type-card-head">
+            <span class="type-icon">🌊</span>
+            <span class="type-name">高感度型</span>
+            <span class="type-check" id="check-sense"><span class="type-check-mark">✓</span></span>
+          </div>
+          <div class="type-desc">場の空気や人の感情をよく読み取れる。その分、全方向から感情を受け取り続けることで消耗しやすい。</div>
+        </button>
+
+        <button class="type-card bw" id="card-bw" onclick="toggleType('bw')">
+          <div class="type-card-head">
+            <span class="type-icon">⚖️</span>
+            <span class="type-name">白黒思考型</span>
+            <span class="type-check" id="check-bw"><span class="type-check-mark">✓</span></span>
+          </div>
+          <div class="type-desc">判断が速くブレない。その分、答えの出ない問題を保留し続けることでじわじわ削られやすい。</div>
+        </button>
+
+        <button class="type-card solo" id="card-solo" onclick="toggleType('solo')">
+          <div class="type-card-head">
+            <span class="type-icon">🏃</span>
+            <span class="type-name">単独実行型</span>
+            <span class="type-check" id="check-solo"><span class="type-check-mark">✓</span></span>
+          </div>
+          <div class="type-desc">自分が動くことで成果を作ってきた。その分、人を通じて動かす設計に体が合わず消耗しやすい。</div>
+        </button>
+
+        <button class="type-card result" id="card-result" onclick="toggleType('result')">
+          <div class="type-card-head">
+            <span class="type-icon">🎯</span>
+            <span class="type-name">成果可視化型</span>
+            <span class="type-check" id="check-result"><span class="type-check-mark">✓</span></span>
+          </div>
+          <div class="type-desc">数字や順位など明確な成果が見えることで動いてきた。その分、結果が見えにくい環境で燃料切れを起こしやすい。</div>
+        </button>
       </div>
-      <div class="sheet-meta"><span>filagu</span><span>自己診断</span><span>v1.0</span></div>
+
+      <button class="btn-primary" id="btn-step0-next" onclick="goTo('step-1')" disabled>次へ</button>
     </div>
+  </div>
 
-    <p class="diagnosis-intro">
-      どのタイプも、悪意から生まれたものではない。経験から生まれた枠組みだからこそ、自分では気づきにくい。
-      大事なのは分類することではなく、「今、自分はどのフィルターで見ているか」に気づく習慣をつくることだ。
-      まず自分のパターンを知ることが、その入口になる。
-    </p>
+  <!-- STEP 1 -->
+  <div class="step" id="step-1">
+    <div class="progress" id="progress-1"></div>
+    <div class="card">
+      <div class="step-label">STEP 1</div>
+      <div class="step-title">気持ちの持ち方</div>
+      <div class="step-desc">消耗は、弱さや「向いていない」ことの証明ではない。特性と職務設計のズレから来ている。</div>
+      <div class="type-tags" id="tags-1"></div>
 
-    <div class="diag-instructions">
-      <div style="font-size:18px;flex-shrink:0">📋</div>
-      <div>
-        <strong>使い方</strong><br>
-        各設問について「当てはまる」「当てはまらない」を選んでください。直感で答えるのがコツです。全問回答後、「診断する」ボタンを押すと結果が表示されます。
+      <div class="questions">
+        <div class="q-block">
+          <div class="q-num">Q1</div>
+          <div class="q-text">今まで自分に向けてきた言葉</div>
+          <div class="q-hint" id="hint-s1q1"></div>
+          <textarea id="s1q1" placeholder="書いてみる..." oninput="autoResize(this); save()"></textarea>
+        </div>
+        <div class="q-block">
+          <div class="q-num">Q2</div>
+          <div class="q-text">特性のズレとして捉え直すと</div>
+          <div class="q-hint" id="hint-s1q2"></div>
+          <textarea id="s1q2" placeholder="書いてみる..." oninput="autoResize(this); save()"></textarea>
+        </div>
+        <div class="q-block">
+          <div class="q-num">Q3</div>
+          <div class="q-text">消耗したとき、今後自分に言える言葉</div>
+          <div class="q-hint" id="hint-s1q3"></div>
+          <textarea id="s1q3" placeholder="書いてみる..." oninput="autoResize(this); save()"></textarea>
+        </div>
       </div>
+
+      <button class="btn-primary" onclick="goTo('step-2')">次へ</button>
+      <button class="btn-back" onclick="goTo('step-0')">← 戻る</button>
     </div>
+  </div>
 
-    <div class="progress-indicator">
-      回答済み：<span id="answered-count">0</span> / 15 問
+  <!-- STEP 2 -->
+  <div class="step" id="step-2">
+    <div class="progress" id="progress-2"></div>
+    <div class="card">
+      <div class="step-label">STEP 2</div>
+      <div class="step-title">できないところと向き合う</div>
+      <div class="step-desc">「できない」を認めることは、諦めることではない。現実を正確に把握することが、次の一手を決める。</div>
+      <div class="type-tags" id="tags-2"></div>
+
+      <div class="questions">
+        <div class="q-block">
+          <div class="q-num">Q1</div>
+          <div class="q-text">今、最も消耗している仕事・場面</div>
+          <div class="q-hint" id="hint-s2q1"></div>
+          <textarea id="s2q1" placeholder="書いてみる..." oninput="autoResize(this); save()"></textarea>
+        </div>
+        <div class="q-block">
+          <div class="q-num">Q2</div>
+          <div class="q-text">なぜ消耗するか（タイプの視点から）</div>
+          <div class="q-hint" id="hint-s2q2"></div>
+          <textarea id="s2q2" placeholder="書いてみる..." oninput="autoResize(this); save()"></textarea>
+        </div>
+        <div class="q-block">
+          <div class="q-num">Q3</div>
+          <div class="q-text">「できない」と正直に認めることで、何が楽になりそうか</div>
+          <div class="q-hint" id="hint-s2q3"></div>
+          <textarea id="s2q3" placeholder="書いてみる..." oninput="autoResize(this); save()"></textarea>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="goTo('step-3')">次へ</button>
+      <button class="btn-back" onclick="goTo('step-1')">← 戻る</button>
     </div>
+  </div>
 
-    <!-- タイプ 01 -->
-    <div class="bias-block open" id="block-0">
-      <div class="bias-block-header" onclick="toggleBlock(0)">
-        <div class="bias-icon">🌫️</div>
-        <div class="bias-name-group">
-          <div class="bias-type-label">タイプ 01</div>
-          <div class="bias-name" style="color:#2c4a3e">当たり前の空気<sub>環境に染まったフィルター</sub></div>
+  <!-- STEP 3 -->
+  <div class="step" id="step-3">
+    <div class="progress" id="progress-3"></div>
+    <div class="card">
+      <div class="step-label">STEP 3</div>
+      <div class="step-title">強みをどう活かすか</div>
+      <div class="step-desc">プレイヤー時代の強みは本物だ。ただ、使い方を変える。</div>
+      <div class="type-tags" id="tags-3"></div>
+
+      <div class="questions">
+        <div class="q-block">
+          <div class="q-num">Q1</div>
+          <div class="q-text">プレイヤー時代に評価されてきたこと</div>
+          <div class="q-hint" id="hint-s3q1"></div>
+          <textarea id="s3q1" placeholder="書いてみる..." oninput="autoResize(this); save()"></textarea>
         </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <div class="bias-score-preview"><span class="score-num" id="score-0">—</span>該当</div>
-          <div class="toggle-icon">▼</div>
+        <div class="q-block">
+          <div class="q-num">Q2</div>
+          <div class="q-text">その強みを、今の役割でどう使えるか</div>
+          <div class="q-hint" id="hint-s3q2"></div>
+          <textarea id="s3q2" placeholder="書いてみる..." oninput="autoResize(this); save()"></textarea>
         </div>
-      </div>
-      <div class="bias-questions always-open" id="questions-0">
-        <div class="diag-q">
-          <div class="diag-q-num">Q1</div>
-          <div class="diag-q-text">新入社員や転職者が「なぜこのやり方なんですか？」と聞いてきたとき、「うちはそういうものだから」と感じたことがある。</div>
-          <div class="diag-q-opts">
-            <button class="opt-btn" onclick="answer(0,0,1,this)">当てはまる</button>
-            <button class="opt-btn" onclick="answer(0,0,0,this)">当てはまらない</button>
-          </div>
-        </div>
-        <div class="diag-q">
-          <div class="diag-q-num">Q2</div>
-          <div class="diag-q-text">「他社ではこうしている」という話を聞いたとき、「うちとは環境が違うから」と思って聞き流したことがある。</div>
-          <div class="diag-q-opts">
-            <button class="opt-btn" onclick="answer(0,1,1,this)">当てはまる</button>
-            <button class="opt-btn" onclick="answer(0,1,0,this)">当てはまらない</button>
-          </div>
-        </div>
-        <div class="diag-q">
-          <div class="diag-q-num">Q3</div>
-          <div class="diag-q-text">チームの暗黙のルールや雰囲気を、新しいメンバーも当然わかっているはずだと思って伝えなかったことがある。</div>
-          <div class="diag-q-opts">
-            <button class="opt-btn" onclick="answer(0,2,1,this)">当てはまる</button>
-            <button class="opt-btn" onclick="answer(0,2,0,this)">当てはまらない</button>
-          </div>
-        </div>
-        <div class="diag-q">
-          <div class="diag-q-num">Q4</div>
-          <div class="diag-q-text">「前はこれで問題なかったのに」と感じて、新しいやり方の提案に対して慎重になったことがある。</div>
-          <div class="diag-q-opts">
-            <button class="opt-btn" onclick="answer(0,3,1,this)">当てはまる</button>
-            <button class="opt-btn" onclick="answer(0,3,0,this)">当てはまらない</button>
-          </div>
-        </div>
-        <div class="diag-q">
-          <div class="diag-q-num">Q5</div>
-          <div class="diag-q-text">部下の疑問や提案に対して、内容を吟味する前に「経験が浅いから仕方ない」と思ったことがある。</div>
-          <div class="diag-q-opts">
-            <button class="opt-btn" onclick="answer(0,4,1,this)">当てはまる</button>
-            <button class="opt-btn" onclick="answer(0,4,0,this)">当てはまらない</button>
-          </div>
+        <div class="q-block">
+          <div class="q-num">Q3</div>
+          <div class="q-text">今週、その強みを意識して使える場面</div>
+          <div class="q-hint" id="hint-s3q3"></div>
+          <textarea id="s3q3" placeholder="書いてみる..." oninput="autoResize(this); save()"></textarea>
         </div>
       </div>
+
+      <button class="btn-primary" onclick="goTo('step-4')">次へ</button>
+      <button class="btn-back" onclick="goTo('step-2')">← 戻る</button>
     </div>
+  </div>
 
-    <!-- タイプ 02 -->
-    <div class="bias-block open" id="block-1">
-      <div class="bias-block-header" onclick="toggleBlock(1)">
-        <div class="bias-icon">🏆</div>
-        <div class="bias-name-group">
-          <div class="bias-type-label">タイプ 02</div>
-          <div class="bias-name" style="color:#6b3a2a">成功の型<sub>自分の経験が正解フィルターになる</sub></div>
+  <!-- STEP 4 -->
+  <div class="step" id="step-4">
+    <div class="progress" id="progress-4"></div>
+    <div class="card">
+      <div class="step-label">STEP 4</div>
+      <div class="step-title">苦手をどうフォローするか</div>
+      <div class="step-desc">できないことを一人で抱えない。任せる・仕組みで補う・環境を変える。</div>
+      <div class="type-tags" id="tags-4"></div>
+
+      <div class="questions">
+        <div class="q-block">
+          <div class="q-num">Q1</div>
+          <div class="q-text">苦手な仕事・場面</div>
+          <div class="q-hint" id="hint-s4q1"></div>
+          <textarea id="s4q1" placeholder="書いてみる..." oninput="autoResize(this); save()"></textarea>
         </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <div class="bias-score-preview"><span class="score-num" id="score-1">—</span>該当</div>
-          <div class="toggle-icon">▼</div>
+        <div class="q-block">
+          <div class="q-num">Q2</div>
+          <div class="q-text">誰かに任せられるか、仕組みで補えるか</div>
+          <div class="q-hint" id="hint-s4q2"></div>
+          <textarea id="s4q2" placeholder="書いてみる..." oninput="autoResize(this); save()"></textarea>
         </div>
-      </div>
-      <div class="bias-questions always-open" id="questions-1">
-        <div class="diag-q">
-          <div class="diag-q-num">Q6</div>
-          <div class="diag-q-text">部下が悩んでいるとき、相手の話を最後まで聞く前に「自分のときはこうして乗り越えた」という話をしてしまうことがある。</div>
-          <div class="diag-q-opts">
-            <button class="opt-btn" onclick="answer(1,0,1,this)">当てはまる</button>
-            <button class="opt-btn" onclick="answer(1,0,0,this)">当てはまらない</button>
-          </div>
-        </div>
-        <div class="diag-q">
-          <div class="diag-q-num">Q7</div>
-          <div class="diag-q-text">部下の結果が出ないとき、環境や状況より先に「本人の気持ちの問題」だと感じることがある。</div>
-          <div class="diag-q-opts">
-            <button class="opt-btn" onclick="answer(1,1,1,this)">当てはまる</button>
-            <button class="opt-btn" onclick="answer(1,1,0,this)">当てはまらない</button>
-          </div>
-        </div>
-        <div class="diag-q">
-          <div class="diag-q-num">Q8</div>
-          <div class="diag-q-text">部下からの相談を聞きながら、「自分ならこうする」という答えが先に頭に浮かんでいることがある。</div>
-          <div class="diag-q-opts">
-            <button class="opt-btn" onclick="answer(1,2,1,this)">当てはまる</button>
-            <button class="opt-btn" onclick="answer(1,2,0,this)">当てはまらない</button>
-          </div>
-        </div>
-        <div class="diag-q">
-          <div class="diag-q-num">Q9</div>
-          <div class="diag-q-text">1on1で「どうしたいですか？」と聞く前に、すでに「こうすべき」という答えを持って臨んでいることがある。</div>
-          <div class="diag-q-opts">
-            <button class="opt-btn" onclick="answer(1,3,1,this)">当てはまる</button>
-            <button class="opt-btn" onclick="answer(1,3,0,this)">当てはまらない</button>
-          </div>
-        </div>
-        <div class="diag-q">
-          <div class="diag-q-num">Q10</div>
-          <div class="diag-q-text">部下が自分とは違うアプローチを選んだとき、結果が出ていても「遠回りをしている」と感じることがある。</div>
-          <div class="diag-q-opts">
-            <button class="opt-btn" onclick="answer(1,4,1,this)">当てはまる</button>
-            <button class="opt-btn" onclick="answer(1,4,0,this)">当てはまらない</button>
-          </div>
+        <div class="q-block">
+          <div class="q-num">Q3</div>
+          <div class="q-text">今週、具体的に変えられること1つ</div>
+          <div class="q-hint" id="hint-s4q3"></div>
+          <textarea id="s4q3" placeholder="書いてみる..." oninput="autoResize(this); save()"></textarea>
         </div>
       </div>
+
+      <button class="btn-primary" onclick="goTo('step-last')">次へ</button>
+      <button class="btn-back" onclick="goTo('step-3')">← 戻る</button>
     </div>
+  </div>
 
-    <!-- タイプ 03 -->
-    <div class="bias-block open" id="block-2">
-      <div class="bias-block-header" onclick="toggleBlock(2)">
-        <div class="bias-icon">🔍</div>
-        <div class="bias-name-group">
-          <div class="bias-type-label">タイプ 03</div>
-          <div class="bias-name" style="color:#3a3a6b">決めつけ<sub>最初の判断が確認装置になる</sub></div>
+  <!-- 最後に -->
+  <div class="step" id="step-last">
+    <div class="progress" id="progress-last"></div>
+    <div class="card">
+      <div class="step-label">最後に</div>
+      <div class="step-title">言葉にして、終わりにする</div>
+      <div class="step-desc">書いた言葉は、頭の中に置いておくよりも、少し外に出した方が扱いやすくなる。</div>
+      <div class="type-tags" id="tags-last"></div>
+
+      <div class="questions">
+        <div class="q-block">
+          <div class="q-num">Q1</div>
+          <div class="q-text">このシートを書いてみて、気づいたこと</div>
+          <div class="q-hint">どんな小さなことでも。「そうかもしれない」という感覚でも。</div>
+          <textarea id="s-last" placeholder="書いてみる..." oninput="autoResize(this); save()"></textarea>
         </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <div class="bias-score-preview"><span class="score-num" id="score-2">—</span>該当</div>
-          <div class="toggle-icon">▼</div>
+        <div class="q-block">
+          <div class="q-num">Q2</div>
+          <div class="q-text">今週中に試してみること、1つだけ</div>
+          <div class="q-hint">STEP 1〜4を書いた上で、今週一番やってみたいこと1つ。いつ、どこで試すかも一緒に書く。</div>
+          <textarea id="s-last2" placeholder="具体的に、いつやるか..." oninput="autoResize(this); save()"></textarea>
         </div>
       </div>
-      <div class="bias-questions always-open" id="questions-2">
-        <div class="diag-q">
-          <div class="diag-q-num">Q11</div>
-          <div class="diag-q-text">ある部下について「この人はこういう人だ」と一度決めると、それを覆す出来事が起きても「たまたまだ」と思ってしまうことがある。</div>
-          <div class="diag-q-opts">
-            <button class="opt-btn" onclick="answer(2,0,1,this)">当てはまる</button>
-            <button class="opt-btn" onclick="answer(2,0,0,this)">当てはまらない</button>
-          </div>
-        </div>
-        <div class="diag-q">
-          <div class="diag-q-num">Q12</div>
-          <div class="diag-q-text">1on1で部下の話を聞きながら、「やっぱりそういうことか」と思う瞬間が続いたことがある。</div>
-          <div class="diag-q-opts">
-            <button class="opt-btn" onclick="answer(2,1,1,this)">当てはまる</button>
-            <button class="opt-btn" onclick="answer(2,1,0,this)">当てはまらない</button>
-          </div>
-        </div>
-        <div class="diag-q">
-          <div class="diag-q-num">Q13</div>
-          <div class="diag-q-text">1on1の前に「今日はどうせこういう話になるだろう」と予測してから臨んでいることがある。</div>
-          <div class="diag-q-opts">
-            <button class="opt-btn" onclick="answer(2,2,1,this)">当てはまる</button>
-            <button class="opt-btn" onclick="answer(2,2,0,this)">当てはまらない</button>
-          </div>
-        </div>
-        <div class="diag-q">
-          <div class="diag-q-num">Q14</div>
-          <div class="diag-q-text">部下が反論や言い訳をしてきたとき、内容より先に「また同じパターンだ」と感じたことがある。</div>
-          <div class="diag-q-opts">
-            <button class="opt-btn" onclick="answer(2,3,1,this)">当てはまる</button>
-            <button class="opt-btn" onclick="answer(2,3,0,this)">当てはまらない</button>
-          </div>
-        </div>
-        <div class="diag-q">
-          <div class="diag-q-num">Q15</div>
-          <div class="diag-q-text">「あの部下はこういう人」という自分の評価が、半年以上ほとんど変わっていないことがある。</div>
-          <div class="diag-q-opts">
-            <button class="opt-btn" onclick="answer(2,4,1,this)">当てはまる</button>
-            <button class="opt-btn" onclick="answer(2,4,0,this)">当てはまらない</button>
-          </div>
-        </div>
-      </div>
+
+      <button class="btn-primary" onclick="goTo('step-summary')">まとめを見る</button>
+      <button class="btn-back" onclick="goTo('step-4')">← 戻る</button>
     </div>
+  </div>
 
-    <button class="run-btn" onclick="runDiagnosis()">診断する →</button>
-    <button class="reset-btn" onclick="resetAll()">リセットして最初からやり直す</button>
+  <!-- まとめ -->
+  <div class="step" id="step-summary">
+    <div class="card">
+      <div class="r-icon">✅</div>
+      <div class="r-title">ワークシート完了</div>
+      <div class="r-desc">書いた言葉は、消耗の意味を変えるための最初の一歩です。</div>
 
-    <div class="result-area" id="result-area">
-      <div class="result-header">診断結果 · あなたのバイアス傾向</div>
-      <div class="result-body">
-        <div class="result-bars" id="result-bars"></div>
-        <div class="result-dominant" id="result-dominant"></div>
-        <div class="result-action" id="result-action"></div>
-      </div>
+      <div id="type-messages" style="margin-bottom: 20px;"></div>
+
+      <div id="summary-content"></div>
+
+      <div class="divider"></div>
+
+      <button class="btn-outline" onclick="window.print()">🖨 印刷・保存する</button>
+      <button class="btn-back" onclick="goTo('step-last')" style="margin-top: 10px;">← 戻って修正する</button>
+      <button class="btn-back btn-danger" onclick="resetAndGoHome()" style="margin-top: 8px;">↩ はじめに戻る（入力をリセット）</button>
     </div>
-
-    <div class="sheet-footer">
-      <span>filagu · 気づきの物語を紡ぐ、人と学びのキュレーター</span>
-      <span>© 2026 まさ / filagu</span>
-    </div>
-
   </div>
 
 </div>
 
 <script>
-const scores = [[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]];
-const answered = [[null,null,null,null,null],[null,null,null,null,null],[null,null,null,null,null]];
+  const STEPS = ['step-0','step-1','step-2','step-3','step-4','step-last'];
+  const TOTAL = STEPS.length;
+  const FIELDS = ['s1q1','s1q2','s1q3','s2q1','s2q2','s2q3','s3q1','s3q2','s3q3','s4q1','s4q2','s4q3','s-last','s-last2'];
 
-const typeData = [
-  {
-    name: '当たり前の空気',
-    color: '#2c4a3e',
-    desc: '長く同じ環境にいることで形成された「見えない前提」が、新しい視点や人を無意識にふるいにかけています。このバイアスは、自分では「常識的な判断をしている」と感じているため、最も気づきにくいタイプのひとつです。',
-    why: '経験年数が長いほど、この傾向は強くなりやすい。「当たり前」は積み重ねた知識ではなく、問い直しをやめた習慣から生まれることが多い。新しいメンバーの「なぜ？」は、あなたが見えなくなっているものを指していることがある。',
-    action: '「今、一番気になっていることは何？」から始めましょう。相手の言葉の文脈を先に受け取ることで、自分の前提を一度脇に置く練習になります。「なんでわからないんだ」という感覚が浮かんだとき、それがこのバイアスのサインです。'
-  },
-  {
-    name: '成功の型',
-    color: '#6b3a2a',
-    desc: '自分がうまくいった経験が「正解フィルター」として作動し、相手の話を聴く前に「こうあるべき」という結論が先に立つ傾向があります。1on1が「相手を理解する場」ではなく、「自分の信念が正しいことを確認する場」になっていないか、立ち止まってみてください。',
-    why: '成功体験は本物の資産だが、それが「唯一の正解」になったとき、他者の成長の可能性を狭める。「自分はこうして乗り越えた」は事実だが、相手が同じ文脈にいるとは限らない。問いかける前に答えを持っている状態は、すでに対話ではない。',
-    action: '「あなたはどうしたい？」を先に投げましょう。答えを渡すのではなく、相手が自分の答えにたどり着くのを待つこと。あなたの経験は「問い」の形で渡すのが、最も力を発揮します。'
-  },
-  {
-    name: '決めつけ',
-    color: '#3a3a6b',
-    desc: '「この人はこういう人だ」という初期判断が「確認装置」として作動し、新しい情報をその判断に沿って解釈し続ける傾向があります。自分では「ちゃんと観察している」と感じていることが多く、3つの中で最も自覚しにくいタイプです。',
-    why: '厄介なのは、相手が反論しても「やっぱりそういう人だから」になり、黙れば「認めたくないのだろう」になる点だ。観察しているのではなく、最初の判断を検証し続けている。「やっぱりそうか」という感覚が続くとき、それは気づきではなくバイアスの作動サインかもしれない。',
-    action: '「今、どこで詰まっている？」で状況・環境に焦点を向けましょう。相手の言動の原因を「性格」ではなく「状況」から探す問いを意識することが、このバイアスの解毒剤になります。'
+  const TYPE_INFO = {
+    focus:  { label: '過集中型',    emoji: '🔍', cls: 'focus',  color: '#1e40af' },
+    sprint: { label: 'スプリント型', emoji: '⚡', cls: 'sprint', color: '#b45309' },
+    sense:  { label: '高感度型',    emoji: '🌊', cls: 'sense',  color: '#7c3aed' },
+    bw:     { label: '白黒思考型',  emoji: '⚖️', cls: 'bw',     color: '#0e7490' },
+    solo:   { label: '単独実行型',  emoji: '🏃', cls: 'solo',   color: '#15803d' },
+    result: { label: '成果可視化型', emoji: '🎯', cls: 'result', color: '#be185d' },
+  };
+
+  const TYPE_HINTS = {
+    focus: {
+      's1q1': '例：「なぜ一つのことにしか集中できないのか」「段取りが悪い、要領が悪い」',
+      's1q2': '例：「過集中な自分が、細切れ仕事の多い環境に置かれているだけだ」',
+      's1q3': '例：「集中が切れるのは当たり前。設計の問題だ。自分が弱いわけじゃない」',
+      's2q1': '例：「会議が続いた後の細かいメール対応」「次々と来る相談への対応」',
+      's2q2': '例：「集中が途切れるたびに、再び集中状態に戻るためのエネルギーがかかっているから」',
+      's2q3': '例：「集中できない自分を責める時間が減る」「要領が悪いという自己評価を手放せる」',
+      's3q1': '例：「一つのことを深く追い、誰よりも詳しくなれること」「質の高い仕事を集中して仕上げること」',
+      's3q2': '例：「重要な課題に集中できる時間帯を確保し、チームの深い思考を担う役割になる」',
+      's3q3': '例：「今週の最重要課題に、午前中だけ深く入る90分を確保する」',
+      's4q1': '例：「STEP 2で書いた消耗場面を見返す」「会議・相談・確認が次々続く時間帯」「細かいタスクが同時に走っている状態」',
+      's4q2': '例：「細かい確認作業はチェックリスト化して副リーダーに任せる」「相談受付時間を決めて集中時間を守る」',
+      's4q3': '例：「午前中の90分を、連絡なしの集中時間として確保する」',
+    },
+    sprint: {
+      's1q1': '例：「なぜ毎日コンスタントに動けないのか」「気持ちの波が大きすぎる」',
+      's1q2': '例：「爆発的に動けるエンジンを持つ自分が、定速巡航を求められる構造に置かれているだけだ」',
+      's1q3': '例：「ガス欠になるのはエンジンの特性だ。弱さじゃない」',
+      's2q1': '例：「毎日のルーティン確認業務」「進捗が見えにくい長期プロジェクトの中間期」',
+      's2q2': '例：「エンジンがかかるタイミングがない状態で、低空飛行を維持し続けているから」',
+      's2q3': '例：「毎日コンスタントに動けない自分への罪悪感が減る」',
+      's3q1': '例：「立ち上げ期やキャンペーン時の爆発的な推進力」「ここぞの場面でチームを引っ張れること」',
+      's3q2': '例：「チームの新しい取り組みや改善フェーズの立ち上げ役として、エンジンをかける」',
+      's3q3': '例：「今週チームの改善テーマを1つ決め、自分が推進の旗手として動く」',
+      's4q1': '例：「STEP 2で書いた消耗場面を見返す」「毎日のルーティン確認・報告業務」「変化のない日常管理」',
+      's4q2': '例：「ルーティン業務はフォーマット化してメンバーに回す」「週1回の立ち上げ系ミーティングで自分のエンジンをかける機会を設ける」',
+      's4q3': '例：「今週取り組むチーム改善テーマを1つだけ決め、推進役として動く」',
+    },
+    sense: {
+      's1q1': '例：「なぜこんなに疲れるのか」「メンタルが弱い、豆腐メンタルだ」',
+      's1q2': '例：「感情を受け取るアンテナが敏感な自分が、全方向から感情が飛んでくる環境に置かれているだけだ」',
+      's1q3': '例：「疲れているのは受け取り続けているから。感情的に弱いわけじゃない」',
+      's2q1': '例：「感情的なメンバーの相談を連続して受ける場面」「職場の空気が重い日」',
+      's2q2': '例：「感情は受け取るだけで消耗する。常時受信状態が続いているから」',
+      's2q3': '例：「疲れているのは弱いからだ、という思い込みが外れる」',
+      's3q1': '例：「場の空気を察知して先に動く力」「相手の微妙な変化を読んで提案を変えられること」',
+      's3q2': '例：「部下の微妙な変化を誰よりも早くキャッチして、先手を打って関わる育成者になる」',
+      's3q3': '例：「今週の1on1で、言葉より前に表情・声のトーンに注意を向けてみる」',
+      's4q1': '例：「STEP 2で書いた消耗場面を見返す」「感情的なやり取りが続いた後の時間帯」「人間関係のテンションが高い場面」',
+      's4q2': '例：「1on1の後に15分ひとりで過ごす時間を意図的に確保する」「感情的な相談は時間を区切って受ける」',
+      's4q3': '例：「1on1の後に10分、ひとりでいられる時間を予定に入れる」',
+    },
+    bw: {
+      's1q1': '例：「なぜすっきり決められないのか」「決断力がない、優柔不断だ」',
+      's1q2': '例：「白黒つけたい自分が、答えの出ない問題を保留し続ける仕事に置かれているだけだ」',
+      's1q3': '例：「保留のまま終わるのは弱さじゃない。今日はここまで、でいい」',
+      's2q1': '例：「判断が曖昧なまま保留になっている案件」「方針が降りてこない状態で動く場面」',
+      's2q2': '例：「決着をつけたいという衝動を抑え続けているコストが、じわじわ積み重なっているから」',
+      's2q3': '例：「全部を今日中に決着させようとする無理がなくなる」',
+      's3q1': '例：「素早い決断力とぶれない判断軸」「シンプルに方向を打ち出す力」',
+      's3q2': '例：「チームが迷っているときに方向を素早く打ち出し、判断を求められる場面でリードする」',
+      's3q3': '例：「チームで迷っている判断を一つ選んで、今週中に方向を打ち出す」',
+      's4q1': '例：「STEP 2で書いた消耗場面を見返す」「方針が決まらないまま保留になっている案件」「白黒つけられない状態が続く場面」',
+      's4q2': '例：「今日は保留のまま完了という終わりラインを朝に決めておく」「決めきれない案件を書き出し、今週判断する1つだけ選ぶ」',
+      's4q3': '例：「今週保留している案件を書き出し、「今週中に決める1つ」だけ選ぶ」',
+    },
+    solo: {
+      's1q1': '例：「なぜ人に任せられないのか」「器が小さい、完璧主義すぎる」',
+      's1q2': '例：「自分が動いて成果を出してきた自分が、人を通じて動かす設計の仕事に置かれているだけだ」',
+      's1q3': '例：「任せられないのは怠惰じゃない。まだ慣れていないだけだ」',
+      's2q1': '例：「部下に任せてミスが起きたとき」「自分でやった方が早いと感じる全ての瞬間」',
+      's2q2': '例：「自分が直接動かないと気が済まない。人を通じた成果の出し方が体に入っていないから」',
+      's2q3': '例：「全部自分でやろうとするプレッシャーが減る」「任せることへの罪悪感が薄まる」',
+      's3q1': '例：「自分一人で完結できる実行力と、結果へのコミット力」',
+      's3q2': '例：「自分が動くことで「こうやるんだ」を見せる、背中で引っ張るリーダーになる」',
+      's3q3': '例：「今週1つだけ、結果を見ずに部下に任せきる場面を意図的に作る」',
+      's4q1': '例：「STEP 2で書いた消耗場面を見返す」「部下の仕事を黙って見守る場面」「自分よりうまくできない人にお願いする瞬間」',
+      's4q2': '例：「週1つだけ、結果を見ずに任せる案件を事前に決める」「任せた後に介入しない場面を意図的に設定する」',
+      's4q3': '例：「今週1つだけ、部下に任せて最後まで口を出さない場面を作る」',
+    },
+    result: {
+      's1q1': '例：「なぜ手応えを感じられないのか」「自分にはリーダーは向いていないのかも」',
+      's1q2': '例：「明確な数字で成果が見えてきた自分が、フィードバックが遅くて見えにくい仕事に置かれているだけだ」',
+      's1q3': '例：「手応えがないのはフィードバックの構造が変わっただけだ。種は撒いている」',
+      's2q1': '例：「頑張っているのに成果が見えない週」「育成の手応えが感じられない時期」',
+      's2q2': '例：「動くための燃料（明確な成果）が補充されないまま走り続けているから」',
+      's2q3': '例：「数字が見えない不安を「向いていない証拠」と解釈しなくなる」',
+      's3q1': '例：「明確な数字で結果を出し続けてきた実績」「達成感を原動力にして動き続けた力」',
+      's3q2': '例：「チームの小さな成果を数値化・可視化して、全員の手応えを作る役割を担う」',
+      's3q3': '例：「今週の1on1で、部下の小さな成長を1つ見つけて言語化して伝える」',
+      's4q1': '例：「STEP 2で書いた消耗場面を見返す」「成果が数字で見えない時期」「チームの変化が感じられない週が続くとき」',
+      's4q2': '例：「毎週「チームの小さな変化」を1つメモする習慣を作る」「自分の育成行動量（1on1回数・フィードバック回数）を週次で数える」',
+      's4q3': '例：「今週の1on1で、数字以外の変化（姿勢・言葉・取り組み方）を1つ見つけて記録する」',
+    },
+  };
+
+  const TYPE_SUMMARY = {
+    focus:  'プレイヤー時代の集中力は本物の武器だ。リーダーになっても、その力を使える時間は自分で設計できる。消耗の多くは設計の問題で、あなたの特性の問題じゃない。',
+    sprint: 'ここぞの場面で誰よりも動けるエンジンは変わらない。定速で動けないことを責めなくていい。そのエンジンをかけるタイミングを、意図的に仕組みとして持つことが次の一手になる。',
+    sense:  '人の変化を察知する力は、育成者として最も必要な感覚だ。受け取り続けることへの回復設計を持てば、この特性は武器のまま使い続けられる。疲れているのは弱いからじゃない。',
+    bw:     '判断の速さとぶれない軸は、チームが迷ったときに一番力を発揮する。保留に「慣れる」のではなく、保留を今日ここまで、と区切る技術を持つことが突破口になる。',
+    solo:   '任せることは、能力ではなく習慣だ。最初は小さく、一つだけ任せてみることから始めれば、少しずつ体が慣れていく。プレイヤーとしての実行力は、今も本物だ。',
+    result: '育成の成果は遅れてやってくる。今日の関わりが、数ヶ月後に誰かの成長として返ってくる。自分で小さな指標を持つことが、燃料を補充し続ける唯一の方法になる。',
+  };
+
+  let selectedTypes = new Set();
+
+  function save() {
+    const d = { types: [...selectedTypes] };
+    FIELDS.forEach(id => { d[id] = document.getElementById(id).value; });
+    try { localStorage.setItem('filagu_nd_ws', JSON.stringify(d)); } catch(e) {}
   }
-];
 
-function switchTab(tab) {
-  document.getElementById('sheet-cheat').classList.toggle('active', tab === 'cheat');
-  document.getElementById('sheet-diag').classList.toggle('active', tab === 'diag');
-  document.querySelectorAll('.nav-btn').forEach((b, i) => {
-    b.classList.toggle('active', (i === 0) === (tab === 'cheat'));
+  function load() {
+    try {
+      const d = JSON.parse(localStorage.getItem('filagu_nd_ws') || '{}');
+      if (d.types) {
+        selectedTypes = new Set(d.types);
+        d.types.forEach(t => applyTypeSelection(t));
+        document.getElementById('btn-step0-next').disabled = selectedTypes.size === 0;
+      }
+      FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && d[id]) { el.value = d[id]; autoResize(el); }
+      });
+    } catch(e) {}
+  }
+
+  function applyTypeSelection(key) {
+    const card = document.getElementById('card-' + key);
+    if (!card) return;
+    if (selectedTypes.has(key)) card.classList.add('selected');
+    else card.classList.remove('selected');
+  }
+
+  function toggleType(key) {
+    if (selectedTypes.has(key)) selectedTypes.delete(key);
+    else selectedTypes.add(key);
+    applyTypeSelection(key);
+    document.getElementById('btn-step0-next').disabled = selectedTypes.size === 0;
+    save();
+  }
+
+  function renderTypeTags(containerId) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    el.innerHTML = '';
+    selectedTypes.forEach(k => {
+      const info = TYPE_INFO[k];
+      const tag = document.createElement('span');
+      tag.className = 'type-tag ' + info.cls;
+      tag.textContent = info.emoji + ' ' + info.label;
+      el.appendChild(tag);
+    });
+  }
+
+  function updateHints() {
+    const primaryType = [...selectedTypes][0];
+    if (!primaryType || !TYPE_HINTS[primaryType]) return;
+    const hints = TYPE_HINTS[primaryType];
+    const info = TYPE_INFO[primaryType];
+    const hintIds = ['s1q1','s1q2','s1q3','s2q1','s2q2','s2q3','s3q1','s3q2','s3q3','s4q1','s4q2','s4q3'];
+    hintIds.forEach(qId => {
+      const el = document.getElementById('hint-' + qId);
+      if (!el || !hints[qId]) return;
+      el.innerHTML =
+        `<span style="font-weight:800;color:${info.color}">${info.emoji} ${info.label}の場合：</span><br>` +
+        hints[qId];
+    });
+  }
+
+  function renderProgress(stepId) {
+    const idx = STEPS.indexOf(stepId);
+    if (idx < 0) return;
+    const progIds = ['progress-0','progress-1','progress-2','progress-3','progress-4','progress-last'];
+    const el = document.getElementById(progIds[idx]);
+    if (!el) return;
+    el.innerHTML = '';
+    for (let i = 0; i < TOTAL; i++) {
+      const d = document.createElement('div');
+      d.className = 'pd' + (i < idx ? ' done' : i === idx ? ' active' : '');
+      el.appendChild(d);
+    }
+  }
+
+  function renderSummary() {
+    // Type messages
+    const msgEl = document.getElementById('type-messages');
+    msgEl.innerHTML = '';
+    selectedTypes.forEach(k => {
+      const info = TYPE_INFO[k];
+      const msg = TYPE_SUMMARY[k];
+      if (!msg) return;
+      const block = document.createElement('div');
+      block.className = 'type-msg-block ' + info.cls;
+      block.innerHTML = `<div class="type-msg-label">${info.emoji} ${info.label}へ</div>${msg}`;
+      msgEl.appendChild(block);
+    });
+
+    // Answer sections
+    const sections = [
+      {
+        label: 'STEP 1｜気持ちの持ち方',
+        qs: [
+          { text: '今まで自分に向けてきた言葉', id: 's1q1' },
+          { text: '特性のズレとして捉え直すと', id: 's1q2' },
+          { text: '消耗したとき、自分に言える言葉', id: 's1q3' },
+        ]
+      },
+      {
+        label: 'STEP 2｜できないところと向き合う',
+        qs: [
+          { text: '今、最も消耗している仕事・場面', id: 's2q1' },
+          { text: 'なぜ消耗するか', id: 's2q2' },
+          { text: '「できない」と認めることで楽になること', id: 's2q3' },
+        ]
+      },
+      {
+        label: 'STEP 3｜強みをどう活かすか',
+        qs: [
+          { text: 'プレイヤー時代に評価されてきたこと', id: 's3q1' },
+          { text: 'その強みを今の役割でどう使えるか', id: 's3q2' },
+          { text: '今週、強みを使える場面', id: 's3q3' },
+        ]
+      },
+      {
+        label: 'STEP 4｜苦手をどうフォローするか',
+        qs: [
+          { text: '苦手な仕事・場面', id: 's4q1' },
+          { text: '任せられるか、仕組みで補えるか', id: 's4q2' },
+          { text: '今週、具体的に変えられること1つ', id: 's4q3' },
+        ]
+      },
+      {
+        label: '最後に',
+        qs: [
+          { text: '書いてみて気づいたこと', id: 's-last' },
+          { text: '今週中に試してみること', id: 's-last2' },
+        ]
+      },
+    ];
+
+    const el = document.getElementById('summary-content');
+    el.innerHTML = sections.map(sec => {
+      const qs = sec.qs.map(q => {
+        const val = document.getElementById(q.id).value.trim();
+        return `<div class="summary-q">
+          <div class="summary-q-text">${q.text}</div>
+          <div class="summary-answer${val ? '' : ' empty'}">${val ? val.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : '（未記入）'}</div>
+        </div>`;
+      }).join('');
+      return `<div class="summary-section">
+        <div class="summary-step-label">${sec.label}</div>${qs}
+      </div>`;
+    }).join('');
+  }
+
+  function goTo(stepId) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById(stepId).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    renderProgress(stepId);
+    ['tags-1','tags-2','tags-3','tags-4','tags-last'].forEach(id => renderTypeTags(id));
+
+    if (['step-1','step-2','step-3','step-4'].includes(stepId)) updateHints();
+    if (stepId === 'step-summary') renderSummary();
+  }
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  }
+
+  function resetAndGoHome() {
+    if (!confirm('入力内容をリセットして最初に戻りますか？')) return;
+    try { localStorage.removeItem('filagu_nd_ws'); } catch(e) {}
+    selectedTypes = new Set();
+    Object.keys(TYPE_INFO).forEach(k => applyTypeSelection(k));
+    document.getElementById('btn-step0-next').disabled = true;
+    FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.value = ''; el.style.height = ''; }
+    });
+    goTo('step-welcome');
+  }
+
+  document.querySelectorAll('textarea').forEach(ta => {
+    ta.addEventListener('focus', function() { autoResize(this); });
   });
-  window.scrollTo(0, 0);
-}
 
-function toggleBlock(idx) {
-  document.getElementById('block-' + idx).classList.toggle('open');
-}
-
-function answer(type, index, val, btn) {
-  answered[type][index] = val;
-  scores[type][index] = val;
-  btn.closest('.diag-q').querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected-yes', 'selected-no'));
-  btn.classList.add(val ? 'selected-yes' : 'selected-no');
-  document.getElementById('score-' + type).textContent = scores[type].reduce((a, b) => a + b, 0);
-  let count = 0;
-  for (let t = 0; t < 3; t++) for (let i = 0; i < 5; i++) if (answered[t][i] !== null) count++;
-  document.getElementById('answered-count').textContent = count;
-}
-
-function runDiagnosis() {
-  let total = 0;
-  for (let t = 0; t < 3; t++) for (let i = 0; i < 5; i++) if (answered[t][i] !== null) total++;
-  if (total < 15) { alert('まだ ' + (15 - total) + ' 問が未回答です。すべて回答してから診断してください。'); return; }
-
-  const totals = scores.map(s => s.reduce((a, b) => a + b, 0));
-  const max = Math.max(...totals);
-
-  const barsEl = document.getElementById('result-bars');
-  barsEl.innerHTML = '';
-  typeData.forEach((t, i) => {
-    const row = document.createElement('div');
-    row.className = 'result-row';
-    row.innerHTML =
-      '<div class="result-label" style="color:' + t.color + '">' + t.name + '</div>' +
-      '<div class="result-bar-row">' +
-        '<div class="result-bar-wrap">' +
-          '<div class="result-bar-fill bar-type-' + i + '" style="width:' + (totals[i] / 5 * 100) + '%"></div>' +
-        '</div>' +
-        '<div class="result-count">' + totals[i] + ' / 5</div>' +
-      '</div>';
-    barsEl.appendChild(row);
-  });
-
-  const allZero = totals.every(t => t === 0);
-  const tiedTypes = totals.map((t, i) => ({ t, i })).filter(x => x.t === max);
-  let domHtml = '', actHtml = '';
-
-  if (allZero) {
-    domHtml = '<div class="dominant-label">診断結果</div><div class="dominant-name">バイアスの自覚度が高いタイプ</div><div class="dominant-desc">現時点では顕在化しているバイアス傾向は低い結果です。ただし、バイアスは無意識に作動するものです。定期的にこの診断を繰り返して、自分の変化を観察し続けることが重要です。</div><div class="dominant-why"><strong>なぜ定期的な確認が必要か</strong>バイアスは状況・役職・経験によって変化する。「今は大丈夫」ではなく、「今はどのフィルターが動いているか」を問い続けることが、長期的な成長につながる。</div>';
-    actHtml = '<strong>明日からのアクション</strong>3つの核心的な問いかけを意識的に使い続けることで、気づきの精度をさらに高めていきましょう。';
-  } else if (tiedTypes.length > 1) {
-    const names = tiedTypes.map(x => typeData[x.i].name).join(' × ');
-    domHtml = '<div class="dominant-label">診断結果 · 複合型</div><div class="dominant-name">' + names + ' の複合傾向</div><div class="dominant-desc">複数のバイアスが同程度に作動しやすい傾向があります。状況によって異なるフィルターが起動するため、「今、どのフィルターが動いているか」を意識する習慣が特に重要です。</div><div class="dominant-why"><strong>複合型の特徴</strong>複数のバイアスが組み合わさると、互いを補強し合う。例えば「成功の型」と「決めつけ」が重なると、1on1が「自分の正解を相手に確認させる場」になりやすい。まず最もスコアが高いタイプを起点に意識を向けることをおすすめします。</div>';
-    actHtml = '<strong>明日からのアクション</strong>まず「あなたはどうしたい？」を1on1の冒頭に置くことから始めてみてください。答えを渡す前に相手の考えを先に受け取る習慣が、複合バイアスを同時に緩和する入口になります。';
-  } else {
-    const dom = typeData[tiedTypes[0].i];
-    domHtml = '<div class="dominant-label">最も強いバイアス傾向</div><div class="dominant-name" style="color:' + dom.color + '">' + dom.name + '</div><div class="dominant-desc">' + dom.desc + '</div><div class="dominant-why"><strong>なぜこの傾向が生まれやすいのか</strong>' + dom.why + '</div>';
-    actHtml = '<strong>明日からのアクション</strong>' + dom.action;
-  }
-
-  document.getElementById('result-dominant').innerHTML = domHtml;
-  document.getElementById('result-action').innerHTML = actHtml;
-  const ra = document.getElementById('result-area');
-  ra.classList.add('visible');
-  setTimeout(() => ra.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
-}
-
-function resetAll() {
-  for (let t = 0; t < 3; t++) {
-    for (let i = 0; i < 5; i++) { scores[t][i] = 0; answered[t][i] = null; }
-    document.getElementById('score-' + t).textContent = '—';
-  }
-  document.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected-yes', 'selected-no'));
-  document.getElementById('answered-count').textContent = '0';
-  document.getElementById('result-area').classList.remove('visible');
-}
+  load();
 </script>
-
 </body>
 </html>
