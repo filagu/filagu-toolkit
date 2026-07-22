@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>3×3 成長シート ─ ここ1ヶ月のあなたの地図</title>
+<style>
+  :root{
+    --bg:#F6F3ED; --ink:#241F1B; --muted:#6E665C; --line:#E4DDD1;
+    --terra:#C4614A; --terra-deep:#A04732; --paper:#FFFEFB; --ok:#5F7161;
+    --mind:#C4614A; --skill:#7A6A56; --know:#5F7161;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html{font-size:16px;}
+  body{background:var(--bg);color:var(--ink);
+    font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic Medium",Meiryo,sans-serif;
+    line-height:1.75;min-height:100vh;}
+  .wrap{max-width:640px;margin:0 auto;padding:24px 20px 64px;}
+
+  header{padding:8px 0 20px;border-bottom:1px solid var(--line);margin-bottom:22px;}
+  .eyebrow{font-size:.7rem;letter-spacing:.24em;color:var(--terra);font-weight:700;}
+  h1{font-size:1.4rem;font-weight:700;letter-spacing:.04em;margin-top:6px;}
+  h1 .x{color:var(--terra);}
+  .window-tag{display:inline-block;margin-top:10px;font-size:.78rem;color:var(--muted);
+    border:1px solid var(--line);border-radius:999px;padding:2px 12px;background:var(--paper);}
+
+  h2{font-size:1.02rem;font-weight:700;letter-spacing:.06em;margin:30px 0 10px;
+    padding-left:10px;border-left:3px solid var(--terra);}
+  .lead{font-size:.92rem;color:#3A342E;}
+  .lead + .lead{margin-top:10px;}
+  .note{margin-top:14px;padding:12px 14px;border-left:3px solid var(--terra);
+    background:#FBF1EC;font-size:.85rem;}
+  .note.calm{border-left-color:var(--ok);background:#EFF2EE;}
+  .hint{font-size:.75rem;color:var(--muted);margin:8px 0 0;}
+
+  .btn{display:block;width:100%;margin-top:14px;padding:15px;border:none;border-radius:10px;
+    background:var(--terra);color:#fff;font-size:1rem;font-weight:700;letter-spacing:.06em;
+    cursor:pointer;font-family:inherit;line-height:1.5;}
+  .btn:active{background:var(--terra-deep);}
+  .btn.ghost{background:transparent;color:var(--terra);border:1.5px solid var(--terra);}
+  .btn:disabled{cursor:default;}
+
+  /* mini 3x3 map */
+  .minimap{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:14px 0 4px;}
+  .minimap .mrow{grid-column:1/-1;font-size:.68rem;letter-spacing:.12em;color:var(--muted);font-weight:700;margin-top:4px;}
+  .minimap .mcell{border-radius:8px;padding:8px 4px;text-align:center;font-size:.68rem;font-weight:700;
+    line-height:1.35;color:#fff;white-space:pre-line;}
+  .minimap .a0{background:var(--mind);} .minimap .a1{background:var(--skill);} .minimap .a2{background:var(--know);}
+  details.mapmore{margin:8px 0 4px;}
+  details.mapmore summary{font-size:.78rem;color:var(--terra);cursor:pointer;list-style:none;}
+  details.mapmore summary::before{content:"▸ ";}
+  details.mapmore[open] summary::before{content:"▾ ";}
+  details.mapmore p{font-size:.8rem;color:#3A342E;margin-top:6px;}
+
+  /* role buttons */
+  #roleButtons .btn{position:relative;text-align:left;padding-left:18px;}
+  .axis-badge{display:inline-block;font-size:.66rem;font-weight:700;letter-spacing:.06em;
+    border-radius:999px;padding:1px 9px;margin-left:8px;vertical-align:2px;}
+  .axis-c{background:#FBF1EC;color:var(--terra-deep);border:1px solid #E8C7BC;}
+  .axis-m{background:#EFF2EE;color:var(--ok);border:1px solid #CBD6CC;}
+  .btn .axis-badge{background:rgba(255,255,255,.9);}
+
+  /* sheet start buttons */
+  .sheetbtn small{display:block;font-size:.72rem;font-weight:400;opacity:.85;margin-top:2px;}
+
+  /* quiz */
+  .progress{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin-bottom:10px;}
+  .progress i{display:block;height:100%;background:var(--terra);width:0;transition:width .25s;}
+  .sheetline{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:.75rem;color:var(--muted);}
+  .qmeta{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;}
+  .chip{font-size:.68rem;font-weight:700;letter-spacing:.1em;color:#fff;border-radius:4px;padding:2px 9px;}
+  .chip.c0{background:var(--mind);} .chip.c1{background:var(--skill);} .chip.c2{background:var(--know);}
+  .el-name{font-size:.78rem;color:var(--muted);}
+  .qcount{margin-left:auto;font-size:.72rem;color:var(--muted);letter-spacing:.08em;}
+  .qwindow{font-size:.75rem;color:var(--terra);font-weight:700;letter-spacing:.06em;margin:14px 0 2px;}
+  .qtext{font-size:1.05rem;font-weight:600;min-height:4.2em;}
+  .scale{display:flex;flex-direction:column;gap:8px;margin-top:16px;}
+  .scale button{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;
+    background:var(--paper);border:1px solid var(--line);border-radius:10px;cursor:pointer;
+    font-family:inherit;font-size:.9rem;color:var(--ink);text-align:left;}
+  .scale button:active{border-color:var(--terra);background:#FBF1EC;}
+  .scale .num{flex:0 0 26px;height:26px;border-radius:50%;border:1.5px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:.78rem;color:var(--muted);}
+  .backline{margin-top:18px;text-align:center;}
+  .backline button{background:none;border:none;color:var(--muted);font-size:.8rem;
+    cursor:pointer;font-family:inherit;text-decoration:underline;}
+
+  /* result */
+  .grid33{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;}
+  .cell{border-radius:10px;padding:10px 6px 8px;text-align:center;color:var(--ink);
+    display:flex;flex-direction:column;justify-content:center;min-height:86px;position:relative;}
+  .cell .nm{font-size:.68rem;font-weight:700;line-height:1.35;white-space:pre-line;}
+  .cell .sc{font-size:1.05rem;font-weight:700;margin-top:4px;}
+  .cell .delta{position:absolute;top:6px;right:8px;font-size:.8rem;font-weight:700;}
+  .delta.up{color:var(--terra-deep);} .delta.down{color:#6B7C8E;} .delta.flat{color:var(--muted);}
+  .rowlabel{grid-column:1/-1;font-size:.72rem;letter-spacing:.14em;color:var(--muted);
+    font-weight:700;margin-top:6px;}
+  .legend{display:flex;gap:16px;justify-content:center;margin-top:12px;font-size:.72rem;color:var(--muted);}
+  .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px;}
+
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:12px;
+    padding:16px;margin-top:10px;font-size:.9rem;}
+  .card b.tag{display:inline-block;font-size:.72rem;letter-spacing:.1em;color:var(--terra);margin-bottom:4px;}
+  .card.weak b.tag{color:#6B7C8E;}
+  .card .elname{font-weight:700;font-size:.95rem;}
+  .card p{margin-top:6px;color:#3A342E;font-size:.85rem;}
+
+  .paper-note{background:repeating-linear-gradient(transparent,transparent 27px,#EAE3D6 27px,#EAE3D6 28px);
+    background-color:var(--paper);border:1px solid var(--line);border-radius:12px;
+    padding:18px;margin-top:12px;}
+  .paper-note label{display:block;font-size:.85rem;font-weight:700;margin-bottom:8px;}
+  .paper-note textarea{width:100%;min-height:100px;border:none;background:transparent;resize:vertical;
+    font-family:"Hiragino Mincho ProN","Yu Mincho",serif;font-size:.95rem;line-height:28px;
+    color:var(--ink);outline:none;}
+  .paper-note textarea.oneline{min-height:56px;}
+  .paper-note textarea::placeholder{color:#B9B0A2;}
+
+  .copied{color:var(--ok);font-size:.82rem;text-align:center;margin-top:8px;visibility:hidden;}
+  .copied.show{visibility:visible;}
+  .hidden{display:none;}
+  footer{margin-top:44px;font-size:.68rem;color:var(--muted);text-align:center;letter-spacing:.06em;line-height:1.9;}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+  .scale button:focus-visible,.btn:focus-visible{outline:2px solid var(--terra-deep);outline-offset:2px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">GROWTH 3×3 SELF-CHECK</div>
+    <h1>マインド <span class="x">×</span> スキル <span class="x">×</span> 知識</h1>
+    <span class="window-tag">前回からの、あなたの地図</span>
+    <p class="hint" id="roleTag" style="display:none;"></p>
+  </header>
+
+  <!-- ================= ROLE SELECT ================= -->
+  <section id="roleSelect" class="hidden">
+    <p class="lead">この診断は、9つの要素でできた<strong>「成長の地図」</strong>の、いまのあなたの状態を映すものです。</p>
+    <div class="minimap" id="miniMap"></div>
+    <details class="mapmore">
+      <summary>9要素をくわしく見る</summary>
+      <div id="mapDetail"></div>
+    </details>
+    <p class="lead" style="margin-top:14px;">役割を<strong>1つ、兼務している人は2つまで</strong>選んでください。役割によって、質問の相手や結果の読み方が変わります。あとからいつでも変えられます。</p>
+    <div id="roleButtons"></div>
+    <button class="btn" id="roleConfirm" onclick="confirmRoles()" disabled style="opacity:.4;">この役割ではじめる</button>
+  </section>
+
+  <!-- ================= INTRO ================= -->
+  <section id="intro" class="hidden">
+    <p class="lead">この診断が測るのは「あなたの能力」ではなく、<strong>いまのあなたの状態</strong>です。だから結果は毎回変わりますし、変わっていいものです。</p>
+    <p class="lead">27の質問すべてに、<span class="period-for">これまでに</span><strong>実際にどれくらいあったか</strong>で答えてください。「そう思うか」ではなく「あったか」。思い出せる範囲で正直に、が一番役に立ちます。</p>
+    <div class="note calm" id="historyNote" style="display:none;"></div>
+    <div class="note" id="storageWarn" style="display:none;border-left-color:#B5843A;background:#FBF4E8;">この端末では記録を保存できない設定になっているようです(プライベートブラウズ等)。診断は使えますが、<strong>月ごとの比較や引き継ぎは残りません</strong>。結果は毎回「コピー」で控えておくことをおすすめします。</div>
+    <div class="note">スコアが低い項目は「あなたの欠点」ではなく、<strong>これから伸びる場所</strong>。環境がそうさせていることも多いので、面談で話す材料にしてください。</div>
+    <div class="note calm">回答と記録は<strong>このスマホの中だけ</strong>に保存されます。外部への送信は一切ありません。共有するのは、最後に自分で「コピー」した内容だけです。</div>
+    <h2>シートを選んではじめる</h2>
+    <p class="hint" id="sheetHint"></p>
+    <div id="sheetButtons"></div>
+  </section>
+
+  <!-- ================= QUIZ ================= -->
+  <section id="quiz" class="hidden">
+    <div class="progress"><i id="pbar"></i></div>
+    <div class="sheetline">
+      <span id="sheetRoleLabel" style="font-weight:700;color:var(--ink);"></span>
+      <span id="sheetAxisBadge"></span>
+    </div>
+    <div class="qmeta">
+      <span class="chip" id="qchip"></span>
+      <span class="el-name" id="qel"></span>
+      <span class="qcount" id="qcount"></span>
+    </div>
+    <p class="qwindow"><span class="period-for">これまでに</span> ──</p>
+    <p class="qtext" id="qtext"></p>
+    <div class="scale" id="qscale"></div>
+    <div class="backline"><button onclick="goBack()" id="backbtn">← ひとつ前に戻る</button></div>
+  </section>
+
+  <!-- ================= RESULT ================= -->
+  <section id="result" class="hidden">
+    <h2 id="resultTitle">ここ1ヶ月の 3×3 マップ</h2>
+    <p class="hint" style="margin-top:0;">色の濃さは「どれくらいあったか」。<strong>低い＝ダメではなく「今は、力を出しにくい場所」</strong>です。9つのマスを自分で眺めて、気づいたことを下に書き、来月の一歩を1つ決めれば十分です。</p>
+    <div class="grid33" id="grid"></div>
+    <div class="legend">
+      <span><i style="background:#F3E4DE"></i>1.0</span>
+      <span><i style="background:#DDA08E"></i>3.0</span>
+      <span><i style="background:#C4614A"></i>5.0</span>
+    </div>
+    <div class="note calm">点が低い項目は「あなたの欠点」ではありません。とくにマインド(①〜③)は、スキルや知識が育つための<strong>土台</strong>。挑戦して「できた」と感じる経験が積み重なって、少しずつ固まっていくものです。あせらなくて大丈夫。</div>
+    <p class="hint" id="mindDupNote" style="display:none;">※マインド3項目は役割で変わらないので、前のシートと同じ質問・同じ見立てになります。役割で差が出るのはスキル・知識の6項目です。</p>
+
+
+    <!-- ===== リーダー専用:環境チェック ===== -->
+    <div id="leaderEnv" class="hidden">
+      <h2>環境の自己点検(<span class="period-here">前回から</span>)</h2>
+      <p class="hint">9要素は、挑戦が承認される環境の中でだけ育ちます。その環境をつくるのが、人を育てる立場(リーダー・EL)の仕事——ここはあなた自身の振り返りです。</p>
+      <div id="envList"></div>
+      <div class="note calm">「まだ」が多くても大丈夫。これも能力ではなく<strong>今の状態</strong>です。ひとつ選んで、来月の自分の「試すこと」にしてください。あなたの上司との面談に持っていく材料にもなります。</div>
+    </div>
+
+    <!-- ===== リーダー専用:共有ルール ===== -->
+    <div id="leaderRules" class="hidden">
+      <h2>チームで運用する3つの約束</h2>
+      <div class="card"><b class="tag">RULE 1</b><div class="elname">個別チャットに貼る</div><p>診断結果の共有は面談の個別チャットのみ。全体に見える場所には貼らない・貼らせない。正直な回答は、見られない安心の上にしか成立しません。</p></div>
+      <div class="card"><b class="tag">RULE 2</b><div class="elname">面談の前日までに</div><p>メンバーには前日までの共有をお願いし、リーダーは事前に読んでから面談へ。当日の最初の10分を「結果の説明」ではなく「環境について話したいこと」から始められます。</p></div>
+      <div class="card"><b class="tag">RULE 3</b><div class="elname">スコアを指導に使わない</div><p>「この項目低いね」とやった瞬間、翌月から全員のスコアが嘘になります。読むのは数字ではなく、本人が書いた言葉。低い項目は、まず環境要因を疑うのがリーダーの仕事です。</p></div>
+    </div>
+
+    <h2>自分の言葉で書く</h2>
+    <p class="hint">質問に答えるとき、頭に浮かんだ場面がありますよね。そのとき、何が起きていた?——それが、下に書く内容のヒントになります。きれいな文章でなくて大丈夫。</p>
+    <div class="paper-note">
+      <label for="refStrength">① よくできていたことを、来月どう活かす?</label>
+      <textarea id="refStrength" placeholder="よくできていたことと、その活かし方を一言。"></textarea>
+    </div>
+    <div class="paper-note">
+      <label for="refWeak">② 今できていないことを、できるようになる一歩は?<span style="font-weight:400;font-size:.78rem;">(仮でOK・空欄でもOK。面談で選択肢を出して選び直す前提です)</span></label>
+      <textarea id="refWeak" placeholder="思いつく範囲で。仮でOK。"></textarea>
+    </div>
+    <div class="paper-note">
+      <label for="refSkill">③ 自分の役割のスキルが伸びるような行動や経験は、最近あった?<span style="font-weight:400;font-size:.78rem;">(なければ、来月ひとつ意識してみることから)</span></label>
+      <textarea id="refSkill" class="oneline" placeholder="例:提案の引き出しを増やしたくて、先輩の接客を1回横で見て学んだ。"></textarea>
+    </div>
+    <div class="paper-note">
+      <label for="refEnv">④ 環境について話したいことがあれば一言</label>
+      <textarea id="refEnv" class="oneline" placeholder="例:朝の品出しに追われて接客機会が少なかった。シフトの組み方を相談したい。"></textarea>
+    </div>
+
+    <button class="btn" onclick="copyResult()">結果をコピーする(面談・日誌用)</button>
+    <p class="copied" id="copiedMsg">コピーしました。面談や振り返りでそのまま使えます。</p>
+    <div id="nextSheetWrap"></div>
+    <button class="btn ghost" onclick="restart()">シート選択にもどる</button>
+  </section>
+
+  <footer>
+    成長 ── マインド × スキル × 知識。3つは互いに増幅し合う。
+  </footer>
+</div>
+
+<script>
+/* ===================== データ定義 ===================== */
+const CATS = [
+  {id:0,name:"マインド",row:"マインド ── 仕事への構え",chip:"chip c0",mini:"a0"},
+  {id:1,name:"スキル",row:"スキル ── 対人と思考",chip:"chip c1",mini:"a1"},
+  {id:2,name:"知識",row:"知識 ── 判断と行動の基盤",chip:"chip c2",mini:"a2"},
+];
+
+const SCALE = [
+  {v:1,label:"なかった"},
+  {v:2,label:"1〜2回あった"},
+  {v:3,label:"ときどきあった"},
+  {v:4,label:"よくあった"},
+  {v:5,label:"ほぼ毎日のようにあった"},
+];
+
+// qs / advice / weakAdvice:
+//   文字列 or 配列 = 全役割共通、 {sales,vmd,dx,mem} = 役割セット別に出し分け
+//   役割→セット: 販売=sales / 売場=vmd / DX=dx / EL・リーダー=mem
+const ELEMENTS = [
+  // --- マインド(全役割共通) ---
+  {cat:0,key:"m1",name:"成長を信じる力",short:"成長を\n信じる力",
+   desc:"自分も仲間も「やれば変わる」と見なす能力観(いわゆる成長マインドセット)",
+   advice:"「まだできないだけ」という捉え直しが、次の挑戦の入口になっています。",
+   weakAdvice:"うまくいかないことを、この期間どう受け止めていましたか。「まだできないだけ」と思える出来事が、ひとつでもあると変わってきます。",
+   qs:["うまくいかなかったことを「次はこうすれば伸びる」と捉え直したことがある",
+       "練習や経験を重ねて、以前できなかったことができるようになった実感があった",
+       "仲間の成長や変化を見て「自分もやれば変わる」と感じた場面があった"]},
+  {cat:0,key:"m2",name:"主体性・当事者意識",short:"主体性・\n当事者意識",
+   desc:"仕事と課題を自分ごとと捉える構え",
+   advice:"指示の前に動けています。その一歩が店の空気を変えます。",
+   weakAdvice:"この期間、「自分ならどうするか」を考える場面はどれくらいありましたか。まずは考えるところからで十分です。",
+   qs:["指示される前に「今必要なこと」を自分で見つけて動いたことがある",
+       "店の課題(売上・売場・チーム)について「自分にできること」を考えたことがある",
+       "朝礼・ミーティング・日常会話で、自分の意見や提案を口にしたことがある"]},
+  {cat:0,key:"m3",name:"他者への関心",short:"他者への\n関心",
+   desc:"顧客・仲間の変化に気づき、貢献したいと思う志向",
+   advice:"人の変化に気づけています。この仕事の自律的成長は、ここから駆動します。",
+   weakAdvice:"まわりの人の様子に目が向く余裕は、この期間ありましたか。ひとりの変化に気づくところからで大丈夫です。",
+   qs:["仲間の様子の変化(調子・表情・成長)に気づいて、声をかけたことがある",
+       "目の前の人の表情や様子の小さな変化に気づいて、関わり方を変えたことがある",
+       "頼まれていないのに、仲間の仕事がうまくいくよう手を貸したことがある"]},
+  // --- スキル(役割セット別) ---
+  {cat:1,key:"s1",name:"ヒューマンスキル(対人)",short:"ヒューマン\nスキル",
+   desc:"聴く・伝える・協働する対人関係の力",
+   advice:{sales:"聴けて、相手に合わせられています。お客様との信頼はここから積み上がります。",
+           vmd:"周りと連携できています。売場はチームで作るもの。その協働がVMDを支えます。",
+           dx:"協力を引き出せています。発信はひとりでは続かないので、この対人力が効きます。",
+           mem:"聴けて、相手に合わせられています。育成の信頼はここから積み上がります。"},
+   weakAdvice:{sales:"お客様の話を、最後まで聴けた場面はどれくらいありましたか。「聴く」から接客は変わり始めます。",
+               vmd:"売場のことで、周りと声をかけ合えていましたか。一言の共有が連携をつくります。",
+               dx:"協力をお願いするとき、相手の立場から考えられていましたか。頼み方ひとつで動きが変わります。",
+               mem:"メンバーの話を、最後まで聴けた場面はどれくらいありましたか。「聴く」から育成は変わり始めます。"},
+   qs:{sales:["お客様の話を、さえぎらず、気持ちまで汲み取ろうと聴けたことがある",
+              "目の前の人のタイプや様子に合わせて、言葉や接し方を変えたことがある",
+              "お客様が本音や要望を話しやすい雰囲気をつくれたことがある"],
+       vmd:["品出しや売場変更のとき、周りのスタッフと声をかけ合って動けたことがある",
+            "自分の売場の意図を、他のスタッフに伝わるように共有したことがある",
+            "売場について意見が分かれたとき、相手の考えも聞いて調整したことがある"],
+       dx:["撮影や投稿で、スタッフに気持ちよく協力してもらえるよう声をかけられたことがある",
+           "発信の意図や狙いを、周りのスタッフに伝わるように共有したことがある",
+           "協力をお願いするとき、相手の負担も考えて頼み方を工夫したことがある"],
+       mem:["メンバーの話を、途中でさえぎらず最後まで聴けたことがある",
+            "相手(後輩・同僚・上司)に合わせて、伝え方や言葉を変えたことがある",
+            "意見や立場が違うメンバーと、落としどころを見つけて前に進めたことがある"]}},
+  {cat:1,key:"s2",name:"コンセプチュアルスキル(思考)",short:"コンセプチュアル\nスキル",
+   desc:"論理的に考え、本質を捉え、新しいやり方を発想し、問題を解決する力",
+   advice:{sales:"「何が効いたか」を掴めています。接客の新しい工夫は、この力の応用です。",
+           vmd:"売れ方を要因で捉えられています。売場の発想は、この力から生まれます。",
+           dx:"反応の理由を捉えられています。新しい切り口は、この力の応用です。",
+           mem:"チームの出来事を構造で捉えられています。関わり方の工夫は、この力の応用です。"},
+   weakAdvice:{sales:"うまくいった/いかなかった接客の理由を、考える機会はありましたか。「何が効いたか」を一度ふり返るところから。",
+               vmd:"売れた/売れなかった理由を、考える機会はありましたか。「何が効いたか」を一度ふり返るところから。",
+               dx:"反応の良し悪しの理由を、考える機会はありましたか。「何が効いたか」を一度ふり返るところから。",
+               mem:"育成やチームの出来事の理由を、考える機会はありましたか。「何が良かった/まずかったか」を一度ふり返るところから。"},
+   qs:{sales:["接客がうまくいった/いかなかったとき、声かけ・提案・タイミングなど何が効いたかを考えたことがある",
+              "お客様が本当に求めていたことを、後から「こういうことか」と考えたことがある",
+              "ある接客でうまくいった工夫を、別のお客様にも試したことがある"],
+       vmd:["ある商品が動いた/動かなかったとき、位置・見せ方・価格など何が効いたかを考えたことがある",
+            "数字や売場の動きを「要するにこういうこと」と捉え直したことがある",
+            "新しい売場の見せ方・並べ方を、自分で考えて試したことがある"],
+       dx:["反応が良かった/悪かったとき、切り口・見せ方・投稿タイミングなど何が効いたかを考えたことがある",
+           "「どんな投稿がお客様に届くのか」を自分なりに捉え直したことがある",
+           "新しい見せ方・撮り方・切り口を、自分で考えて試したことがある"],
+       mem:["育成やチームで問題が起きたとき、関わり方・伝え方・タイミングなど何が良かった/まずかったかを考えたことがある",
+            "メンバーの行動や変化を「要するにこういうこと」と捉え直したことがある",
+            "あるメンバーでうまくいった関わり方を、別のメンバーにも試したことがある"]}},
+  {cat:1,key:"s3",name:"リフレクションスキル(思考)",short:"リフレクション\nスキル",
+   desc:"振り返り、自分を客観視し、次の行動を決める力",
+   advice:{sales:"振り返りが回っています。「経験10年」より「振り返る1年」です。",
+           vmd:"売場を振り返れています。作りっぱなしにしない習慣が、精度を上げます。",
+           dx:"反応を見て振り返れています。投稿は、振り返った分だけ伸びます。",
+           mem:"関わりの振り返りが回っています。教え方は、振り返った分だけ磨かれます。"},
+   weakAdvice:{sales:"接客のあと、ふり返る時間はこの期間ありましたか。ひとつの場面を思い返すだけでも十分です。",
+               vmd:"売場を作ったあと、狙い通りだったか見直す時間はありましたか。ひとつ思い返すだけでも十分です。",
+               dx:"投稿したあと、反応を見て考える時間はありましたか。ひとつ思い返すだけでも十分です。",
+               mem:"関わりのあと、ふり返る時間はこの期間ありましたか。ひとつの場面を思い返すだけでも十分です。"},
+   qs:{sales:["接客のあと、うまくいった理由・いかなかった理由を振り返ったことがある",
+              "振り返りから「次はこうする」を具体的に1つ決めたことがある",
+              "自分の接客のクセや、思い込んでいたことに気づいた場面があった"],
+       vmd:["売場を作ったあと、狙い通りだったかを振り返ったことがある",
+            "振り返りから「次はこうする」を具体的に1つ決めたことがある",
+            "自分の売場作りのクセや、思い込んでいたことに気づいた場面があった"],
+       dx:["投稿したあと、反応を見て振り返ったことがある",
+           "振り返りから「次はこうする」を具体的に1つ決めたことがある",
+           "自分の発信のクセや、思い込んでいたことに気づいた場面があった"],
+       mem:["メンバーとの関わりのあと、うまくいった理由・いかなかった理由を振り返ったことがある",
+            "振り返りから「次はこうする」を具体的に1つ決めたことがある",
+            "自分の教え方・関わり方のクセや、思い込んでいたことに気づいた場面があった"]}},
+  // --- 知識(役割セット別) ---
+  {cat:2,key:"k1",name:"専門知識",short:"専門知識",
+   desc:{sales:"商品・接客など販売に直結する知識",vmd:"VMD・売場作りに直結する知識",
+         dx:"撮影・編集・発信に直結する知識",mem:"仕事のやり方を言語化して渡す、育成直結の知識"},
+   advice:{sales:"自分の言葉で商品を語れています。知識が接客の説得力になっています。",
+           vmd:"売場の意図を語れています。言葉にできる人の売場は、意味が伝わります。",
+           dx:"発信のやり方を語れています。言語化できると、人にも渡せます。",
+           mem:"やり方を言語化してメンバーに渡せています。暗黙知の言語化は育成の核です。"},
+   weakAdvice:{sales:"商品や接客で、新しく知ったことはこの期間ありましたか。ひとつ調べる・聞くだけでも知識は増えます。",
+               vmd:"売場作りで、新しく知ったことはこの期間ありましたか。ひとつ調べる・聞くだけでも増えていきます。",
+               dx:"撮影や発信で、新しく知ったことはこの期間ありましたか。ひとつ調べる・試すだけでも増えていきます。",
+               mem:"教え方について、新しく知ったことはこの期間ありましたか。ひとつ言語化してみるところから。"},
+   qs:{sales:["商品の素材・特徴・コーディネートを、自分の言葉でお客様に伝えられたことがある",
+              "商品や接客について、新しく学んだことがある",
+              "わからないことを、その場で調べたり人に聞いたりしたことがある"],
+       vmd:["VMDや売場作りの意図を、自分の言葉で説明できたことがある",
+            "売場作り・ディスプレイについて、新しく学んだことがある",
+            "わからないことを、その場で調べたり人に聞いたりしたことがある"],
+       dx:["撮影・編集・投稿のやり方を、自分の言葉で説明できたことがある",
+           "発信や見せ方について、新しく学んだことがある",
+           "わからないことを、その場で調べたり人に聞いたりしたことがある"],
+       mem:["仕事のやり方やコツを、自分の言葉でメンバーに伝えられたことがある",
+            "育成・教え方について、新しく学んだことがある",
+            "育成でわからないことを、調べたり人に聞いたりしたことがある"]}},
+  {cat:2,key:"k2",name:"顧客・市場の知識",short:"顧客・市場の\n知識",
+   desc:{sales:"顧客理解、トレンド、自社ビジネスの理解",vmd:"売場の動きの把握と、現場と本部をつなぐ理解",
+         dx:"届けたい相手とSNSの傾向の理解",mem:"メンバー理解と、組織・会社の文脈の理解"},
+   advice:{sales:"お客様と市場を見て、店とつなげられています。判断の質が変わる知識です。",
+           vmd:"売場の動きを捉え、現場の声を本部にもつなげられています。売場担当の要です。",
+           dx:"届けたい相手を捉えられています。誰に向けるかが、発信の芯です。",
+           mem:"メンバー理解と組織の文脈をつなげられています。個に合わせた育成の土台です。"},
+   weakAdvice:{sales:"お客様やトレンドについて、気づきはこの期間ありましたか。「うちの店だと?」と一度つなげてみるところから。",
+               vmd:"売場の気づきを、本部や上長に伝える機会はこの期間ありましたか。まず気づきをひとつ言葉にするところから。",
+               dx:"届けたい相手について、気づきはこの期間ありましたか。「誰に見てほしいか」を一度考えてみるところから。",
+               mem:"メンバーひとりの傾向について、気づきはこの期間ありましたか。一人の「最近」を思い返すところから。"},
+   qs:{sales:["来店されるお客様の傾向やニーズについて、新しい気づきがあった",
+              "ファッションや流行を、自分の接客に関係づけて考えたことがある",
+              "会社の施策や方針の「なぜ」を理解して動けた場面があった"],
+       vmd:["自分の売場の動き(売れ筋・滞留)について、新しい気づきがあった",
+            "現場で気づいたお客様の声や売場の実感を、本部や上長に伝えたことがある",
+            "会社の施策や方針の「なぜ」を理解して動けた場面があった"],
+       dx:["見ている人・届けたい人について、新しい気づきがあった",
+           "他店やSNSの発信を、自分の投稿に関係づけて考えたことがある",
+           "会社の施策や方針の「なぜ」を理解して動けた場面があった"],
+       mem:["メンバー一人ひとりの傾向(強み・つまずき・持ち味)について、新しい気づきがあった",
+            "育成や組織づくりの事例を、自分の店やチームに関係づけて考えたことがある",
+            "会社の施策や方針の「なぜ」を理解して、メンバーに伝えられた場面があった"]}},
+  {cat:2,key:"k3",name:"学び方の知識",short:"学び方の\n知識",
+   desc:{sales:"自分の学び方・習慣化・アドバイスの活かし方",vmd:"自分の学び方・研究・アドバイスの活かし方",
+         dx:"自分の学び方・分析・アドバイスの活かし方",mem:"メンバーの学びを設計する知識(学ばせ方)"},
+   advice:{sales:"学び方を意識できています。他の8要素すべての伸びが速くなります。",
+           vmd:"学び方を意識できています。売場作りの上達が速くなります。",
+           dx:"学び方を意識できています。発信の上達が速くなります。",
+           mem:"学ばせ方を設計できています。メンバーの成長速度が変わる知識です。"},
+   weakAdvice:{sales:"自分に合う学び方を意識する機会は、この期間ありましたか。「どう学ぶと身につくか」を思い返すところから。",
+               vmd:"自分に合う学び方を意識する機会は、この期間ありましたか。「どう学ぶと身につくか」を思い返すところから。",
+               dx:"自分に合う学び方を意識する機会は、この期間ありましたか。「どう学ぶと身につくか」を思い返すところから。",
+               mem:"メンバーに合う学ばせ方を考える機会は、この期間ありましたか。一人の「どう伝わるか」を思い返すところから。"},
+   qs:{sales:["自分に合った学び方を使って、接客の幅を広げようとしたことがある",
+              "もらったアドバイスを、実際の接客で試したことがある",
+              "振り返りや練習を、続けられるように工夫したことがある"],
+       vmd:["自分に合った学び方を使って、売場作りの幅を広げようとしたことがある",
+            "もらったアドバイスを、実際の売場作りで試したことがある",
+            "振り返りや研究を、続けられるように工夫したことがある"],
+       dx:["自分に合った学び方を使って、発信の技術を伸ばそうとしたことがある",
+           "もらったアドバイスや反応を、次の投稿で試したことがある",
+           "投稿や分析を、続けられるように工夫したことがある"],
+       mem:["メンバーに合った学ばせ方を考えて使ったことがある",
+            "フィードバックの伝え方を工夫して、相手にどう届いたか確かめたことがある",
+            "メンバーが続けられる仕組み(習慣・声かけ・場づくり)を工夫したことがある"]}},
+];
+function sheetWord(){ return roles.length>1 ? "シート" : "診断"; }
+// 役割id → 設問セットキー
+function sheetSet(rid){ return (rid==="sales"||rid==="vmd"||rid==="dx") ? rid : "mem"; }
+// 要素キー→丸数字(①〜⑨)
+const ENUM = {m1:"①",m2:"②",m3:"③",s1:"④",s2:"⑤",s3:"⑥",k1:"⑦",k2:"⑧",k3:"⑨"};
+
+/* ===================== 役割定義 ===================== */
+// axis: "c"=対お客様 / "m"=対メンバー。追加・削除はこの配列だけでOK
+const ROLES = [
+  {id:"sales", label:"販売", sub:"接客・顧客づくり", axis:"c"},
+  {id:"vmd", label:"売場(商品担当)", sub:"VMD・在庫・数字", axis:"c"},
+  {id:"dx", label:"DX", sub:"スタッフスタイリング・発信", axis:"c"},
+  {id:"el", label:"教育(EL)", sub:"育成・学びの場づくり", axis:"m"},
+  {id:"leader", label:"リーダー(店長)", sub:"自分の診断+チーム環境の点検", axis:"m"},
+];
+const AXES = {c:{label:"対お客様", badge:"axis-c", decl:"このシートは「お客様に対して」のここ1ヶ月を振り返ります"},
+              m:{label:"対メンバー", badge:"axis-m", decl:"このシートは「メンバー(後輩・仲間)に対して」のここ1ヶ月を振り返ります"}};
+
+/* ===================== 軸対応ヘルパー ===================== */
+function pick(v, key){ return (v && typeof v === "object" && !Array.isArray(v)) ? v[key] : v; }
+function qsOf(el, key){ return Array.isArray(el.qs) ? el.qs : el.qs[key]; }
+
+/* ===================== 状態 ===================== */
+const RKEY = "growth33v2-roles";
+// 期間表現:前回の記録があれば「前回から」、なければ(初回)「これまで」
+let periodHere = "これまで";   // 見出し用(ここ〜相当)
+let periodFor  = "これまでに"; // 設問文用
+function setPeriodFor(rid){
+  const has = readHistory(rid).length>0;
+  periodHere = has ? "前回から今日まで" : "これまで";
+  periodFor  = has ? "前回から今日までで" : "これまでに";
+}
+function applyPeriodText(){
+  document.querySelectorAll(".period-here").forEach(e=>{ e.textContent = periodHere; });
+  document.querySelectorAll(".period-for").forEach(e=>{ e.textContent = periodFor; });
+}
+let roles = [];            // 選択中の役割id(1〜2)
+let pending = [];          // 選択画面の仮選択
+let sheet = null;          // いま受けている/表示中のシートの役割id
+let sheetAxis = "c";
+let sheetKey = "sales";  // 設問セット: sales/vmd/dx/mem
+let answers = [];
+let idx = 0;
+let prevEntry = null;      // 現シートの前回記録
+let storageOK = false;
+let doneThisSession = [];  // このセッションで受け終えたシート
+
+function roleById(id){ return ROLES.find(r=>r.id===id); }
+function roleDefs(){ return roles.map(roleById).filter(Boolean); }
+
+/* ===================== ミニ図解 ===================== */
+function renderMiniMap(){
+  const wrap = document.getElementById("miniMap");
+  wrap.innerHTML = "";
+  CATS.forEach((cat,ci)=>{
+    wrap.insertAdjacentHTML("beforeend",'<div class="mrow">'+cat.row+'</div>');
+    ELEMENTS.forEach(el=>{
+      if(el.cat!==ci) return;
+      wrap.insertAdjacentHTML("beforeend",'<div class="mcell '+cat.mini+'">'+ENUM[el.key]+' '+el.short+'</div>');
+    });
+  });
+  const det = document.getElementById("mapDetail");
+  det.innerHTML = "";
+  ELEMENTS.forEach(el=>{
+    const d = pick(el.desc,"sales");
+    det.insertAdjacentHTML("beforeend",'<p><strong>'+ENUM[el.key]+' '+el.name+'</strong> ── '+d+'</p>');
+  });
+}
+
+/* ===================== 役割選択 ===================== */
+function toggleRoleSel(id){
+  const i = pending.indexOf(id);
+  if(i>=0){ pending.splice(i,1); }
+  else{ if(pending.length>=2) return; pending.push(id); }
+  paintRoleButtons();
+}
+function paintRoleButtons(){
+  document.querySelectorAll("#roleButtons button").forEach(b=>{
+    const on = pending.includes(b.dataset.rid);
+    b.style.background = on ? "var(--terra)" : "transparent";
+    b.style.color = on ? "#fff" : "var(--terra)";
+  });
+  const c = document.getElementById("roleConfirm");
+  c.disabled = pending.length===0;
+  c.style.opacity = pending.length===0 ? .4 : 1;
+  c.textContent = pending.length===0 ? "この役割ではじめる"
+    : "「"+pending.map(id=>roleById(id).label).join("+")+"」ではじめる";
+}
+function confirmRoles(){
+  if(!pending.length) return;
+  roles = pending.slice(0,2);
+  try{ localStorage.setItem(RKEY, JSON.stringify(roles)); }catch(e){}
+  document.getElementById("roleSelect").classList.add("hidden");
+  document.getElementById("intro").classList.remove("hidden");
+  renderRoleTag(); renderSheetButtons();
+  window.scrollTo({top:0});
+}
+function renderRoleButtons(){
+  const wrap = document.getElementById("roleButtons");
+  wrap.innerHTML = "";
+  ROLES.forEach(r=>{
+    const b = document.createElement("button");
+    b.className = "btn ghost";
+    b.dataset.rid = r.id;
+    b.innerHTML = r.label
+      +'<br><span style="font-size:.72rem;font-weight:400;">'+r.sub+'</span>';
+    b.onclick = ()=>toggleRoleSel(r.id);
+    wrap.appendChild(b);
+  });
+}
+function renderRoleTag(){
+  const t = document.getElementById("roleTag");
+  if(!roles.length){ t.style.display="none"; return; }
+  t.style.display = "block";
+  t.innerHTML = "役割:" + roleDefs().map(d=>d.label).join(" + ") +
+    ' ─ <a href="#" onclick="changeRole();return false;" style="color:var(--muted);">切り替える</a>';
+}
+function changeRole(){
+  pending = roles.slice();
+  roles = [];
+  try{ localStorage.removeItem(RKEY); }catch(e){}
+  ["intro","quiz","result"].forEach(id=>document.getElementById(id).classList.add("hidden"));
+  document.getElementById("roleSelect").classList.remove("hidden");
+  renderRoleTag(); paintRoleButtons();
+  window.scrollTo({top:0});
+}
+function initRole(){
+  renderMiniMap(); renderRoleButtons();
+  let saved = null;
+  try{ saved = localStorage.getItem(RKEY); }catch(e){}
+  if(saved){
+    try{ roles = JSON.parse(saved).filter(id=>roleById(id)).slice(0,2); }catch(e){ roles=[]; }
+  }
+  if(roles.length){
+    document.getElementById("intro").classList.remove("hidden");
+    renderSheetButtons();
+  }else{
+    document.getElementById("roleSelect").classList.remove("hidden");
+  }
+  renderRoleTag();
+}
+
+/* ===================== 保存(役割ごとのスロット) ===================== */
+function hkey(rid){ return "growth33v2-history:"+rid; }
+function readHistory(rid){
+  try{
+    const raw = localStorage.getItem(hkey(rid));
+    if(!raw) return [];
+    const h = JSON.parse(raw);
+    return Array.isArray(h)?h:[];
+  }catch(e){ return []; }
+}
+function probeStorage(){
+  try{ localStorage.setItem("growth33v2-probe","1"); storageOK = true; }
+  catch(e){ storageOK = false; }
+}
+function saveEntry(rid, entry){
+  if(!storageOK) return;
+  try{
+    let h = readHistory(rid);
+    h.push(entry);
+    if(h.length>12) h = h.slice(-12);
+    localStorage.setItem(hkey(rid), JSON.stringify(h));
+  }catch(e){}
+}
+function updateLastEntryTryNext(rid, text){
+  if(!storageOK) return;
+  try{
+    let h = readHistory(rid);
+    if(h.length){ h[h.length-1].tryNext = text; localStorage.setItem(hkey(rid), JSON.stringify(h)); }
+  }catch(e){}
+}
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+/* ===================== シート選択(イントロ) ===================== */
+function daysSince(dateStr){
+  try{
+    const parts = dateStr.split("/").map(Number);
+    const then = new Date(parts[0], parts[1]-1, parts[2]);
+    return Math.floor((Date.now()-then.getTime())/86400000);
+  }catch(e){ return null; }
+}
+function renderSheetButtons(){
+  document.getElementById("storageWarn").style.display = storageOK ? "none" : "block";
+  const wrap = document.getElementById("sheetButtons");
+  wrap.innerHTML = "";
+  const defs = roleDefs();
+  document.getElementById("sheetHint").textContent =
+    defs.length>1 ? "兼務の方は役割ごとに1枚ずつ。負担な月は主担当のぶんだけでも大丈夫です。"
+                  : "";
+  defs.forEach(r=>{
+    const hist = readHistory(r.id);
+    const last = hist.length ? hist[hist.length-1] : null;
+    const done = doneThisSession.includes(r.id);
+    const b = document.createElement("button");
+    b.className = "btn sheetbtn";
+    let sub = last ? "前回:"+last.date : "はじめての診断";
+    if(last){
+      const d = daysSince(last.date);
+      if(d!==null && d>120) sub = "前回:"+last.date+"(かなり前・比較は参考程度に)";
+    }
+    if(done) sub = "今回ぶん回答ずみ(もう一度も可)";
+    b.innerHTML = "「"+r.label+"」の"+sheetWord()+"を受ける<small>"+sub+"</small>";
+    b.onclick = ()=>startQuiz(r.id);
+    wrap.appendChild(b);
+  });
+  // 前回の「最初の一歩」引き継ぎ表示(役割ごと)
+  const n = document.getElementById("historyNote");
+  let msgs = [];
+  defs.forEach(r=>{
+    const hist = readHistory(r.id);
+    if(hist.length){
+      const last = hist[hist.length-1];
+      let m = "【"+r.label+"】前回:"+last.date;
+      if(last.tryNext) m += " / 前回の「最初の一歩(仮)」:"+escapeHtml(last.tryNext);
+      msgs.push(m);
+    }
+  });
+  if(msgs.length){
+    n.style.display = "block";
+    n.innerHTML = msgs.join("<br>") + "<br>やれたかどうかより、「やってみてどうだったか」を面談で話すのが本番です。";
+  }else{
+    n.style.display = "none";
+  }
+}
+
+/* ===================== 診断 ===================== */
+const QUESTIONS = [];
+ELEMENTS.forEach((el,ei)=>{ for(let qi=0;qi<3;qi++) QUESTIONS.push({ei,qi}); });
+
+function startQuiz(rid){
+  sheet = rid;
+  const r = roleById(rid);
+  sheetAxis = r.axis;
+  sheetKey = sheetSet(rid);
+  prevEntry = (()=>{ const h=readHistory(rid); return h.length?h[h.length-1]:null; })();
+  setPeriodFor(rid);
+  applyPeriodText();
+  answers = new Array(QUESTIONS.length).fill(null);
+  idx = 0;
+  document.getElementById("intro").classList.add("hidden");
+  document.getElementById("result").classList.add("hidden");
+  document.getElementById("quiz").classList.remove("hidden");
+  document.getElementById("sheetRoleLabel").textContent = "「"+r.label+"」の"+sheetWord();
+  document.getElementById("sheetAxisBadge").innerHTML = "";
+  renderQ();
+  window.scrollTo({top:0});
+}
+function renderQ(){
+  const q = QUESTIONS[idx], el = ELEMENTS[q.ei], cat = CATS[el.cat];
+  document.getElementById("pbar").style.width = (idx/QUESTIONS.length*100)+"%";
+  const chip = document.getElementById("qchip");
+  chip.className = cat.chip;
+  // 大項目内の位置(マインド/スキル/知識それぞれ3要素×3問=9問)
+  const catBase = el.cat*9;
+  const inCat = (idx - catBase) + 1;
+  chip.textContent = cat.name+"(全9問中 "+inCat+")";
+  document.getElementById("qel").textContent = ENUM[el.key]+" "+el.name;
+  document.getElementById("qcount").textContent = "全"+(idx+1)+" / "+QUESTIONS.length;
+  document.getElementById("qtext").textContent = qsOf(el,sheetKey)[q.qi];
+  const sc = document.getElementById("qscale");
+  sc.innerHTML = "";
+  SCALE.forEach(s=>{
+    const b = document.createElement("button");
+    b.innerHTML = '<span class="num">'+s.v+'</span><span>'+s.label+'</span>';
+    b.onclick = ()=>{ answers[idx]=s.v; idx++;
+      (idx>=QUESTIONS.length) ? finish() : renderQ(); };
+    sc.appendChild(b);
+  });
+  document.getElementById("backbtn").style.visibility = idx===0 ? "hidden":"visible";
+}
+function goBack(){ if(idx>0){ idx--; renderQ(); } }
+
+/* ===================== 結果 ===================== */
+function elementScores(){
+  return ELEMENTS.map((el,ei)=>{
+    const vals = QUESTIONS.map((q,i)=>q.ei===ei?answers[i]:null).filter(v=>v!==null);
+    return +(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1);
+  });
+}
+function heatColor(s){
+  const t = (s-1)/4;
+  const mix=(a,b)=>Math.round(a+(b-a)*t);
+  return "rgb("+mix(243,196)+","+mix(228,97)+","+mix(222,74)+")";
+}
+const ENV_ITEMS = [
+  "メンバーの「やってみた」を、結果に関係なく認める言葉をかけた",
+  "診断のスコアや低い項目を、指導や評価の材料に使わなかった",
+  "メンバーが意見・提案を口にできる場(朝礼・雑談・チャット)を意図的に作った",
+  "メンバーが失敗を話したとき、責めずに「共有してくれてありがとう」とまず返した",
+  "メンバーごとに、少し背伸びの挑戦機会(役割・任せる仕事)を配った",
+  "自分の弱さや課題も、隠さず上司や仲間に見せられた",
+];
+const ENV_STATES = ["できた","一部","まだ"];
+let envAnswers = [];
+function renderEnv(){
+  envAnswers = new Array(ENV_ITEMS.length).fill(null);
+  const wrap = document.getElementById("envList");
+  wrap.innerHTML = "";
+  ENV_ITEMS.forEach((item,i)=>{
+    const div = document.createElement("div");
+    div.className = "card";
+    let btns = ENV_STATES.map((s,si)=>
+      '<button type="button" class="envbtn" data-i="'+i+'" data-si="'+si+'" '+
+      'style="margin-right:6px;padding:5px 14px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-family:inherit;font-size:.8rem;cursor:pointer;">'+s+'</button>'
+    ).join("");
+    div.innerHTML = '<p style="margin-top:0;color:var(--ink);">'+item+'</p><div style="margin-top:8px;">'+btns+'</div>';
+    wrap.appendChild(div);
+  });
+  wrap.querySelectorAll(".envbtn").forEach(b=>{
+    b.onclick = ()=>{
+      const i = +b.dataset.i, si = +b.dataset.si;
+      envAnswers[i] = si;
+      wrap.querySelectorAll('.envbtn[data-i="'+i+'"]').forEach(x=>{
+        x.style.background = "var(--paper)"; x.style.color = "var(--ink)"; x.style.borderColor = "var(--line)";
+      });
+      b.style.background = "var(--terra)"; b.style.color = "#fff"; b.style.borderColor = "var(--terra)";
+    };
+  });
+}
+
+function finish(){
+  document.getElementById("quiz").classList.add("hidden");
+  document.getElementById("result").classList.remove("hidden");
+  applyPeriodText();
+  window.scrollTo({top:0});
+
+  const r = roleById(sheet);
+  document.getElementById("resultTitle").textContent =
+    "「"+r.label+"」の"+sheetWord()+" ── "+periodHere+"の 3×3 マップ";
+
+  const scores = elementScores();
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+  CATS.forEach((cat,ci)=>{
+    grid.insertAdjacentHTML("beforeend",'<div class="rowlabel">'+cat.row+'</div>');
+    ELEMENTS.forEach((el,ei)=>{
+      if(el.cat!==ci) return;
+      const c = document.createElement("div");
+      c.className = "cell";
+      c.style.background = heatColor(scores[ei]);
+      c.innerHTML = '<span class="nm">'+ENUM[el.key]+' '+el.short+'</span><span class="sc">'+scores[ei].toFixed(1)+'</span>';
+      grid.appendChild(c);
+    });
+  });
+
+  // 環境チェックと運用ルール(面談を担当する役割=リーダー・EL)
+  const isFacilitator = (sheet==="leader" || sheet==="el");
+  document.getElementById("leaderEnv").classList.toggle("hidden", !isFacilitator);
+  document.getElementById("leaderRules").classList.toggle("hidden", !isFacilitator);
+  if(isFacilitator){ renderEnv(); }
+
+  // 記入欄リセット
+  ["refStrength","refWeak","refEnv","refSkill"].forEach(id=>document.getElementById(id).value="");
+
+  // 次のシートへの導線
+  if(!doneThisSession.includes(sheet)) doneThisSession.push(sheet);
+  const other = roles.filter(id=>id!==sheet && !doneThisSession.includes(id));
+  const nw = document.getElementById("nextSheetWrap");
+  nw.innerHTML = "";
+  other.forEach(id=>{
+    const o = roleById(id);
+    nw.insertAdjacentHTML("beforeend",
+      '<button class="btn ghost" onclick="startQuiz(\''+id+'\')">続けて「'+o.label+'」のシートを受ける</button>');
+  });
+
+  // 2枚目以降はマインド共通の注記
+  const otherDone = doneThisSession.some(id=>id!==sheet);
+  document.getElementById("mindDupNote").style.display = otherDone ? "block" : "none";
+
+  // save(スコアは端末内に残すが、画面では前回比較を見せない)
+  const scoreObj = {};
+  ELEMENTS.forEach((el,ei)=>scoreObj[el.key]=scores[ei]);
+  const today = new Date();
+  const dateStr = today.getFullYear()+"/"+(today.getMonth()+1)+"/"+today.getDate();
+  saveEntry(sheet, {date:dateStr, scores:scoreObj});
+  window._lastScores = scores; window._dateStr = dateStr;
+}
+
+/* ===================== コピー ===================== */
+function copyResult(){
+  const scores = window._lastScores || elementScores();
+  const r = roleById(sheet);
+  let out = "■ 3×3成長シート("+(window._dateStr||"")+" / "+periodHere+"の状態)\n";
+  out += "役割:"+r.label+"\n";
+  CATS.forEach((cat,ci)=>{
+    out += "\n【"+cat.name+"】\n";
+    ELEMENTS.forEach((el,ei)=>{
+      if(el.cat!==ci) return;
+      out += "・"+ENUM[el.key]+" "+el.name+":"+scores[ei].toFixed(1)+"\n";
+    });
+  });
+  if((sheet==="leader" || sheet==="el") && envAnswers.some(a=>a!==null)){
+    out += "\n■ 環境の自己点検\n";
+    ENV_ITEMS.forEach((item,i)=>{
+      out += "・"+item+":"+(envAnswers[i]===null?"未回答":ENV_STATES[envAnswers[i]])+"\n";
+    });
+  }
+  const rs = document.getElementById("refStrength").value.trim();
+  if(rs) out += "\n■ よくできていたことの活かし方\n"+rs+"\n";
+  const rw = document.getElementById("refWeak").value.trim();
+  if(rw){
+    out += "\n■ できるようになる一歩(仮・面談で選び直す前提)\n"+rw+"\n";
+    updateLastEntryTryNext(sheet, rw);
+  }
+  const rk = document.getElementById("refSkill").value.trim();
+  if(rk) out += "\n■ 役割のスキルが伸びた行動・経験\n"+rk+"\n";
+  const re = document.getElementById("refEnv").value.trim();
+  if(re) out += "\n■ 環境について話したいこと\n"+re+"\n";
+  out += "\n※スコアは能力ではなく「"+periodHere+"の状態」。低い項目は環境要因も含めて面談で。";
+
+  const ta = document.createElement("textarea");
+  ta.value = out; document.body.appendChild(ta);
+  ta.select();
+  try{ document.execCommand("copy"); }catch(e){}
+  document.body.removeChild(ta);
+  if(navigator.clipboard){ navigator.clipboard.writeText(out).catch(()=>{}); }
+  const msg = document.getElementById("copiedMsg");
+  msg.classList.add("show");
+  setTimeout(()=>msg.classList.remove("show"), 2600);
+}
+
+/* ===================== その他 ===================== */
+function restart(){
+  document.getElementById("result").classList.add("hidden");
+  document.getElementById("intro").classList.remove("hidden");
+  renderSheetButtons();
+  window.scrollTo({top:0});
+}
+
+probeStorage();
+initRole();
+</script>
+</body>
+</html>
