@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>3×3 成長シート ─ 前回からの、あなたの地図</title>
+<style>
+  :root{
+    --bg:#F6F3ED; --ink:#241F1B; --muted:#6E665C; --line:#E4DDD1;
+    --terra:#C4614A; --terra-deep:#A04732; --paper:#FFFEFB; --ok:#5F7161;
+    --mind:#C4614A; --skill:#7A6A56; --know:#5F7161;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html{font-size:16px;}
+  body{background:var(--bg);color:var(--ink);
+    font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic Medium",Meiryo,sans-serif;
+    line-height:1.75;min-height:100vh;}
+  .wrap{max-width:640px;margin:0 auto;padding:24px 20px 64px;}
+
+  header{padding:8px 0 20px;border-bottom:1px solid var(--line);margin-bottom:22px;}
+  .eyebrow{font-size:.7rem;letter-spacing:.24em;color:var(--terra);font-weight:700;}
+  h1{font-size:1.4rem;font-weight:700;letter-spacing:.04em;margin-top:6px;}
+  h1 .x{color:var(--terra);}
+  .window-tag{display:inline-block;margin-top:10px;font-size:.78rem;color:var(--muted);
+    border:1px solid var(--line);border-radius:999px;padding:2px 12px;background:var(--paper);}
+
+  h2{font-size:1.02rem;font-weight:700;letter-spacing:.06em;margin:30px 0 10px;
+    padding-left:10px;border-left:3px solid var(--terra);}
+  .lead{font-size:.92rem;color:#3A342E;}
+  .lead + .lead{margin-top:10px;}
+  .note{margin-top:14px;padding:12px 14px;border-left:3px solid var(--terra);
+    background:#FBF1EC;font-size:.85rem;}
+  .note.calm{border-left-color:var(--ok);background:#EFF2EE;}
+  .hint{font-size:.75rem;color:var(--muted);margin:8px 0 0;}
+
+  .btn{display:block;width:100%;margin-top:14px;padding:15px;border:none;border-radius:10px;
+    background:var(--terra);color:#fff;font-size:1rem;font-weight:700;letter-spacing:.06em;
+    cursor:pointer;font-family:inherit;line-height:1.5;}
+  .btn:active{background:var(--terra-deep);}
+  .btn.ghost{background:transparent;color:var(--terra);border:1.5px solid var(--terra);}
+  .btn small{display:block;font-size:.72rem;font-weight:400;opacity:.85;margin-top:2px;}
+
+  /* 9要素マップ */
+  .minimap{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:14px 0 4px;}
+  .minimap .mrow{grid-column:1/-1;font-size:.68rem;letter-spacing:.12em;color:var(--muted);font-weight:700;margin-top:4px;}
+  .minimap .mcell{border-radius:8px;padding:8px 4px;text-align:center;font-size:.68rem;font-weight:700;
+    line-height:1.35;color:#fff;white-space:pre-line;}
+  .minimap .a0{background:var(--mind);} .minimap .a1{background:var(--skill);} .minimap .a2{background:var(--know);}
+
+  details.fold{margin:10px 0 4px;border-top:1px solid var(--line);padding-top:10px;}
+  details.fold summary{font-size:.82rem;color:var(--terra);cursor:pointer;list-style:none;font-weight:700;}
+  details.fold summary::before{content:"▸ ";}
+  details.fold[open] summary::before{content:"▾ ";}
+  details.fold p.d{font-size:.8rem;color:#3A342E;margin-top:6px;}
+
+  /* quiz */
+  .progress{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin-bottom:10px;}
+  .progress i{display:block;height:100%;background:var(--terra);width:0;transition:width .25s;}
+  .qmeta{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;}
+  .chip{font-size:.68rem;font-weight:700;letter-spacing:.1em;color:#fff;border-radius:4px;padding:2px 9px;}
+  .chip.c0{background:var(--mind);} .chip.c1{background:var(--skill);} .chip.c2{background:var(--know);}
+  .el-name{font-size:.78rem;color:var(--muted);}
+  .qcount{margin-left:auto;font-size:.72rem;color:var(--muted);letter-spacing:.08em;}
+  .qwindow{font-size:.75rem;color:var(--terra);font-weight:700;letter-spacing:.06em;margin:14px 0 2px;}
+  .qtext{font-size:1.05rem;font-weight:600;min-height:4.2em;}
+  .scale{display:flex;flex-direction:column;gap:8px;margin-top:16px;}
+  .scale button{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;
+    background:var(--paper);border:1px solid var(--line);border-radius:10px;cursor:pointer;
+    font-family:inherit;font-size:.9rem;color:var(--ink);text-align:left;}
+  .scale button:active{border-color:var(--terra);background:#FBF1EC;}
+  .scale .num{flex:0 0 26px;height:26px;border-radius:50%;border:1.5px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:.78rem;color:var(--muted);}
+  .backline{margin-top:18px;text-align:center;}
+  .backline button{background:none;border:none;color:var(--muted);font-size:.8rem;
+    cursor:pointer;font-family:inherit;text-decoration:underline;}
+
+  /* result */
+  .grid33{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;}
+  .cell{border-radius:10px;padding:14px 6px 8px;text-align:center;color:var(--ink);
+    display:flex;flex-direction:column;justify-content:center;min-height:92px;position:relative;}
+  .cell .nm{font-size:.68rem;font-weight:700;line-height:1.35;white-space:pre-line;}
+  .cell .sc{font-size:1.05rem;font-weight:700;margin-top:4px;}
+  .cell .prev{font-size:.62rem;color:rgba(36,31,27,.62);margin-top:1px;letter-spacing:.02em;}
+  .cell .delta{position:absolute;top:5px;right:5px;font-size:.66rem;font-weight:700;
+    background:rgba(255,255,255,.92);border-radius:999px;padding:1px 7px;line-height:1.6;}
+  .delta.up{color:var(--terra-deep);} .delta.down{color:#5A6B7C;} .delta.flat{color:var(--muted);}
+  .rowlabel{grid-column:1/-1;font-size:.72rem;letter-spacing:.14em;color:var(--muted);
+    font-weight:700;margin-top:6px;}
+  .legend{display:flex;gap:16px;justify-content:center;margin-top:12px;font-size:.72rem;color:var(--muted);}
+  .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px;}
+
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:12px;
+    padding:16px;margin-top:10px;font-size:.9rem;}
+  .card b.tag{display:inline-block;font-size:.72rem;letter-spacing:.1em;color:var(--terra);margin-bottom:4px;}
+  .card .elname{font-weight:700;font-size:.95rem;}
+  .card p{margin-top:6px;color:#3A342E;font-size:.85rem;}
+
+  .paper-note{background:repeating-linear-gradient(transparent,transparent 27px,#EAE3D6 27px,#EAE3D6 28px);
+    background-color:var(--paper);border:1px solid var(--line);border-radius:12px;
+    padding:18px;margin-top:12px;}
+  .paper-note label{display:block;font-size:.85rem;font-weight:700;margin-bottom:8px;}
+  .paper-note textarea{width:100%;min-height:100px;border:none;background:transparent;resize:vertical;
+    font-family:"Hiragino Mincho ProN","Yu Mincho",serif;font-size:.95rem;line-height:28px;
+    color:var(--ink);outline:none;}
+  .paper-note textarea.oneline{min-height:56px;}
+  .paper-note textarea::placeholder{color:#B9B0A2;}
+
+  .copied{color:var(--ok);font-size:.82rem;text-align:center;margin-top:8px;visibility:hidden;}
+  .copied.show{visibility:visible;}
+  .hidden{display:none;}
+  footer{margin-top:44px;font-size:.68rem;color:var(--muted);text-align:center;letter-spacing:.06em;line-height:1.9;}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+  .scale button:focus-visible,.btn:focus-visible{outline:2px solid var(--terra-deep);outline-offset:2px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">GROWTH 3×3 SELF-CHECK</div>
+    <h1>マインド <span class="x">×</span> スキル <span class="x">×</span> 知識</h1>
+    <span class="window-tag">前回からの、あなたの地図</span>
+  </header>
+
+  <!-- ================= INTRO ================= -->
+  <section id="intro" class="hidden">
+    <p class="lead">これは、9つの要素でできた<strong>「成長の地図」</strong>の、いまのあなたの状態を映すシートです。職種や役割は問いません。</p>
+    <div class="minimap" id="miniMap"></div>
+    <details class="fold">
+      <summary>9要素をくわしく見る</summary>
+      <div id="mapDetail"></div>
+    </details>
+
+    <p class="lead" style="margin-top:16px;">測るのは「あなたの能力」ではなく、<strong>いまのあなたの状態</strong>です。だから結果は毎回変わりますし、変わっていいものです。</p>
+    <p class="lead">27の質問すべてに、<span class="period-for">これまでに</span><strong>実際にどれくらいあったか</strong>で答えてください。「そう思うか」ではなく「あったか」。思い出せる範囲で正直に、が一番役に立ちます。</p>
+
+    <div class="note calm" id="historyNote" style="display:none;"></div>
+    <div class="note" id="storageWarn" style="display:none;border-left-color:#B5843A;background:#FBF4E8;">この端末では記録を保存できない設定になっているようです(プライベートブラウズ等)。診断は使えますが、<strong>前回との比較は残りません</strong>。結果は毎回「コピー」で控えておくことをおすすめします。</div>
+    <div class="note">低い項目は「あなたの欠点」ではなく、<strong>これから伸びる場所</strong>。環境がそうさせていることもあるので、面談で話す材料にしてください。</div>
+    <div class="note calm">回答と記録は<strong>この端末の中だけ</strong>に保存されます。外部への送信は一切ありません。2回目からは<strong>前回との差が各マスに出ます</strong>が、これもこの端末の中だけの話です。外に出るのは、最後に自分で「コピー」した内容だけです。</div>
+
+    <button class="btn" id="startBtn" onclick="startQuiz()">はじめる<small id="startSub"></small></button>
+  </section>
+
+  <!-- ================= QUIZ ================= -->
+  <section id="quiz" class="hidden">
+    <div class="progress"><i id="pbar"></i></div>
+    <div class="qmeta">
+      <span class="chip" id="qchip"></span>
+      <span class="el-name" id="qel"></span>
+      <span class="qcount" id="qcount"></span>
+    </div>
+    <p class="qwindow"><span class="period-for">これまでに</span> ──</p>
+    <p class="qtext" id="qtext"></p>
+    <div class="scale" id="qscale"></div>
+    <div class="backline"><button onclick="goBack()" id="backbtn">← ひとつ前に戻る</button></div>
+  </section>
+
+  <!-- ================= RESULT ================= -->
+  <section id="result" class="hidden">
+    <h2 id="resultTitle">3×3 マップ</h2>
+    <p class="hint" style="margin-top:0;">色の濃さは「どれくらいあったか」。<strong>低い＝ダメではなく「今は、力を出しにくい場所」</strong>です。9つのマスを自分で眺めて、気づいたことを下に書き、次の一歩を1つ決めれば十分です。</p>
+    <p class="hint" id="compareHint" style="display:none;"></p>
+    <div class="grid33" id="grid"></div>
+    <div class="legend">
+      <span><i style="background:#F3E4DE"></i>1.0</span>
+      <span><i style="background:#DDA08E"></i>3.0</span>
+      <span><i style="background:#C4614A"></i>5.0</span>
+    </div>
+    <div class="note calm" id="compareNote" style="display:none;"></div>
+    <div class="note calm">低い項目は「あなたの欠点」ではありません。とくにマインド(①〜③)は、スキルや知識が育つための<strong>土台</strong>。挑戦して「できた」と感じる経験が積み重なって、少しずつ固まっていくものです。あせらなくて大丈夫。</div>
+
+    <h2>自分の言葉で書く</h2>
+    <p class="hint">質問に答えるとき、頭に浮かんだ場面がありますよね。そのとき、何が起きていた?——それが、下に書く内容のヒントになります。きれいな文章でなくて大丈夫。</p>
+    <div class="paper-note">
+      <label for="refStrength">① よくできていたことを、次にどう活かす?</label>
+      <textarea id="refStrength" placeholder="よくできていたことと、その活かし方を一言。"></textarea>
+    </div>
+    <div class="paper-note">
+      <label for="refWeak">② 今できていないことを、できるようになる一歩は?<span style="font-weight:400;font-size:.78rem;">(仮でOK・空欄でもOK。面談で選択肢を出して選び直す前提です)</span></label>
+      <textarea id="refWeak" placeholder="思いつく範囲で。仮でOK。"></textarea>
+    </div>
+    <div class="paper-note">
+      <label for="refSkill">③ 自分の仕事のスキルが伸びるような行動や経験は、最近あった?<span style="font-weight:400;font-size:.78rem;">(なければ、次にひとつ意識してみることから)</span></label>
+      <textarea id="refSkill" class="oneline" placeholder="例:提案の引き出しを増やしたくて、先輩のやり方を1回横で見て学んだ。"></textarea>
+    </div>
+    <div class="paper-note">
+      <label for="refEnv">④ 環境について話したいことがあれば一言</label>
+      <textarea id="refEnv" class="oneline" placeholder="例:目の前の作業に追われて、試す時間がとれなかった。進め方を相談したい。"></textarea>
+    </div>
+
+    <!-- ===== 人を育てる立場の人向け(任意) ===== -->
+    <details class="fold" style="margin-top:22px;">
+      <summary>人を育てる立場の人へ ── 環境の自己点検</summary>
+      <p class="hint">9要素は、挑戦が承認される環境の中でだけ育ちます。その環境をつくるのが、人を育てる立場の仕事——ここはあなた自身の振り返りです。</p>
+      <div id="envList"></div>
+      <div class="note calm">「まだ」が多くても大丈夫。これも能力ではなく<strong>今の状態</strong>です。ひとつ選んで、次に自分が「試すこと」にしてください。</div>
+    </details>
+
+    <details class="fold">
+      <summary>人を育てる立場の人へ ── チームで使うときの3つの約束</summary>
+      <div class="card"><b class="tag">RULE 1</b><div class="elname">個別チャットに貼る</div><p>結果の共有は面談の個別チャットのみ。全体に見える場所には貼らない・貼らせない。正直な回答は、見られない安心の上にしか成立しません。</p></div>
+      <div class="card"><b class="tag">RULE 2</b><div class="elname">初回は一緒に、2回目からは前日までに</div><p>最初の1回は宿題にしない。面談の場で一緒に埋めます。提出物になった瞬間に「よく見せたい」が働いて、鏡が曇るからです。自分のぶんも同じ場で埋めて、自分の低い項目を先に見せる。2回目からは前日までの共有をお願いし、事前に読んでから面談へ。当日の最初の10分を「結果の説明」ではなく「環境について話したいこと」から始められます。</p></div>
+      <div class="card"><b class="tag">RULE 3</b><div class="elname">スコアを指導に使わない</div><p>「この項目低いね」とやった瞬間、次から全員のスコアが嘘になります。読むのは数字ではなく、本人が書いた言葉。低い項目は、まず環境要因を疑うのが育てる側の仕事です。前回との差も同じで、下がったことを咎めない。上下は<strong>状態の記録であって、成績ではありません</strong>。</p></div>
+    </details>
+
+    <button class="btn" onclick="copyResult()">結果をコピーする(面談・日誌用)</button>
+    <p class="copied" id="copiedMsg">コピーしました。面談や振り返りでそのまま使えます。</p>
+    <button class="btn ghost" onclick="restart()">最初にもどる</button>
+  </section>
+
+  <footer>
+    成長 ── マインド × スキル × 知識。3つは互いに増幅し合う。
+  </footer>
+</div>
+
+<script>
+/* ===================== データ定義 ===================== */
+const CATS = [
+  {id:0,name:"マインド",row:"マインド ── 仕事への構え",chip:"chip c0",mini:"a0"},
+  {id:1,name:"スキル",row:"スキル ── 対人と思考",chip:"chip c1",mini:"a1"},
+  {id:2,name:"知識",row:"知識 ── 判断と行動の基盤",chip:"chip c2",mini:"a2"},
+];
+
+const SCALE = [
+  {v:1,label:"なかった"},
+  {v:2,label:"1〜2回あった"},
+  {v:3,label:"ときどきあった"},
+  {v:4,label:"よくあった"},
+  {v:5,label:"ほぼ毎日のようにあった"},
+];
+
+// 9要素 × 各3問 = 27問。職種・役割を問わず答えられる共通の設問。
+const ELEMENTS = [
+  // --- マインド ---
+  {cat:0,key:"m1",name:"成長を信じる力",short:"成長を\n信じる力",
+   desc:"自分も相手も「やれば変わる」と見なす能力観(いわゆる成長マインドセット)",
+   qs:["うまくいかなかったことを「次はこうすれば伸びる」と捉え直したことがある",
+       "練習や経験を重ねて、以前できなかったことができるようになった実感があった",
+       "まわりの人の成長や変化を見て「自分もやれば変わる」と感じた場面があった"]},
+  {cat:0,key:"m2",name:"主体性・当事者意識",short:"主体性・\n当事者意識",
+   desc:"仕事と課題を自分ごとと捉える構え",
+   qs:["指示される前に「今必要なこと」を自分で見つけて動いたことがある",
+       "職場の課題について「自分にできること」を考えたことがある",
+       "朝礼・ミーティング・日常会話で、自分の意見や提案を口にしたことがある"]},
+  {cat:0,key:"m3",name:"他者への関心",short:"他者への\n関心",
+   desc:"まわりの人の変化に気づき、力になりたいと思う志向",
+   qs:["まわりの人の様子の変化(調子・表情・成長)に気づいて、声をかけたことがある",
+       "目の前の人の小さな変化に気づいて、関わり方を変えたことがある",
+       "頼まれていないのに、誰かの仕事がうまくいくよう手を貸したことがある"]},
+  // --- スキル ---
+  {cat:1,key:"s1",name:"ヒューマンスキル(対人)",short:"ヒューマン\nスキル",
+   desc:"聴く・伝える・協働する対人関係の力",
+   qs:["相手の話を、途中でさえぎらず最後まで聴けたことがある",
+       "相手のタイプや様子に合わせて、言葉や伝え方を変えたことがある",
+       "意見や立場が違う相手と、話しながら落としどころを見つけたことがある"]},
+  {cat:1,key:"s2",name:"コンセプチュアルスキル(思考)",short:"コンセプチュアル\nスキル",
+   desc:"論理的に考え、本質を捉え、新しいやり方を発想し、問題を解決する力",
+   qs:["うまくいった/いかなかったとき、何が効いたのかを考えたことがある",
+       "起きたことを「要するにこういうこと」と捉え直したことがある",
+       "ある場面でうまくいったやり方を、別の場面でも試したことがある"]},
+  {cat:1,key:"s3",name:"リフレクションスキル(思考)",short:"リフレクション\nスキル",
+   desc:"振り返り、自分を客観視し、次の行動を決める力",
+   qs:["仕事のあとで、うまくいった理由・いかなかった理由を振り返ったことがある",
+       "振り返りから「次はこうする」を具体的に1つ決めたことがある",
+       "自分のクセや、思い込んでいたことに気づいた場面があった"]},
+  // --- 知識 ---
+  {cat:2,key:"k1",name:"専門知識",short:"専門知識",
+   desc:"自分の仕事に直結する知識と、それを言葉にする力",
+   qs:["自分の仕事のやり方やコツを、自分の言葉で人に説明できたことがある",
+       "自分の担当まわりで、新しく学んだことがある",
+       "わからないことを、その場で調べたり人に聞いたりしたことがある"]},
+  {cat:2,key:"k2",name:"相手と外の状況の知識",short:"相手と外の\n状況の知識",
+   desc:"関わる相手(顧客・メンバー・取引先)と、市場や組織の文脈の理解",
+   qs:["自分が関わる相手の傾向やニーズについて、新しい気づきがあった",
+       "外で見聞きしたこと(他社の事例・SNS・本など)を、自分の仕事に関係づけて考えたことがある",
+       "会社の施策や方針の「なぜ」を理解して動けた場面があった"]},
+  {cat:2,key:"k3",name:"学び方の知識",short:"学び方の\n知識",
+   desc:"自分の学び方・習慣化・アドバイスの活かし方",
+   qs:["自分に合った学び方を使って、仕事の幅を広げようとしたことがある",
+       "もらったアドバイスを、実際の仕事で試したことがある",
+       "振り返りや練習を、続けられるように工夫したことがある"]},
+];
+
+// 要素キー→丸数字(①〜⑨)
+const ENUM = {m1:"①",m2:"②",m3:"③",s1:"④",s2:"⑤",s3:"⑥",k1:"⑦",k2:"⑧",k3:"⑨"};
+
+/* ===================== 状態 ===================== */
+const HKEY = "growth33-history";
+// 期間表現:前回の記録があれば「前回から」、なければ(初回)「これまで」
+let periodHere = "これまで";
+let periodFor  = "これまでに";
+function setPeriod(){
+  const has = readHistory().length>0;
+  periodHere = has ? "前回から今日まで" : "これまで";
+  periodFor  = has ? "前回から今日までで" : "これまでに";
+}
+function applyPeriodText(){
+  document.querySelectorAll(".period-here").forEach(e=>{ e.textContent = periodHere; });
+  document.querySelectorAll(".period-for").forEach(e=>{ e.textContent = periodFor; });
+}
+let answers = [];
+let idx = 0;
+let prevEntry = null;   // 前回の記録
+let storageOK = false;
+
+/* ===================== 9要素マップ ===================== */
+function renderMiniMap(){
+  const wrap = document.getElementById("miniMap");
+  wrap.innerHTML = "";
+  CATS.forEach((cat,ci)=>{
+    wrap.insertAdjacentHTML("beforeend",'<div class="mrow">'+cat.row+'</div>');
+    ELEMENTS.forEach(el=>{
+      if(el.cat!==ci) return;
+      wrap.insertAdjacentHTML("beforeend",'<div class="mcell '+cat.mini+'">'+ENUM[el.key]+' '+el.short+'</div>');
+    });
+  });
+  const det = document.getElementById("mapDetail");
+  det.innerHTML = "";
+  ELEMENTS.forEach(el=>{
+    det.insertAdjacentHTML("beforeend",'<p class="d"><strong>'+ENUM[el.key]+' '+el.name+'</strong> ── '+el.desc+'</p>');
+  });
+}
+
+/* ===================== 保存 ===================== */
+function readHistory(){
+  try{
+    const raw = localStorage.getItem(HKEY);
+    if(!raw) return [];
+    const h = JSON.parse(raw);
+    return Array.isArray(h)?h:[];
+  }catch(e){ return []; }
+}
+function probeStorage(){
+  try{ localStorage.setItem("growth33-probe","1"); storageOK = true; }
+  catch(e){ storageOK = false; }
+}
+function saveEntry(entry){
+  if(!storageOK) return;
+  try{
+    let h = readHistory();
+    h.push(entry);
+    if(h.length>12) h = h.slice(-12);
+    localStorage.setItem(HKEY, JSON.stringify(h));
+  }catch(e){}
+}
+function updateLastEntryTryNext(text){
+  if(!storageOK) return;
+  try{
+    let h = readHistory();
+    if(h.length){ h[h.length-1].tryNext = text; localStorage.setItem(HKEY, JSON.stringify(h)); }
+  }catch(e){}
+}
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+/* ===================== 前回比較 ===================== */
+// 差の記号。0.05未満は「変化なし」として扱う(平均値の丸め誤差対策)
+function deltaOf(now, prev){
+  const d = +(now-prev).toFixed(1);
+  if(d > 0.05)  return {cls:"up",   sym:"▲"+d.toFixed(1), d:d};
+  if(d < -0.05) return {cls:"down", sym:"▼"+Math.abs(d).toFixed(1), d:d};
+  return {cls:"flat", sym:"±0", d:0};
+}
+function daysSince(dateStr){
+  try{
+    const parts = dateStr.split("/").map(Number);
+    const then = new Date(parts[0], parts[1]-1, parts[2]);
+    return Math.floor((Date.now()-then.getTime())/86400000);
+  }catch(e){ return null; }
+}
+
+/* ===================== イントロ ===================== */
+function renderIntro(){
+  document.getElementById("storageWarn").style.display = storageOK ? "none" : "block";
+  setPeriod();
+  applyPeriodText();
+  const hist = readHistory();
+  const last = hist.length ? hist[hist.length-1] : null;
+  const sub = document.getElementById("startSub");
+  const n = document.getElementById("historyNote");
+  if(last){
+    const d = daysSince(last.date);
+    sub.textContent = (d!==null && d>120)
+      ? "前回:"+last.date+"(かなり前・比較は参考程度に)"
+      : "前回:"+last.date;
+    let m = "前回の記録:"+last.date;
+    if(last.tryNext) m += "<br>前回の「最初の一歩(仮)」:"+escapeHtml(last.tryNext);
+    n.style.display = "block";
+    n.innerHTML = m + "<br>やれたかどうかより、「やってみてどうだったか」を面談で話すのが本番です。";
+  }else{
+    sub.textContent = "はじめての記録";
+    n.style.display = "none";
+  }
+}
+
+/* ===================== 診断 ===================== */
+const QUESTIONS = [];
+ELEMENTS.forEach((el,ei)=>{ for(let qi=0;qi<3;qi++) QUESTIONS.push({ei,qi}); });
+
+function startQuiz(){
+  const h = readHistory();
+  prevEntry = h.length ? h[h.length-1] : null;
+  setPeriod();
+  applyPeriodText();
+  answers = new Array(QUESTIONS.length).fill(null);
+  idx = 0;
+  document.getElementById("intro").classList.add("hidden");
+  document.getElementById("result").classList.add("hidden");
+  document.getElementById("quiz").classList.remove("hidden");
+  renderQ();
+  window.scrollTo({top:0});
+}
+function renderQ(){
+  const q = QUESTIONS[idx], el = ELEMENTS[q.ei], cat = CATS[el.cat];
+  document.getElementById("pbar").style.width = (idx/QUESTIONS.length*100)+"%";
+  const chip = document.getElementById("qchip");
+  chip.className = cat.chip;
+  // 大項目内の位置(マインド/スキル/知識それぞれ3要素×3問=9問)
+  const inCat = (idx - el.cat*9) + 1;
+  chip.textContent = cat.name+"(全9問中 "+inCat+")";
+  document.getElementById("qel").textContent = ENUM[el.key]+" "+el.name;
+  document.getElementById("qcount").textContent = "全"+(idx+1)+" / "+QUESTIONS.length;
+  document.getElementById("qtext").textContent = el.qs[q.qi];
+  const sc = document.getElementById("qscale");
+  sc.innerHTML = "";
+  SCALE.forEach(s=>{
+    const b = document.createElement("button");
+    b.innerHTML = '<span class="num">'+s.v+'</span><span>'+s.label+'</span>';
+    b.onclick = ()=>{ answers[idx]=s.v; idx++;
+      (idx>=QUESTIONS.length) ? finish() : renderQ(); };
+    sc.appendChild(b);
+  });
+  document.getElementById("backbtn").style.visibility = idx===0 ? "hidden":"visible";
+}
+function goBack(){ if(idx>0){ idx--; renderQ(); } }
+
+/* ===================== 結果 ===================== */
+function elementScores(){
+  return ELEMENTS.map((el,ei)=>{
+    const vals = QUESTIONS.map((q,i)=>q.ei===ei?answers[i]:null).filter(v=>v!==null);
+    return +(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1);
+  });
+}
+function heatColor(s){
+  const t = (s-1)/4;
+  const mix=(a,b)=>Math.round(a+(b-a)*t);
+  return "rgb("+mix(243,196)+","+mix(228,97)+","+mix(222,74)+")";
+}
+const ENV_ITEMS = [
+  "相手の「やってみた」を、結果に関係なく認める言葉をかけた",
+  "この結果や低い項目を、指導や評価の材料に使わなかった",
+  "相手が意見・提案を口にできる場(朝礼・雑談・チャット)を意図的に作った",
+  "相手が失敗を話したとき、責めずに「共有してくれてありがとう」とまず返した",
+  "一人ひとりに、少し背伸びの挑戦機会(役割・任せる仕事)を配った",
+  "自分の弱さや課題も、隠さず上司や仲間に見せられた",
+];
+const ENV_STATES = ["できた","一部","まだ"];
+let envAnswers = [];
+function renderEnv(){
+  envAnswers = new Array(ENV_ITEMS.length).fill(null);
+  const wrap = document.getElementById("envList");
+  wrap.innerHTML = "";
+  ENV_ITEMS.forEach((item,i)=>{
+    const div = document.createElement("div");
+    div.className = "card";
+    let btns = ENV_STATES.map((s,si)=>
+      '<button type="button" class="envbtn" data-i="'+i+'" data-si="'+si+'" '+
+      'style="margin-right:6px;padding:5px 14px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-family:inherit;font-size:.8rem;cursor:pointer;">'+s+'</button>'
+    ).join("");
+    div.innerHTML = '<p style="margin-top:0;color:var(--ink);">'+item+'</p><div style="margin-top:8px;">'+btns+'</div>';
+    wrap.appendChild(div);
+  });
+  wrap.querySelectorAll(".envbtn").forEach(b=>{
+    b.onclick = ()=>{
+      const i = +b.dataset.i, si = +b.dataset.si;
+      envAnswers[i] = si;
+      wrap.querySelectorAll('.envbtn[data-i="'+i+'"]').forEach(x=>{
+        x.style.background = "var(--paper)"; x.style.color = "var(--ink)"; x.style.borderColor = "var(--line)";
+      });
+      b.style.background = "var(--terra)"; b.style.color = "#fff"; b.style.borderColor = "var(--terra)";
+    };
+  });
+}
+
+function finish(){
+  document.getElementById("quiz").classList.add("hidden");
+  document.getElementById("result").classList.remove("hidden");
+  applyPeriodText();
+  window.scrollTo({top:0});
+
+  document.getElementById("resultTitle").textContent = periodHere+"の 3×3 マップ";
+
+  const scores = elementScores();
+  const prevScores = (prevEntry && prevEntry.scores) ? prevEntry.scores : null;
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+  CATS.forEach((cat,ci)=>{
+    grid.insertAdjacentHTML("beforeend",'<div class="rowlabel">'+cat.row+'</div>');
+    ELEMENTS.forEach((el,ei)=>{
+      if(el.cat!==ci) return;
+      const c = document.createElement("div");
+      c.className = "cell";
+      c.style.background = heatColor(scores[ei]);
+      let html = "";
+      const hasPrev = prevScores && typeof prevScores[el.key]==="number";
+      if(hasPrev){
+        const dt = deltaOf(scores[ei], prevScores[el.key]);
+        html += '<span class="delta '+dt.cls+'">'+dt.sym+'</span>';
+      }
+      html += '<span class="nm">'+ENUM[el.key]+' '+el.short+'</span>';
+      html += '<span class="sc">'+scores[ei].toFixed(1)+'</span>';
+      if(hasPrev){
+        html += '<span class="prev">前回 '+prevScores[el.key].toFixed(1)+'</span>';
+      }
+      c.innerHTML = html;
+      grid.appendChild(c);
+    });
+  });
+
+  // 前回比較の案内(この端末の中だけの記録)
+  const cHint = document.getElementById("compareHint");
+  const cNote = document.getElementById("compareNote");
+  if(prevScores){
+    cHint.style.display = "block";
+    cHint.textContent = "右上の▲▼は、前回("+prevEntry.date+")との差です。";
+    cNote.style.display = "block";
+    cNote.innerHTML = "この比較は<strong>この端末の中だけ</strong>にあります。誰かに自動で送られることはありません。"+
+      "上がった項目は「動いてみたら、変わった」という手応えとして見てください。下がった項目は<strong>この期間の状態</strong>であって、"+
+      "成績が落ちたわけではありません。忙しさや任され方でいくらでも動きます。";
+  }else{
+    cHint.style.display = "none";
+    cNote.style.display = "block";
+    cNote.innerHTML = "今回が最初の記録です。<strong>次に受けたときから、前回との差が各マスに出ます</strong>。"+
+      "やってみたことが自分に返ってくるのは、そこからです。";
+  }
+
+  renderEnv();
+
+  // 記入欄リセット
+  ["refStrength","refWeak","refEnv","refSkill"].forEach(id=>document.getElementById(id).value="");
+
+  // save(端末内に記録。次回この記録が「前回」として各マスに返る)
+  const scoreObj = {};
+  ELEMENTS.forEach((el,ei)=>scoreObj[el.key]=scores[ei]);
+  const today = new Date();
+  const dateStr = today.getFullYear()+"/"+(today.getMonth()+1)+"/"+today.getDate();
+  saveEntry({date:dateStr, scores:scoreObj});
+  window._lastScores = scores; window._dateStr = dateStr;
+}
+
+/* ===================== コピー ===================== */
+function copyResult(){
+  const scores = window._lastScores || elementScores();
+  const prevScores = (prevEntry && prevEntry.scores) ? prevEntry.scores : null;
+  let out = "■ 3×3成長シート("+(window._dateStr||"")+" / "+periodHere+"の状態)\n";
+  if(prevScores) out += "※カッコ内は前回("+prevEntry.date+")との比較\n";
+  CATS.forEach((cat,ci)=>{
+    out += "\n【"+cat.name+"】\n";
+    ELEMENTS.forEach((el,ei)=>{
+      if(el.cat!==ci) return;
+      let line = "・"+ENUM[el.key]+" "+el.name+":"+scores[ei].toFixed(1);
+      if(prevScores && typeof prevScores[el.key]==="number"){
+        const dt = deltaOf(scores[ei], prevScores[el.key]);
+        line += "(前回 "+prevScores[el.key].toFixed(1)+" → "+dt.sym+")";
+      }
+      out += line+"\n";
+    });
+  });
+  if(envAnswers.some(a=>a!==null)){
+    out += "\n■ 環境の自己点検\n";
+    ENV_ITEMS.forEach((item,i)=>{
+      out += "・"+item+":"+(envAnswers[i]===null?"未回答":ENV_STATES[envAnswers[i]])+"\n";
+    });
+  }
+  const rs = document.getElementById("refStrength").value.trim();
+  if(rs) out += "\n■ よくできていたことの活かし方\n"+rs+"\n";
+  const rw = document.getElementById("refWeak").value.trim();
+  if(rw){
+    out += "\n■ できるようになる一歩(仮・面談で選び直す前提)\n"+rw+"\n";
+    updateLastEntryTryNext(rw);
+  }
+  const rk = document.getElementById("refSkill").value.trim();
+  if(rk) out += "\n■ スキルが伸びた行動・経験\n"+rk+"\n";
+  const re = document.getElementById("refEnv").value.trim();
+  if(re) out += "\n■ 環境について話したいこと\n"+re+"\n";
+  out += "\n※スコアは能力ではなく「"+periodHere+"の状態」。低い項目や下がった項目は、環境要因も含めて面談で。";
+
+  const ta = document.createElement("textarea");
+  ta.value = out; document.body.appendChild(ta);
+  ta.select();
+  try{ document.execCommand("copy"); }catch(e){}
+  document.body.removeChild(ta);
+  if(navigator.clipboard){ navigator.clipboard.writeText(out).catch(()=>{}); }
+  const msg = document.getElementById("copiedMsg");
+  msg.classList.add("show");
+  setTimeout(()=>msg.classList.remove("show"), 2600);
+}
+
+/* ===================== その他 ===================== */
+function restart(){
+  document.getElementById("result").classList.add("hidden");
+  document.getElementById("intro").classList.remove("hidden");
+  renderIntro();
+  window.scrollTo({top:0});
+}
+
+probeStorage();
+renderMiniMap();
+renderIntro();
+document.getElementById("intro").classList.remove("hidden");
+</script>
+</body>
+</html>
